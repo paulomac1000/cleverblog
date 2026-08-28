@@ -27,6 +27,7 @@ export const Users: CollectionConfig = {
       type: 'select',
       defaultValue: 'editor',
       required: true,
+      saveToJWT: true,
       options: [
         { label: 'Admin', value: 'admin' },
         { label: 'Editor', value: 'editor' },
@@ -36,4 +37,14 @@ export const Users: CollectionConfig = {
       ],
     },
   ],
+  hooks: {
+    beforeChange: [
+      async ({ data, operation, req }) => {
+        if (operation !== 'create') return data
+        const existing = await req.payload.count({ collection: 'users', overrideAccess: true })
+        if (existing.totalDocs === 0) return { ...data, role: 'admin' }
+        return data
+      },
+    ],
+  },
 }

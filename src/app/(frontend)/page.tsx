@@ -1,11 +1,37 @@
 import Link from 'next/link'
 import config from '@payload-config'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
 export const dynamic = 'force-dynamic'
 
-export default async function HomePage() {
+type Props = { searchParams: Promise<{ p?: string | string[] }> }
+
+export default async function HomePage({ searchParams }: Props) {
   const payload = await getPayload({ config })
+  const { p } = await searchParams
+  const legacyID = Array.isArray(p) ? p[0] : p
+
+  if (legacyID) {
+    const wordpressId = Number(legacyID)
+    if (!Number.isSafeInteger(wordpressId) || wordpressId <= 0) notFound()
+
+    const legacy = await payload.find({
+      collection: 'posts',
+      limit: 1,
+      overrideAccess: true,
+      where: {
+        and: [
+          { 'legacy.wordpressId': { equals: wordpressId } },
+          { _status: { equals: 'published' } },
+        ],
+      },
+    })
+
+    if (!legacy.docs[0]) notFound()
+    permanentRedirect(`/articles/${legacy.docs[0].slug}`)
+  }
+
   const result = await payload.find({
     collection: 'posts',
     limit: 12,

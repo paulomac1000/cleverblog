@@ -1,12 +1,12 @@
 import type { CollectionConfig } from 'payload'
 
-import { allowRoles } from '@/access/roles'
+import { allowRoles, hasRole } from '@/access/roles'
 
 export const Comments: CollectionConfig = {
   slug: 'comments',
   access: {
     read: ({ req }) => {
-      if (req.user) return allowRoles('admin', 'editor', 'agent-moderator')({ req })
+      if (hasRole(req.user, ['admin', 'editor', 'agent-moderator'])) return true
       return { status: { equals: 'approved' } }
     },
     create: () => false,
@@ -18,7 +18,11 @@ export const Comments: CollectionConfig = {
     { name: 'post', type: 'relationship', relationTo: 'posts', required: true, index: true },
     { name: 'parent', type: 'relationship', relationTo: 'comments' },
     { name: 'authorName', type: 'text', required: true },
-    { name: 'authorEmail', type: 'email', access: { read: allowRoles('admin', 'editor') } },
+    {
+      name: 'authorEmail',
+      type: 'email',
+      access: { read: ({ req }) => hasRole(req.user, ['admin', 'editor']) },
+    },
     { name: 'authorUrl', type: 'text' },
     { name: 'content', type: 'textarea', required: true },
     {

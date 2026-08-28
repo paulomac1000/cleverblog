@@ -4,24 +4,30 @@ import { getUserRole } from '@/access/roles'
 
 type AnyRecord = Record<string, unknown>
 
+type PublicationGateInput = {
+  context?: AnyRecord
+  data: unknown
+  originalDoc?: unknown
+  user?: unknown
+}
+
 const objectValue = (value: unknown): AnyRecord =>
   value && typeof value === 'object' ? (value as AnyRecord) : {}
 
-export const enforcePostPublicationGate: CollectionBeforeChangeHook = ({
-  context,
+export const assertPostPublicationAllowed = ({
+  context = {},
   data,
   originalDoc,
-  req,
-}) => {
+  user,
+}: PublicationGateInput): void => {
   const next = objectValue(data)
   const previous = objectValue(originalDoc)
   const status = next._status ?? previous._status
 
-  if (status !== 'published') return data
+  if (status !== 'published') return
+  if (context.wordpressMigration === true) return
 
-  if (context.wordpressMigration === true) return data
-
-  const role = getUserRole(req.user)
+  const role = getUserRole(user)
   if (role?.startsWith('agent-')) {
     throw new Error('Agent identities are not allowed to publish posts. Save a draft instead.')
   }
@@ -39,6 +45,14 @@ export const enforcePostPublicationGate: CollectionBeforeChangeHook = ({
   if (review.status !== 'approved') {
     throw new Error('Publication requires review.status=approved.')
   }
+}
 
+export const enforcePostPublicationGate: CollectionBeforeChangeHook = ({
+  context,
+  data,
+  originalDoc,
+  req,
+}) => {
+  assertPostPublicationAllowed({ context, data, originalDoc, user: req.user })
   return data
 }
