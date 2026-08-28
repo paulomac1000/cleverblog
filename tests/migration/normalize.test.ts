@@ -9,6 +9,7 @@ const raw = (overrides: Partial<RawWordPressPost> = {}): RawWordPressPost => ({
   post_name: 'example-article',
   post_status: 'publish',
   post_date: '2024-03-20 12:30:00',
+  post_date_gmt: '2024-03-20 11:30:00',
   post_excerpt: ' excerpt ',
   post_content: '<p>Hello</p>',
   guid: 'https://cleverblog.pl/?p=509',
@@ -25,6 +26,14 @@ describe('WordPress post normalization', () => {
     expect(result.title).toBe('Example article')
     expect(result.excerpt).toBe('excerpt')
     expect(result.commentsEnabled).toBe(true)
+  })
+
+  it('uses WordPress GMT time instead of treating local post_date as UTC', () => {
+    expect(normalizePost(raw()).publishedAt).toBe('2024-03-20T11:30:00.000Z')
+  })
+
+  it('rejects a published post without its GMT timestamp', () => {
+    expect(() => normalizePost(raw({ post_date_gmt: undefined }))).toThrow(/missing post_date_gmt/)
   })
 
   it('uses a deterministic content source hash', () => {

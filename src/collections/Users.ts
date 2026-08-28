@@ -13,7 +13,7 @@ export const Users: CollectionConfig = {
     admin: allowRoles('admin', 'editor'),
     create: adminOnly,
     delete: adminOnly,
-    read: adminOnly,
+    read: allowRoles('admin', 'editor'),
     update: adminOnly,
   },
   admin: {

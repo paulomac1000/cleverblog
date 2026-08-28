@@ -13,9 +13,11 @@ wp db export /secure-backup/wordpress.sql
 wp export --dir=/secure-backup/wxr --max_file_size=-1
 rsync -a wp-content/uploads/ /secure-backup/uploads/
 wp post list --post_type=post --post_status=any \
-  --fields=ID,post_title,post_name,post_status,post_date,post_modified,post_excerpt,post_content,guid,comment_status \
+  --fields=ID,post_title,post_name,post_status,post_date,post_date_gmt,post_modified,post_modified_gmt,post_excerpt,post_content,guid,comment_status \
   --format=json > /secure-backup/posts.json
 ```
+
+`post_date` is the WordPress site's local wall-clock value and must not be interpreted as UTC. The normalizer uses `post_date_gmt`; a published post without a valid GMT timestamp is rejected instead of silently shifting its historical publication time.
 
 Copy only the sanitised `posts.json` needed for a staging rehearsal to `migration-data/raw/posts.json`. Never commit the real raw file.
 
@@ -42,7 +44,7 @@ The importer:
 - upserts by `legacy.wordpressId`;
 - preserves raw article HTML under `legacy.originalHTML`;
 - sets `contentFormat=legacy-html`;
-- retains the original publication date;
+- retains the original publication date from WordPress GMT data;
 - marks verification as `imported`;
 - uses `context.wordpressMigration=true` so historical public posts can be inserted without weakening the normal publication gate.
 
@@ -52,8 +54,9 @@ Running it repeatedly must update the same documents instead of creating duplica
 
 1. Import categories/tags before posts and map relationships.
 2. Import media before HTML-to-Lexical conversion; key media by WordPress attachment ID and SHA-256.
-3. Add HTML normalisation and `convertHTMLToLexical()` for clean content while retaining original HTML.
-4. Add warning/fallback classification rather than guessing when conversion encounters unknown shortcodes/blocks.
-5. Import comments in two passes so parent relationships can be reconstructed.
-6. Materialise redirect records and test every historical URL.
-7. Produce a machine migration report and fail cutover if any published legacy item is unaccounted for.
+3. Rewrite media references in article HTML.
+4. Add HTML normalisation and `convertHTMLToLexical()` for clean content while retaining original HTML.
+5. Add warning/fallback classification rather than guessing when conversion encounters unknown shortcodes/blocks.
+6. Import comments in two passes so parent relationships can be reconstructed.
+7. Materialise redirect records and test every historical URL.
+8. Produce a machine migration report and fail cutover if any published legacy item is unaccounted for.

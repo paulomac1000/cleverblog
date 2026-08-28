@@ -4,7 +4,9 @@ export type RawWordPressPost = {
   post_name: string
   post_status: string
   post_date: string
+  post_date_gmt?: string
   post_modified?: string
+  post_modified_gmt?: string
   post_excerpt?: string
   post_content: string
   guid?: string

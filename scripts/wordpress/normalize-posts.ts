@@ -8,6 +8,17 @@ const ROOT = process.cwd()
 const inputPath = path.join(ROOT, 'migration-data/raw/posts.json')
 const outputPath = path.join(ROOT, 'migration-data/normalized/posts.json')
 
+const parseGMTDate = (value?: string): string | null => {
+  const trimmed = value?.trim()
+  if (!trimmed || trimmed.startsWith('0000-00-00')) return null
+
+  const parsed = new Date(`${trimmed.replace(' ', 'T')}Z`)
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error(`Invalid WordPress GMT timestamp: ${trimmed}`)
+  }
+  return parsed.toISOString()
+}
+
 export const sourceHash = (post: RawWordPressPost): string =>
   createHash('sha256')
     .update(JSON.stringify({
@@ -16,6 +27,7 @@ export const sourceHash = (post: RawWordPressPost): string =>
       slug: post.post_name,
       status: post.post_status,
       date: post.post_date,
+      dateGMT: post.post_date_gmt,
       content: post.post_content,
     }))
     .digest('hex')
@@ -25,6 +37,14 @@ export const normalizePost = (post: RawWordPressPost): NormalizedPost => {
   if (!Number.isSafeInteger(wordpressId) || wordpressId <= 0) {
     throw new Error(`Invalid WordPress post ID: ${String(post.ID)}`)
   }
+
+  const publishedAt = parseGMTDate(post.post_date_gmt)
+  if (post.post_status === 'publish' && !publishedAt) {
+    throw new Error(
+      `Published WordPress post ${wordpressId} is missing post_date_gmt; export GMT dates to preserve timestamps safely.`,
+    )
+  }
+
   const slug = post.post_name.trim() || `wordpress-${wordpressId}`
   const queryUrl = `/?p=${wordpressId}`
 
@@ -33,7 +53,7 @@ export const normalizePost = (post: RawWordPressPost): NormalizedPost => {
     title: post.post_title.trim(),
     slug,
     status: post.post_status,
-    publishedAt: post.post_date ? new Date(`${post.post_date.replace(' ', 'T')}Z`).toISOString() : null,
+    publishedAt,
     excerpt: (post.post_excerpt ?? '').trim(),
     originalHTML: post.post_content,
     wordpressGuid: post.guid?.trim() || null,
