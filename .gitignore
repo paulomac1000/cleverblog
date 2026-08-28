@@ -1,0 +1,14 @@
+node_modules/
+.next/
+.env
+.env.*
+!.env.example
+media/
+coverage/
+*.log
+migration-data/raw/*
+!migration-data/raw/.gitkeep
+migration-data/normalized/*
+!migration-data/normalized/.gitkeep
+src/payload-types.ts
+src/payload-generated-schema.ts
