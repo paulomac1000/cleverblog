@@ -3596,6 +3596,132 @@
           "primaryKey": false,
           "notNull": false
         },
+        "posts_find": {
+          "name": "posts_find",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "posts_create": {
+          "name": "posts_create",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "posts_update": {
+          "name": "posts_update",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "pages_find": {
+          "name": "pages_find",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "pages_update": {
+          "name": "pages_update",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "media_find": {
+          "name": "media_find",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "media_create": {
+          "name": "media_create",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "categories_find": {
+          "name": "categories_find",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "tags_find": {
+          "name": "tags_find",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "tags_create": {
+          "name": "tags_create",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "comments_find": {
+          "name": "comments_find",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "comments_update": {
+          "name": "comments_update",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "topic_candidates_find": {
+          "name": "topic_candidates_find",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "topic_candidates_create": {
+          "name": "topic_candidates_create",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "topic_candidates_update": {
+          "name": "topic_candidates_update",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "evidence_find": {
+          "name": "evidence_find",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "evidence_create": {
+          "name": "evidence_create",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "evidence_update": {
+          "name": "evidence_update",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp(3) with time zone",
@@ -5265,6 +5391,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "8475b64c-73f5-4b28-9f72-2b0cb6d7fbd7",
+  "id": "e9db5582-768e-4ab2-9541-381f91f15d25",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

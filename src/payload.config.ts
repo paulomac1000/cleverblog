@@ -19,10 +19,21 @@ import { Posts } from '@/collections/Posts'
 import { Tags } from '@/collections/Tags'
 import { TopicCandidates } from '@/collections/TopicCandidates'
 import { Users } from '@/collections/Users'
+import { mcpCollectionsConfig } from '@/mcp/collectionCapabilities'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const serverURL = process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000'
+
+function requirePayloadSecret(): string {
+  const secret = process.env.PAYLOAD_SECRET
+  if (!secret || secret.length < 16) {
+    throw new Error(
+      'PAYLOAD_SECRET is missing or too short. Set it in .env (PAYLOAD_SECRET=<32+ random chars>) or the environment. Failing closed instead of booting with a known secret.',
+    )
+  }
+  return secret
+}
 
 export default buildConfig({
   admin: {
@@ -61,22 +72,10 @@ export default buildConfig({
     redirectsPlugin({ collections: ['posts', 'pages'], redirectTypes: ['301', '302'] }),
     mcpPlugin({
       mcp: { serverOptions: { serverInfo: { name: 'cleverblog', version: '0.1.0' } } },
-      collections: {
-        posts: { description: 'Blog posts. Agents may draft; publication is backend-gated.', enabled: { delete: false } },
-        pages: { enabled: { delete: false } },
-        media: { enabled: { delete: false } },
-        categories: { enabled: { delete: false } },
-        tags: { enabled: { delete: false } },
-        comments: { description: 'Reader comments. Creation remains disabled until abuse protection exists.', enabled: { create: false, delete: false } },
-        'topic-candidates': { description: 'Potential article topics discovered during engineering work.', enabled: { delete: false } },
-        evidence: { description: 'Evidence and sources attached to article work.', enabled: { delete: false } },
-        users: {
-          enabled: false,
-        },
-      },
+      collections: mcpCollectionsConfig,
     }),
   ],
-  secret: process.env.PAYLOAD_SECRET ?? 'dev-only-payload-secret-rotate-me',
+  secret: requirePayloadSecret(),
   serverURL,
   sharp,
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },

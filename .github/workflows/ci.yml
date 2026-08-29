@@ -36,8 +36,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24.15.0
-      - run: pnpm install --no-frozen-lockfile
+      - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm test
+      - run: pnpm payload migrate
       - run: pnpm generate:types
       - run: pnpm build
