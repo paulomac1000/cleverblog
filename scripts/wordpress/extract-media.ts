@@ -53,19 +53,23 @@ export type MediaManifest = {
 export const sha256Bytes = (bytes: Buffer): string =>
   createHash('sha256').update(bytes).digest('hex')
 
+export const safeDecode = (raw: string): string | null => {
+  try {
+    return decodeURIComponent(raw)
+  } catch {
+    // malformed percent-encoding is an issue, never a crash
+    return null
+  }
+}
+
 export const uploadsPathFromGuid = (guid: string): string | null => {
   const marker = '/wp-content/uploads/'
   const idx = guid.indexOf(marker)
   if (idx === -1) return null
   const raw = guid.slice(idx + marker.length).split('?')[0]
   if (raw.length === 0) return null
-  try {
-    const decoded = decodeURIComponent(raw)
-    return isSafeUploadsPath(decoded) ? decoded : null
-  } catch {
-    // malformed percent-encoding is an issue, never a crash
-    return null
-  }
+  const decoded = safeDecode(raw)
+  return decoded !== null && isSafeUploadsPath(decoded) ? decoded : null
 }
 
 /**
@@ -75,7 +79,8 @@ export const uploadsPathFromGuid = (guid: string): string | null => {
  */
 export const isSafeUploadsPath = (rel: string): boolean => {
   if (rel.length === 0 || rel.startsWith('/') || rel.includes('\\')) return false
-  const decoded = decodeURIComponent(rel)
+  const decoded = safeDecode(rel)
+  if (decoded === null) return false
   const segments = decoded.split('/')
   return !segments.some((segment) => segment === '..' || segment === '')
 }

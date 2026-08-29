@@ -74,6 +74,17 @@ describe('normalizeMedia', () => {
     expect(unresolved[0].pathSource).toBe('attached-file')
   })
 
+  it('treats malformed attached_file encoding as an issue instead of crashing', () => {
+    const { normalized, unresolved } = normalizeMedia(
+      [item({})],
+      { '1': { attachedFile: '2021/02/a%ZZ.png' } },
+      () => Buffer.from('x'),
+    )
+    expect(normalized).toHaveLength(0)
+    expect(unresolved).toHaveLength(1)
+    expect(unresolved[0].reason).toBe('unsafe-path')
+  })
+
   it('reports files missing on disk as missing-file issues', () => {
     const { normalized, unresolved } = normalizeMedia([item({})], NO_META, () => null)
     expect(normalized).toHaveLength(0)
