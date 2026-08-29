@@ -32,6 +32,24 @@ export type NormalizedMedia = {
   missing: boolean
 }
 
+export type UnresolvedMedia = {
+  wordpressId: number
+  slug: string
+  title: string
+  mimeType: string
+  originalUrl: string
+  uploadsPath: string | null
+  pathSource: 'attached-file' | 'guid' | null
+  /** why the item could not be imported */
+  reason: 'missing-file' | 'unsafe-path' | 'malformed-guid' | 'no-path'
+}
+
+export type MediaManifest = {
+  generatedAt: string
+  media: NormalizedMedia[]
+  unresolved: UnresolvedMedia[]
+}
+
 export const sha256Bytes = (bytes: Buffer): string =>
   createHash('sha256').update(bytes).digest('hex')
 
@@ -39,8 +57,15 @@ export const uploadsPathFromGuid = (guid: string): string | null => {
   const marker = '/wp-content/uploads/'
   const idx = guid.indexOf(marker)
   if (idx === -1) return null
-  const rel = guid.slice(idx + marker.length).split('?')[0]
-  return rel.length > 0 ? decodeURIComponent(rel) : null
+  const raw = guid.slice(idx + marker.length).split('?')[0]
+  if (raw.length === 0) return null
+  try {
+    const decoded = decodeURIComponent(raw)
+    return isSafeUploadsPath(decoded) ? decoded : null
+  } catch {
+    // malformed percent-encoding is an issue, never a crash
+    return null
+  }
 }
 
 /**
@@ -74,10 +99,12 @@ export const normalizeMedia = (
   items: WpMediaItem[],
   attachmentMeta: Record<string, WpAttachmentMeta>,
   fileBytes: (uploadsRelPath: string) => Buffer | null,
-): { normalized: NormalizedMedia[]; missing: NormalizedMedia[]; unmapped: NormalizedMedia[] } => {
+): {
+  normalized: NormalizedMedia[]
+  unresolved: UnresolvedMedia[]
+} => {
   const normalized: NormalizedMedia[] = []
-  const missing: NormalizedMedia[] = []
-  const unmapped: NormalizedMedia[] = []
+  const unresolved: UnresolvedMedia[] = []
 
   for (const item of items) {
     const meta = attachmentMeta[String(item.ID)]
@@ -95,28 +122,64 @@ export const normalizeMedia = (
       missing: true,
     }
 
-    const { rel, source } = resolvePathSource(item, meta)
-    if (rel === null || source === null) {
-      unmapped.push(base)
+    const attached = meta?.attachedFile?.trim()
+    let resolved: { rel: string; source: 'attached-file' | 'guid' } | null = null
+    let reason: UnresolvedMedia['reason'] = 'no-path'
+
+    if (attached) {
+      // Authoritative metadata exists: it is the only accepted path source.
+      // Unsafe content is an issue — never a silent fallback to the GUID.
+      if (isSafeUploadsPath(attached)) {
+        resolved = { rel: attached, source: 'attached-file' }
+      } else {
+        unresolved.push({
+          ...base,
+          uploadsPath: attached,
+          pathSource: 'attached-file',
+          reason: 'unsafe-path',
+        })
+        continue
+      }
+    } else {
+      const fromGuid = uploadsPathFromGuid(item.guid)
+      if (fromGuid) {
+        resolved = { rel: fromGuid, source: 'guid' }
+      } else if (meta && item.guid.includes('/wp-content/uploads/')) {
+        reason = 'malformed-guid'
+      }
+    }
+
+    if (!resolved) {
+      unresolved.push({
+        ...base,
+        uploadsPath: attached ?? null,
+        pathSource: attached ? 'attached-file' : null,
+        reason,
+      })
       continue
     }
 
-    const bytes = fileBytes(rel)
+    const bytes = fileBytes(resolved.rel)
     if (bytes === null) {
-      missing.push({ ...base, uploadsPath: rel, pathSource: source })
+      unresolved.push({
+        ...base,
+        uploadsPath: resolved.rel,
+        pathSource: resolved.source,
+        reason: 'missing-file',
+      })
       continue
     }
 
     normalized.push({
       ...base,
-      uploadsPath: rel,
-      pathSource: source,
+      uploadsPath: resolved.rel,
+      pathSource: resolved.source,
       sha256: sha256Bytes(bytes),
       missing: false,
     })
   }
 
-  return { normalized, missing, unmapped }
+  return { normalized, unresolved }
 }
 
 const main = async () => {
@@ -131,7 +194,7 @@ const main = async () => {
     await readFile(path.join(rawDir, 'attachment-meta.json'), 'utf8'),
   ) as Record<string, WpAttachmentMeta>
 
-  const { normalized, missing, unmapped } = normalizeMedia(items, attachmentMeta, (rel) => {
+  const { normalized, unresolved } = normalizeMedia(items, attachmentMeta, (rel) => {
     try {
       const abs = path.join(uploadsRoot, rel)
       if (!path.resolve(abs).startsWith(path.resolve(uploadsRoot))) return null
@@ -145,35 +208,27 @@ const main = async () => {
   await mkdir(reportsDir, { recursive: true })
   await mkdir(sourceDir, { recursive: true })
 
-  await writeFile(
-    path.join(outDir, 'media-manifest.json'),
-    JSON.stringify({ generatedAt: new Date().toISOString(), media: normalized }, null, 2),
-  )
+  const manifest: MediaManifest = {
+    generatedAt: new Date().toISOString(),
+    media: normalized,
+    unresolved,
+  }
+  await writeFile(path.join(outDir, 'media-manifest.json'), JSON.stringify(manifest, null, 2))
 
   // Persistent, sanitised report (committed to git): unresolved media with an
   // explicit recover|retire decision field for the cutover gate.
   const issues = {
     generatedAt: new Date().toISOString(),
-    unresolved: [
-      ...missing.map((m) => ({
-        wordpressId: m.wordpressId,
-        slug: m.slug,
-        originalUrl: m.originalUrl,
-        uploadsPath: m.uploadsPath,
-        pathSource: m.pathSource,
-        status: 'unresolved' as const,
-        decision: null as 'recover' | 'retire' | null,
-      })),
-      ...unmapped.map((m) => ({
-        wordpressId: m.wordpressId,
-        slug: m.slug,
-        originalUrl: m.originalUrl,
-        uploadsPath: m.uploadsPath,
-        pathSource: m.pathSource,
-        status: 'unresolved' as const,
-        decision: null as 'recover' | 'retire' | null,
-      })),
-    ],
+    unresolved: unresolved.map((m) => ({
+      wordpressId: m.wordpressId,
+      slug: m.slug,
+      originalUrl: m.originalUrl,
+      uploadsPath: m.uploadsPath,
+      pathSource: m.pathSource,
+      reason: m.reason,
+      status: 'unresolved' as const,
+      decision: null as 'recover' | 'retire' | null,
+    })),
   }
   await writeFile(path.join(reportsDir, 'media-issues.json'), JSON.stringify(issues, null, 2))
 
@@ -195,7 +250,7 @@ const main = async () => {
   )
 
   console.log(
-    `media normalized: ${normalized.length} ok, ${missing.length} missing, ${unmapped.length} unmapped`,
+    `media normalized: ${normalized.length} ok, ${unresolved.length} unresolved`,
   )
   console.log(`report: migration-data/reports/media-issues.json (${issues.unresolved.length} unresolved)`)
   console.log(`stable source map: migration-data/source/media-source.json (${sourceMap.length} entries)`)

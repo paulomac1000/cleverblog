@@ -35,6 +35,7 @@ const importKind = async (
     const data = {
       name: term.name,
       slug: term.slug,
+      description: term.description ?? '',
       legacyWordPressId: term.term_id,
     }
 
@@ -74,6 +75,14 @@ const main = async () => {
   ) as WpTerm[]
   const tags = JSON.parse(await readFile(path.join(rawDir, 'tags.json'), 'utf8')) as WpTerm[]
 
+  const tagsWithDescription = tags.filter((term) => (term.description ?? '').trim() !== '')
+  if (tagsWithDescription.length > 0) {
+    throw new Error(
+      `Tags with descriptions detected but the tags collection does not store them. ` +
+        `Offending slugs: ${tagsWithDescription.map((t) => t.slug).join(', ')}`,
+    )
+  }
+
   const withParent = categories.filter((term) => (term.parent ?? 0) !== 0)
   if (withParent.length > 0) {
     throw new Error(
@@ -97,6 +106,7 @@ const main = async () => {
   })
 
   console.log('taxonomy mapping written to migration-data/mappings/taxonomy.json')
+  process.exit(process.exitCode ?? 0)
 }
 
 await main()

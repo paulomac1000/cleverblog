@@ -1,31 +1,33 @@
 import { readFile } from 'node:fs/promises'
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
-import type { NormalizedMedia } from './extract-media'
+import { sha256Bytes, type MediaManifest } from './extract-media'
 
 const uploadsRoot = path.join(process.cwd(), 'migration-data/raw/uploads')
 const manifestPath = path.join(process.cwd(), 'migration-data/normalized/media-manifest.json')
 const MIGRATION_VERSION = process.env.WORDPRESS_MIGRATION_VERSION ?? 'wp-foundation-v1'
 
-const main = async () => {
-  const manifest = JSON.parse(await readFile(manifestPath, 'utf8')) as {
-    media: NormalizedMedia[]
+const readFileSyncSafe = (absPath: string): Buffer | null => {
+  try {
+    return readFileSync(absPath)
+  } catch {
+    return null
   }
+}
+
+const main = async () => {
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8')) as MediaManifest
   const payload = await getPayload({ config })
 
   let created = 0
   let updated = 0
-  let skippedMissing = 0
-  const drifted: { wordpressId: number; stored: string | null; current: string | null }[] = []
+  const drifted: { wordpressId: number; stored: string | null; manifest: string | null; actual: string }[] = []
 
   for (const media of manifest.media) {
-    if (media.missing || !media.uploadsPath) {
-      skippedMissing += 1
-      continue
-    }
 
     // Alt priority: WordPress meta alt (usually empty in this dataset), then the
     // attachment title as the deterministic fallback. The Media collection
@@ -36,9 +38,33 @@ const main = async () => {
         wordpressId: media.wordpressId,
         originalUrl: media.originalUrl,
         sha256: media.sha256 as string,
-        importedAt: new Date().toISOString(),
         migrationVersion: MIGRATION_VERSION,
       },
+    }
+
+    if (!media.uploadsPath) {
+      drifted.push({ wordpressId: media.wordpressId, stored: null, manifest: media.sha256, actual: 'NO-PATH' })
+      continue
+    }
+
+    // Import-time hashing: hash the bytes that are about to be uploaded and
+    // compare against the manifest produced at extract time. Catches anything
+    // that mutated between extract and import (fail closed, never store a
+    // hash that does not describe the uploaded bytes).
+    const actualBytes = readFileSyncSafe(path.join(uploadsRoot, media.uploadsPath))
+    if (actualBytes === null) {
+      drifted.push({
+        wordpressId: media.wordpressId,
+        stored: null,
+        manifest: media.sha256,
+        actual: 'FILE-GONE',
+      })
+      continue
+    }
+    const actualHash = sha256Bytes(actualBytes)
+    if (actualHash !== media.sha256) {
+      drifted.push({ wordpressId: media.wordpressId, stored: null, manifest: media.sha256, actual: actualHash })
+      continue
     }
 
     const existing = await payload.find({
@@ -51,11 +77,11 @@ const main = async () => {
     const prior = existing.docs[0]
     if (prior) {
       // Hash drift policy: fail closed. The stored sha256 describes the bytes
-      // physically imported at create time; a changed manifest hash means the
-      // source mutated and the import must stop instead of quietly lying.
+      // physically imported at create time; any mismatch with what we are about
+      // to store must stop the import instead of quietly lying.
       const storedHash = (prior.legacy as { sha256?: string } | null)?.sha256 ?? null
-      if (storedHash !== media.sha256) {
-        drifted.push({ wordpressId: media.wordpressId, stored: storedHash, current: media.sha256 })
+      if (storedHash !== actualHash) {
+        drifted.push({ wordpressId: media.wordpressId, stored: storedHash, manifest: media.sha256, actual: actualHash })
         continue
       }
       await payload.update({
@@ -69,7 +95,10 @@ const main = async () => {
     } else {
       await payload.create({
         collection: 'media',
-        data,
+        data: {
+          ...data,
+          legacy: { ...data.legacy, importedAt: new Date().toISOString() },
+        },
         filePath: path.join(uploadsRoot, media.uploadsPath),
         context: { wordpressMigration: true },
         overrideAccess: true,
@@ -83,8 +112,9 @@ const main = async () => {
     process.exitCode = 1
   }
 
+  const unresolvedCount = manifest.unresolved?.length ?? 0
   console.log(
-    `media import: ${created} created, ${updated} updated, ${skippedMissing} skipped (missing/unmapped), ${drifted.length} drifted`,
+    `media import: ${created} created, ${updated} updated, ${drifted.length} drifted, ${unresolvedCount} unresolved (see migration-data/reports/media-issues.json)`,
   )
 
   const all = await payload.find({
@@ -107,6 +137,7 @@ const main = async () => {
     JSON.stringify(mapping, null, 2),
   )
   console.log(`payload-id map (generated, NOT portable, gitignored): ${Object.keys(mapping).length} entries`)
+  process.exit(process.exitCode ?? 0)
 }
 
 await main()

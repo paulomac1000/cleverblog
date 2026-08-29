@@ -32,25 +32,22 @@ describe('uploadsPathFromGuid', () => {
     expect(uploadsPathFromGuid('https://example.org/somewhere.jpg')).toBeNull()
   })
 
-  it('strips query strings', () => {
-    expect(uploadsPathFromGuid('https://cleverblog.pl/wp-content/uploads/2020/05/a.jpg?x=1')).toBe(
-      '2020/05/a.jpg',
-    )
+  it('classifies malformed percent-encoding as null instead of crashing', () => {
+    expect(uploadsPathFromGuid('https://cleverblog.pl/wp-content/uploads/2020/05/a%ZZ.jpg')).toBeNull()
   })
 })
 
 describe('normalizeMedia', () => {
   it('computes sha256 and marks present files as available', () => {
     const bytes = Buffer.from('jpeg-bytes')
-    const { normalized, missing, unmapped } = normalizeMedia([item({})], NO_META, (rel) =>
+    const { normalized, unresolved } = normalizeMedia([item({})], NO_META, (rel) =>
       rel === '2020/05/a-photo.jpg' ? bytes : null,
     )
     expect(normalized).toHaveLength(1)
     expect(normalized[0].sha256).toBe(sha256Bytes(bytes))
     expect(normalized[0].missing).toBe(false)
     expect(normalized[0].pathSource).toBe('guid')
-    expect(missing).toHaveLength(0)
-    expect(unmapped).toHaveLength(0)
+    expect(unresolved).toHaveLength(0)
   })
 
   it('prefers _wp_attached_file over the GUID and carries real alt text', () => {
@@ -65,33 +62,45 @@ describe('normalizeMedia', () => {
     expect(normalized[0].alt).toBe('real alt text')
   })
 
-  it('reports files missing on disk without guessing', () => {
-    const { normalized, missing } = normalizeMedia([item({})], NO_META, () => null)
+  it('treats unsafe attached_file metadata as an issue, not a silent GUID fallback', () => {
+    const { normalized, unresolved } = normalizeMedia(
+      [item({})],
+      { '1': { attachedFile: '../../../etc/passwd' } },
+      () => Buffer.from('secret'),
+    )
     expect(normalized).toHaveLength(0)
-    expect(missing).toHaveLength(1)
-    expect(missing[0].uploadsPath).toBe('2020/05/a-photo.jpg')
-    expect(missing[0].sha256).toBeNull()
+    expect(unresolved).toHaveLength(1)
+    expect(unresolved[0].reason).toBe('unsafe-path')
+    expect(unresolved[0].pathSource).toBe('attached-file')
   })
 
-  it('reports unmappable GUIDs separately from missing files', () => {
-    const { normalized, missing, unmapped } = normalizeMedia(
+  it('reports files missing on disk as missing-file issues', () => {
+    const { normalized, unresolved } = normalizeMedia([item({})], NO_META, () => null)
+    expect(normalized).toHaveLength(0)
+    expect(unresolved).toHaveLength(1)
+    expect(unresolved[0].reason).toBe('missing-file')
+    expect(unresolved[0].uploadsPath).toBe('2020/05/a-photo.jpg')
+  })
+
+  it('reports unmappable GUIDs separately with no-path reason', () => {
+    const { normalized, unresolved } = normalizeMedia(
       [item({ guid: 'https://example.org/x.png' })],
       NO_META,
       () => Buffer.from('x'),
     )
     expect(normalized).toHaveLength(0)
-    expect(missing).toHaveLength(0)
-    expect(unmapped).toHaveLength(1)
+    expect(unresolved).toHaveLength(1)
+    expect(unresolved[0].reason).toBe('no-path')
   })
 
   it('rejects path traversal payloads', () => {
-    const { normalized, unmapped } = normalizeMedia(
+    const { normalized, unresolved } = normalizeMedia(
       [item({ guid: 'https://cleverblog.pl/wp-content/uploads/../../etc/passwd' })],
       NO_META,
       () => Buffer.from('secret'),
     )
     expect(normalized).toHaveLength(0)
-    expect(unmapped).toHaveLength(1)
+    expect(unresolved).toHaveLength(1)
   })
 
   it('is deterministic: same bytes produce the same hash', () => {
