@@ -46,7 +46,7 @@ const importKind = async (
         context: { wordpressMigration: true },
         overrideAccess: true,
       })
-      mapping.set(term.term_id, existing.docs[0].id)
+      mapping.set(term.term_id, String(existing.docs[0].id))
       updated += 1
     } else {
       const doc = await payload.create({
@@ -55,7 +55,7 @@ const importKind = async (
         context: { wordpressMigration: true },
         overrideAccess: true,
       })
-      mapping.set(term.term_id, doc.id)
+      mapping.set(term.term_id, String(doc.id))
       created += 1
     }
   }
@@ -73,6 +73,14 @@ const main = async () => {
     await readFile(path.join(rawDir, 'categories.json'), 'utf8'),
   ) as WpTerm[]
   const tags = JSON.parse(await readFile(path.join(rawDir, 'tags.json'), 'utf8')) as WpTerm[]
+
+  const withParent = categories.filter((term) => (term.parent ?? 0) !== 0)
+  if (withParent.length > 0) {
+    throw new Error(
+      `Category hierarchy detected (parent != 0) but hierarchy import is not implemented. ` +
+        `Offending term_ids: ${withParent.map((t) => t.term_id).join(', ')}`,
+    )
+  }
 
   const categoryMap = await importKind(payload, 'categories', 'categories', categories)
   const tagMap = await importKind(payload, 'tags', 'tags', tags)
