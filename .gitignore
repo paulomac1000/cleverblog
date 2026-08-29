@@ -12,3 +12,7 @@ migration-data/normalized/*
 !migration-data/normalized/.gitkeep
 src/payload-types.ts
 src/payload-generated-schema.ts
+
+migration-data/mappings/*
+!migration-data/mappings/.gitkeep
+tsconfig.tsbuildinfo

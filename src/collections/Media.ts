@@ -24,6 +24,8 @@ export const Media: CollectionConfig = {
         { name: 'wordpressId', type: 'number', unique: true, index: true },
         { name: 'originalUrl', type: 'text' },
         { name: 'sha256', type: 'text', index: true },
+        { name: 'importedAt', type: 'date' },
+        { name: 'migrationVersion', type: 'text' },
       ],
     },
   ],
