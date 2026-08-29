@@ -16,7 +16,14 @@ const normalizePages = (pages: RawWordPressPost[]): NormalizedPost[] => {
       throw new Error(`Duplicate WordPress page ID: ${normalized.wordpressId}`)
     }
     seen.add(normalized.wordpressId)
-    return { ...normalized, sourceHash: sourceHash(page) }
+    // Pages carry their own legacy identity: /?page_id=<id>, not /?p=<id>.
+    const pageUrl = `/?page_id=${normalized.wordpressId}`
+    return {
+      ...normalized,
+      originalUrl: pageUrl,
+      redirects: [pageUrl],
+      sourceHash: sourceHash(page),
+    }
   })
 }
 
