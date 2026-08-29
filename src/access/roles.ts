@@ -1,4 +1,4 @@
-import type { Access } from 'payload'
+import type { Access, AccessArgs } from 'payload'
 
 export const roleValues = [
   'admin',
@@ -25,8 +25,11 @@ export const hasRole = (user: unknown, allowed: readonly UserRole[]): boolean =>
   return role ? allowed.includes(role) : false
 }
 
-export const allowRoles = (...allowed: UserRole[]): Access => ({ req }) =>
-  hasRole(req.user, allowed)
+// Keep boolean return: `admin` access slot rejects Where-returning Access functions.
+export const allowRoles =
+  (...allowed: UserRole[]) =>
+  ({ req }: AccessArgs): boolean =>
+    hasRole(req.user, allowed)
 
 export const publicOrRoles = (...allowed: UserRole[]): Access => ({ req }) => {
   if (hasRole(req.user, allowed)) return true
