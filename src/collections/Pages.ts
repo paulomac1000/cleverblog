@@ -24,6 +24,7 @@ export const Pages: CollectionConfig = {
         { name: 'wordpressId', type: 'number', unique: true, index: true },
         { name: 'originalUrl', type: 'text' },
         { name: 'originalHTML', type: 'textarea' },
+        { name: 'renderHTML', type: 'textarea' },
       ],
     },
   ],

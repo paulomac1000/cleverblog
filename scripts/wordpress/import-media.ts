@@ -93,13 +93,22 @@ const main = async () => {
       })
       updated += 1
     } else {
+      // Flat local storage means original basenames would collide (18 real
+      // collisions in this dataset). Unique, deterministic final name:
+      // <wpId>-<basename>.
+      const finalName = `${media.wordpressId}-${path.basename(media.uploadsPath)}`
       await payload.create({
         collection: 'media',
         data: {
           ...data,
           legacy: { ...data.legacy, importedAt: new Date().toISOString() },
         },
-        filePath: path.join(uploadsRoot, media.uploadsPath),
+        file: {
+          data: actualBytes,
+          mimetype: media.mimeType,
+          name: finalName,
+          size: actualBytes.length,
+        },
         context: { wordpressMigration: true },
         overrideAccess: true,
       })

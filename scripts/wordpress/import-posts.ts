@@ -4,6 +4,8 @@ import path from 'node:path'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
+import { buildMediaRewriteMap, buildRenderHTML } from './render-html'
+
 import type { NormalizedPost } from './types'
 
 const inputPath = path.join(process.cwd(), 'migration-data/normalized/posts.json')
@@ -12,6 +14,7 @@ const MIGRATION_VERSION = process.env.WORDPRESS_MIGRATION_VERSION ?? 'wp-foundat
 async function main() {
   const posts = JSON.parse(await readFile(inputPath, 'utf8')) as NormalizedPost[]
   const payload = await getPayload({ config })
+  const mediaMap = await buildMediaRewriteMap()
 
   for (const post of posts) {
     const existing = await payload.find({
@@ -37,6 +40,7 @@ async function main() {
         originalUrl: post.originalUrl,
         originalSlug: post.slug,
         originalHTML: post.originalHTML,
+        renderHTML: buildRenderHTML(post.originalHTML, mediaMap),
         sourceHash: post.sourceHash,
         importedAt: new Date().toISOString(),
         migrationVersion: MIGRATION_VERSION,
