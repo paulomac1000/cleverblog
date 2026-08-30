@@ -95,45 +95,14 @@ export default async function ArticlePage({
     <article className="article">
       <h1>{post.title}</h1>
 
-      <div className="meta">
-        {post.publishedAt ? (
-          <span>
-            Opublikowano:{' '}
-            {new Date(
-              post.publishedAt,
-            ).toLocaleDateString(
-              'pl-PL',
-            )}
-          </span>
-        ) : null}
-
-        <span>
-          Status:{' '}
-          {post.verification?.status ??
-            'needs-review'}
-        </span>
-
-        {post.verification
-          ?.verifiedAt ? (
-          <span>
-            Zweryfikowano:{' '}
-            {new Date(
-              post.verification
-                .verifiedAt,
-            ).toLocaleDateString(
-              'pl-PL',
-            )}
-          </span>
-        ) : null}
-      </div>
-
-      {post.verification?.status ===
-      'imported' ? (
-        <div className="notice">
-          Artykuł historyczny po
-          migracji z WordPressa; nie
-          został jeszcze ponownie
-          zweryfikowany.
+      {post.publishedAt ? (
+        <div className="meta">
+          Opublikowano:{' '}
+          {new Date(
+            post.publishedAt,
+          ).toLocaleDateString(
+            'pl-PL',
+          )}
         </div>
       ) : null}
 

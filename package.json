@@ -24,7 +24,8 @@
     "wordpress:public-url-source": "tsx scripts/wordpress/build-public-url-source.ts",
     "wordpress:inventory": "tsx scripts/wordpress/build-url-inventory.ts",
     "wordpress:crawl:links": "tsx scripts/wordpress/crawl-links.ts",
-    "wordpress:cutover:gate": "tsx scripts/wordpress/cutover-gate.ts"
+    "wordpress:cutover:gate": "tsx scripts/wordpress/cutover-gate.ts",
+    "build:prod": "cross-env NODE_OPTIONS=--no-deprecation NEXT_PUBLIC_SERVER_URL=https://cleverblog.pl payload generate:importmap && cross-env NODE_OPTIONS=--no-deprecation NEXT_PUBLIC_SERVER_URL=https://cleverblog.pl next build"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.88.0",
