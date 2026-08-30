@@ -1,0 +1,27 @@
+{
+  "version": "p3-links-v1",
+  "generatedAt": "2026-08-30T18:52:57.513Z",
+  "sourceFingerprint": "b2ec1d2ced98e5da704f82405db2ed165363df4e82d570ca10f964addb5a01a9",
+  "checks": {
+    "scannedDocuments": 44,
+    "internalHrefOccurrences": 1,
+    "uniqueInternalPaths": 1,
+    "coveredByRedirect": 1,
+    "coveredByRoute": 0,
+    "uncovered": 0
+  },
+  "legacyPaths": [
+    {
+      "url": "/?p=79",
+      "classification": "redirect",
+      "occurrences": [
+        {
+          "collection": "posts",
+          "wordpressId": 174,
+          "rawHref": "https://cleverblog.pl/?p=79"
+        }
+      ]
+    }
+  ],
+  "uncovered": []
+}

@@ -1,48 +1,48 @@
 {
-  "generatedAt": "2026-08-30T13:22:43.607Z",
-  "status": "blocked",
+  "generatedAt": "2026-08-30T19:08:46.881Z",
+  "status": "ready",
   "coverage": {
     "implemented": [
       "source-derived public URL universe",
       "expected Payload presence and public visibility",
       "legacy query redirect existence and target",
       "published unrewritten WordPress media URLs",
-      "relevant unresolved media decisions and replacement notes"
-    ],
-    "pending": [
-      "full crawler/archive inventory",
-      "broken internal links scan",
+      "relevant unresolved media decisions and replacement notes",
       "comments coverage check",
+      "100% source content reconciliation",
       "canonical/sitemap/robots/RSS checks",
-      "100% source content reconciliation"
-    ]
+      "full crawler/archive inventory",
+      "broken internal links scan"
+    ],
+    "pending": [],
+    "checks": {
+      "approvedCommentsExpected": 12,
+      "approvedCommentsPayload": 12,
+      "commentCoverageIssues": 0,
+      "commentsWithNonPublicPost": 0,
+      "sourceContentExpected": 24,
+      "sourceContentReconciled": 24,
+      "sourceContentIssues": 0,
+      "discoveryEndpointsChecked": 3,
+      "renderedContentRoutesChecked": 24,
+      "discoveryIssues": 0,
+      "crawlerInternalHrefOccurrences": 1,
+      "crawlerUniqueInternalPaths": 1,
+      "crawlerUncoveredPaths": 0,
+      "brokenInternalReferencesChecked": 68,
+      "brokenInternalLinks": 0
+    }
   },
   "checks": {
-    "expectedPublicUrls": 0,
+    "expectedPublicUrls": 136,
     "missingFromPayload": 0,
     "payloadNotPublic": 0,
-    "redirectSources": 0,
+    "redirectSources": 136,
     "missingRedirects": 0,
     "mismatchedRedirects": 0,
     "publishedUnrewrittenMediaEntries": 0,
     "pendingRelevantMediaDecisions": 0,
     "missingReplacementNotes": 0
   },
-  "blockers": [
-    {
-      "code": "gate-error",
-      "message": "PAYLOAD_SECRET is missing or too short. Set it in .env (PAYLOAD_SECRET=<32+ random chars>) or the environment. Failing closed instead of booting with a known secret."
-    },
-    {
-      "code": "gate-coverage-incomplete",
-      "message": "Cutover coverage is incomplete: full crawler/archive inventory; broken internal links scan; comments coverage check; canonical/sitemap/robots/RSS checks; 100% source content reconciliation",
-      "pendingChecks": [
-        "full crawler/archive inventory",
-        "broken internal links scan",
-        "comments coverage check",
-        "canonical/sitemap/robots/RSS checks",
-        "100% source content reconciliation"
-      ]
-    }
-  ]
+  "blockers": []
 }

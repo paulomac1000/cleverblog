@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-30T13:03:16.214Z",
+  "generatedAt": "2026-08-30T19:08:45.447Z",
   "sourceGeneratedAt": "2026-08-30T12:49:29.051Z",
   "wordpressSource": {
     "posts": 41,
@@ -3688,17 +3688,7 @@
     }
   ],
   "unresolvedPublicIssues": {
-    "unrewrittenMediaUrls": [
-      {
-        "collection": "posts",
-        "wordpressId": 202,
-        "urls": [
-          "https://cleverblog.pl/wp-content/uploads/2021/02/image-1.png",
-          "https://cleverblog.pl/wp-content/uploads/2021/02/image.png"
-        ],
-        "currentlyPublished": true
-      }
-    ],
+    "unrewrittenMediaUrls": [],
     "mediaIssues": [
       {
         "wordpressId": 263,
@@ -3707,8 +3697,8 @@
         "uploadsPath": "2021/02/image-1.png",
         "pathSource": "guid",
         "status": "unresolved",
-        "decision": null,
-        "relevantToPublishedContent": true
+        "decision": "retire",
+        "relevantToPublishedContent": false
       },
       {
         "wordpressId": 262,
@@ -3717,8 +3707,8 @@
         "uploadsPath": "2021/02/image.png",
         "pathSource": "guid",
         "status": "unresolved",
-        "decision": null,
-        "relevantToPublishedContent": true
+        "decision": "retire",
+        "relevantToPublishedContent": false
       }
     ]
   }
