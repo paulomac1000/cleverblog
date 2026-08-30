@@ -3,22 +3,10 @@ import { RichText } from '@payloadcms/richtext-lexical/react'
 import config from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
-import sanitizeHtml from 'sanitize-html'
 
 export const dynamic = 'force-dynamic'
 
 type Props = { params: Promise<{ slug: string }> }
-
-const sanitizeLegacyHTML = (html: string): string =>
-  sanitizeHtml(html, {
-    allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'figure', 'figcaption']),
-    allowedAttributes: {
-      ...sanitizeHtml.defaults.allowedAttributes,
-      a: ['href', 'name', 'target', 'rel'],
-      img: ['src', 'alt', 'title', 'width', 'height', 'loading'],
-    },
-    allowedSchemes: ['http', 'https', 'mailto'],
-  })
 
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params
@@ -32,8 +20,11 @@ export default async function ArticlePage({ params }: Props) {
   const post = result.docs[0]
   if (!post) notFound()
 
-  const legacyHTML = post.legacy?.originalHTML
-  const showLegacy = post.contentFormat === 'legacy-html' && typeof legacyHTML === 'string'
+  // Render working copy only: media URLs rewritten to Payload, sanitized at
+  // import time. originalHTML is the immutable provenance snapshot and is
+  // never rendered.
+  const renderHTML = post.legacy?.renderHTML
+  const showLegacy = post.contentFormat === 'legacy-html' && typeof renderHTML === 'string' && renderHTML.length > 0
 
   return (
     <article className="article">
@@ -47,7 +38,7 @@ export default async function ArticlePage({ params }: Props) {
         <div className="notice">Artykuł historyczny po migracji z WordPressa; nie został jeszcze ponownie zweryfikowany.</div>
       ) : null}
       {showLegacy ? (
-        <div className="legacy-content" dangerouslySetInnerHTML={{ __html: sanitizeLegacyHTML(legacyHTML) }} />
+        <div className="legacy-content" dangerouslySetInnerHTML={{ __html: renderHTML }} />
       ) : post.content ? (
         <RichText data={post.content as SerializedEditorState} />
       ) : (

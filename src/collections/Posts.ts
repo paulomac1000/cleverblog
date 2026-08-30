@@ -103,6 +103,7 @@ export const Posts: CollectionConfig = {
         { name: 'originalUrl', type: 'text' },
         { name: 'originalSlug', type: 'text' },
         { name: 'originalHTML', type: 'textarea' },
+        { name: 'renderHTML', type: 'textarea' },
         { name: 'sourceHash', type: 'text', index: true },
         { name: 'importedAt', type: 'date' },
         { name: 'migrationVersion', type: 'text' },

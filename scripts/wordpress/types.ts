@@ -11,6 +11,7 @@ export type RawWordPressPost = {
   post_content: string
   guid?: string
   comment_status?: string
+  post_parent?: number | string
 }
 
 export type NormalizedPost = {

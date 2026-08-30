@@ -25,6 +25,7 @@ const main = async () => {
 
   let created = 0
   let updated = 0
+  let reuploaded = 0
   const drifted: { wordpressId: number; stored: string | null; manifest: string | null; actual: string }[] = []
 
   for (const media of manifest.media) {
@@ -84,6 +85,28 @@ const main = async () => {
         drifted.push({ wordpressId: media.wordpressId, stored: storedHash, manifest: media.sha256, actual: actualHash })
         continue
       }
+      // Collision-fix upgrade path: P2a-era records may carry a colliding
+      // basename. When the stored filename differs from the expected unique
+      // final name, re-upload the verified bytes under the final name.
+      const finalName = `${media.wordpressId}-${path.basename(media.uploadsPath)}`
+      const priorFilename = (prior as { filename?: string }).filename ?? null
+      if (priorFilename !== finalName) {
+        await payload.update({
+          collection: 'media',
+          id: prior.id,
+          data,
+          file: {
+            data: actualBytes,
+            mimetype: media.mimeType,
+            name: finalName,
+            size: actualBytes.length,
+          },
+          context: { wordpressMigration: true },
+          overrideAccess: true,
+        })
+        reuploaded += 1
+        continue
+      }
       await payload.update({
         collection: 'media',
         id: prior.id,
@@ -93,13 +116,22 @@ const main = async () => {
       })
       updated += 1
     } else {
+      // Flat local storage means original basenames would collide (18 real
+      // collisions in this dataset). Unique, deterministic final name:
+      // <wpId>-<basename>.
+      const finalName = `${media.wordpressId}-${path.basename(media.uploadsPath)}`
       await payload.create({
         collection: 'media',
         data: {
           ...data,
           legacy: { ...data.legacy, importedAt: new Date().toISOString() },
         },
-        filePath: path.join(uploadsRoot, media.uploadsPath),
+        file: {
+          data: actualBytes,
+          mimetype: media.mimeType,
+          name: finalName,
+          size: actualBytes.length,
+        },
         context: { wordpressMigration: true },
         overrideAccess: true,
       })
@@ -114,7 +146,7 @@ const main = async () => {
 
   const unresolvedCount = manifest.unresolved?.length ?? 0
   console.log(
-    `media import: ${created} created, ${updated} updated, ${drifted.length} drifted, ${unresolvedCount} unresolved (see migration-data/reports/media-issues.json)`,
+    `media import: ${created} created, ${updated} updated, ${reuploaded} re-uploaded (filename upgrade), ${drifted.length} drifted, ${unresolvedCount} unresolved (see migration-data/reports/media-issues.json)`,
   )
 
   const all = await payload.find({
