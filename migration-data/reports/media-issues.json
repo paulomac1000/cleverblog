@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T11:30:18.054Z",
+  "generatedAt": "2026-08-30T13:21:56.373Z",
   "unresolved": [
     {
       "wordpressId": 263,
@@ -7,6 +7,7 @@
       "originalUrl": "https://cleverblog.pl/wp-content/uploads/2021/02/image-1.png",
       "uploadsPath": "2021/02/image-1.png",
       "pathSource": "guid",
+      "reason": "missing-file",
       "status": "unresolved",
       "decision": null
     },
@@ -16,6 +17,7 @@
       "originalUrl": "https://cleverblog.pl/wp-content/uploads/2021/02/image.png",
       "uploadsPath": "2021/02/image.png",
       "pathSource": "guid",
+      "reason": "missing-file",
       "status": "unresolved",
       "decision": null
     }

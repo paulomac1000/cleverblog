@@ -1,0 +1,48 @@
+{
+  "generatedAt": "2026-08-30T13:22:43.607Z",
+  "status": "blocked",
+  "coverage": {
+    "implemented": [
+      "source-derived public URL universe",
+      "expected Payload presence and public visibility",
+      "legacy query redirect existence and target",
+      "published unrewritten WordPress media URLs",
+      "relevant unresolved media decisions and replacement notes"
+    ],
+    "pending": [
+      "full crawler/archive inventory",
+      "broken internal links scan",
+      "comments coverage check",
+      "canonical/sitemap/robots/RSS checks",
+      "100% source content reconciliation"
+    ]
+  },
+  "checks": {
+    "expectedPublicUrls": 0,
+    "missingFromPayload": 0,
+    "payloadNotPublic": 0,
+    "redirectSources": 0,
+    "missingRedirects": 0,
+    "mismatchedRedirects": 0,
+    "publishedUnrewrittenMediaEntries": 0,
+    "pendingRelevantMediaDecisions": 0,
+    "missingReplacementNotes": 0
+  },
+  "blockers": [
+    {
+      "code": "gate-error",
+      "message": "PAYLOAD_SECRET is missing or too short. Set it in .env (PAYLOAD_SECRET=<32+ random chars>) or the environment. Failing closed instead of booting with a known secret."
+    },
+    {
+      "code": "gate-coverage-incomplete",
+      "message": "Cutover coverage is incomplete: full crawler/archive inventory; broken internal links scan; comments coverage check; canonical/sitemap/robots/RSS checks; 100% source content reconciliation",
+      "pendingChecks": [
+        "full crawler/archive inventory",
+        "broken internal links scan",
+        "comments coverage check",
+        "canonical/sitemap/robots/RSS checks",
+        "100% source content reconciliation"
+      ]
+    }
+  ]
+}

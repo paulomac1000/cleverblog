@@ -69,7 +69,10 @@ export default buildConfig({
           : `${serverURL}/${doc?.slug ?? ''}`,
     }),
     searchPlugin({ collections: ['posts', 'pages'], defaultPriorities: { posts: 20, pages: 10 } }),
-    redirectsPlugin({ collections: ['posts', 'pages'], redirectTypes: ['301', '302'] }),
+    redirectsPlugin({
+      collections: ['posts', 'pages', 'categories', 'tags'],
+      redirectTypes: ['301', '302'],
+    }),
     mcpPlugin({
       mcp: { serverOptions: { serverInfo: { name: 'cleverblog', version: '0.1.0' } } },
       collections: mcpCollectionsConfig,

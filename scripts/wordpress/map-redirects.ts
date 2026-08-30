@@ -1,4 +1,4 @@
-export type RedirectCollection = 'posts' | 'pages'
+export type RedirectCollection = 'posts' | 'pages' | 'categories' | 'tags'
 
 export type RedirectSource = {
   wordpressId: number
@@ -43,6 +43,21 @@ const assertValidSource = (source: RedirectSource): void => {
   }
 }
 
+export const buildRedirectFromURL = (source: RedirectSource): string => {
+  assertValidSource(source)
+
+  switch (source.collection) {
+    case 'posts':
+      return `/?p=${source.wordpressId}`
+    case 'pages':
+      return `/?page_id=${source.wordpressId}`
+    case 'categories':
+      return `/?cat=${source.wordpressId}`
+    case 'tags':
+      return `/?tag=${source.slug}`
+  }
+}
+
 const sameTarget = (a: RedirectSpec, b: RedirectSpec): boolean =>
   a.type === b.type &&
   a.toURL.relationTo === b.toURL.relationTo &&
@@ -57,12 +72,7 @@ export const buildRedirectSpecs = (sources: RedirectSource[]): RedirectSpec[] =>
   })
 
   for (const source of sorted) {
-    assertValidSource(source)
-
-    const fromURL =
-      source.collection === 'posts'
-        ? `/?p=${source.wordpressId}`
-        : `/?page_id=${source.wordpressId}`
+    const fromURL = buildRedirectFromURL(source)
 
     const redirect: RedirectSpec = {
       fromURL,

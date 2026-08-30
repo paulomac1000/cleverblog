@@ -135,6 +135,9 @@ pnpm wordpress:import:posts
 pnpm wordpress:import:pages
 pnpm wordpress:import:comments
 pnpm wordpress:import:redirects
+pnpm wordpress:public-url-source
+pnpm wordpress:inventory
+pnpm wordpress:cutover:gate
 ```
 
 Set a migration version when required, for example:
@@ -235,6 +238,24 @@ Redirect lookup uses the incoming request origin by default, so production does 
 Proxy redirect API requests have a 2-second timeout. Successful redirect hits and misses are cached in memory for 60 seconds, with a hard maximum of 500 entries and oldest-entry eviction when the cache is full. API errors, timeouts and malformed redirect targets fall through to normal Next.js routing.
 
 The proxy matcher excludes `/api`, `/_next`, `/admin`, `/media`, the favicon and common static asset extensions. Historical `.html` and `.php` paths are deliberately not excluded, because they may themselves be legacy redirect sources.
+
+
+## P3: expected universe, coverage gate, media decisions
+
+### Expected public URL universe
+
+`pnpm wordpress:public-url-source` reads the raw WordPress captures (posts, pages, categories, tags — source of truth) and writes the sanitised, committed `migration-data/source/public-url-source.json`. It lists every expected public URL: published posts as `/?p=<id>`, published pages as `/?page_id=<id>`, categories as `/?cat=<id>`, tags as `/?tag=<slug>`.
+
+`wordpress:inventory` and `wordpress:cutover:gate` cross-check this expected universe against live Payload data. They never derive expectations from the target database: a document missing or unpublished in Payload produces a `payload-not-public` or `missing-from-payload` blocker instead of silently shrinking the inventory. Regression-proven: unpublishing wp:202 keeps the gate blocked.
+
+### Coverage contract
+
+The gate report carries `coverage: {implemented, pending}`. While any check remains pending (crawler/archive path inventory, broken internal links scan, comments coverage, canonical/sitemap/robots/RSS checks, 100% source content reconciliation), the gate always emits a `gate-coverage-incomplete` blocker and stays `blocked`. `ready` is unreachable until the pending list is empty by design.
+
+### Media decisions (human-owned)
+
+Human recover/retire/replace decisions live in the committed `migration-data/source/media-decisions.json` and survive re-extraction. `extract-media.ts` merges a decision into a generated issue only when both `wordpressId` and `uploadsPath` match exactly; a decision pointing at a missing or changed entry throws (fail-closed). `decision: "replace"` additionally requires a non-empty `replacementNote`, otherwise the gate emits `unresolved-media-replacement-note`.
+
 
 ## Future work
 

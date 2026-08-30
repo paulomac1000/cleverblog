@@ -56,7 +56,13 @@ const resolveTarget = (doc: RedirectDocument): ResolvedRedirect | null => {
   const reference = doc.to.reference
   if (!reference) return null
 
-  if (reference.relationTo !== 'posts' && reference.relationTo !== 'pages') {
+  const relationTo = reference.relationTo
+  if (
+    relationTo !== 'posts' &&
+    relationTo !== 'pages' &&
+    relationTo !== 'categories' &&
+    relationTo !== 'tags'
+  ) {
     return null
   }
 
@@ -74,10 +80,16 @@ const resolveTarget = (doc: RedirectDocument): ResolvedRedirect | null => {
   const status = doc.type === '302' ? 302 : doc.type === '301' ? 301 : null
   if (status === null) return null
 
-  return {
-    target: reference.relationTo === 'posts' ? `/articles/${slug}` : `/${slug}`,
-    status,
-  }
+  const target =
+    relationTo === 'posts'
+      ? `/articles/${slug}`
+      : relationTo === 'pages'
+        ? `/${slug}`
+        : relationTo === 'categories'
+          ? `/categories/${slug}`
+          : `/tags/${slug}`
+
+  return { target, status }
 }
 
 const cacheResult = (sourceURL: string, redirect: ResolvedRedirect | null): void => {
