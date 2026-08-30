@@ -1,0 +1,17 @@
+{
+  "checkedAt": "2026-08-30T00:00:00+02:00",
+  "source": "/home/pablo/Downloads/backup_2026-08-17-0728_cleverblogpl_9c9f76dd3451-uploads/uploads",
+  "findings": {
+    "missingExpected": [
+      "2021/02/image.png",
+      "2021/02/image-1.png"
+    ],
+    "presentSimilarButDifferent": [
+      "2021/04/image.png",
+      "2021/04/image-1.png",
+      "2021/04/image-18.png"
+    ],
+    "zipContainsExpected": false
+  },
+  "conclusion": "Google Drive backup does not recover unresolved media 262/263. The similarly named 2021/04 files are different attachments per wordpress.sql.gz / wp_postmeta evidence."
+}

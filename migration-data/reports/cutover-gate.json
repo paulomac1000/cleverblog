@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-08-30T12:02:02.306Z",
+  "status": "blocked",
+  "checks": {
+    "redirectSources": 136,
+    "missingRedirects": 0,
+    "mismatchedRedirects": 0,
+    "publishedUnrewrittenMediaEntries": 1,
+    "pendingRelevantMediaDecisions": 2
+  },
+  "blockers": [
+    {
+      "code": "unresolved-media-decision",
+      "message": "Media wp:263 (2021/02/image-1.png) is referenced by published content and has no recover/retire decision",
+      "wordpressId": 263
+    },
+    {
+      "code": "unresolved-media-decision",
+      "message": "Media wp:262 (2021/02/image.png) is referenced by published content and has no recover/retire decision",
+      "wordpressId": 262
+    },
+    {
+      "code": "unrewritten-media-url",
+      "message": "posts wp:202 is published with 2 unreconciled WordPress media URL(s)",
+      "collection": "posts",
+      "wordpressId": 202,
+      "urls": [
+        "https://cleverblog.pl/wp-content/uploads/2021/02/image-1.png",
+        "https://cleverblog.pl/wp-content/uploads/2021/02/image.png"
+      ]
+    }
+  ]
+}
