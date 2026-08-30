@@ -42,6 +42,24 @@ const parsePositiveInteger = (value: string, field: string): number => {
   return parsed
 }
 
+const parseCommentDateGMT = (value: string, wordpressId: number): string => {
+  if (!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)) {
+    throw new Error(
+      `Invalid WordPress comment comment_date_gmt for wp:${wordpressId}: ${JSON.stringify(value)}`,
+    )
+  }
+
+  const parsed = new Date(`${value.replace(' ', 'T')}Z`)
+
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error(
+      `Invalid WordPress comment comment_date_gmt for wp:${wordpressId}: ${JSON.stringify(value)}`,
+    )
+  }
+
+  return parsed.toISOString()
+}
+
 const main = async () => {
   const raw = JSON.parse(await readFile(inputPath, 'utf8')) as WpCommentItem[]
   const approved = selectApprovedComments(raw)
@@ -102,7 +120,10 @@ const main = async () => {
       depth: 0,
       limit: 1,
       overrideAccess: true,
-      where: { 'legacy.wordpressId': { equals: wordpressId } },
+      where: {
+        'legacy.wordpressId': { equals: wordpressId },
+        _status: { equals: 'published' },
+      },
     })
 
     const id = found.docs[0]?.id ?? null
@@ -125,6 +146,7 @@ const main = async () => {
     for (const comment of level) {
       const wordpressId = parsePositiveInteger(comment.comment_ID, 'comment_ID')
       const wordpressKey = String(wordpressId)
+      const createdAt = parseCommentDateGMT(comment.comment_date_gmt, wordpressId)
 
       if (processedCommentIds.has(wordpressKey)) {
         throw new Error(`WordPress comment wp:${wordpressId} was reached more than once`)
@@ -185,6 +207,7 @@ const main = async () => {
         content: comment.comment_content,
         status: 'approved' as const,
         legacyWordPressId: wordpressId,
+        createdAt,
       }
 
       if (existing.docs[0]) {
@@ -264,6 +287,13 @@ const main = async () => {
   console.log(
     `comments import: ${issues.length} issue entries, ${flattened.length} flattened (see migration-data/reports/comments-issues.json)`,
   )
+
+  if (skipped > 0) {
+    console.error(
+      `FAIL: comments import skipped ${skipped} approved comment(s) because their published Payload post could not be resolved; see migration-data/reports/comments-issues.json`,
+    )
+    process.exitCode = 1
+  }
 }
 
 await main()

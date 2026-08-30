@@ -184,12 +184,6 @@ async function main() {
       contentFormat: 'legacy-html' as const,
       commentsEnabled: post.commentsEnabled,
       publishedAt: post.publishedAt ?? undefined,
-      verification: { status: 'imported' as const },
-      review: { status: 'approved' as const },
-      provenance: {
-        origin: 'wordpress' as const,
-        sourceVisibility: 'public' as const,
-      },
       categories: categoryIds,
       tags: tagIds,
       legacy: {
@@ -235,7 +229,15 @@ async function main() {
     } else {
       const createdPost = await payload.create({
         collection: 'posts',
-        data,
+        data: {
+          ...data,
+          verification: { status: 'imported' as const },
+          review: { status: 'approved' as const },
+          provenance: {
+            origin: 'wordpress' as const,
+            sourceVisibility: 'public' as const,
+          },
+        },
         draft: post.status !== 'publish',
         context: { wordpressMigration: true },
         overrideAccess: true,

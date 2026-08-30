@@ -16,6 +16,11 @@ const main = async () => {
       depth: 0,
       limit: SOURCE_LIMIT,
       overrideAccess: true,
+      where: {
+        _status: {
+          equals: 'published',
+        },
+      },
     })
 
     if (result.totalDocs > result.docs.length) {
@@ -24,24 +29,37 @@ const main = async () => {
       )
     }
 
-    return result.docs.flatMap((doc) => {
-      if (doc._status !== 'published') return []
+    const sources: RedirectSource[] = []
 
+    for (const doc of result.docs) {
       const wordpressId = doc.legacy?.wordpressId
       const slug = doc.slug
 
-      if (typeof wordpressId !== 'number') return []
-      if (typeof slug !== 'string' || !slug.trim()) return []
+      if (
+        typeof wordpressId !== 'number' ||
+        !Number.isSafeInteger(wordpressId) ||
+        wordpressId <= 0
+      ) {
+        throw new Error(
+          `Published redirect source ${collection} payload:${doc.id} has invalid or missing legacy.wordpressId: ${String(wordpressId)}`,
+        )
+      }
 
-      return [
-        {
-          wordpressId,
-          slug,
-          collection,
-          payloadId: doc.id,
-        },
-      ]
-    })
+      if (typeof slug !== 'string' || !slug.trim()) {
+        throw new Error(
+          `Published redirect source ${collection} payload:${doc.id} (wp:${wordpressId}) has no usable slug`,
+        )
+      }
+
+      sources.push({
+        wordpressId,
+        slug,
+        collection,
+        payloadId: doc.id,
+      })
+    }
+
+    return sources
   }
 
   const sources = [

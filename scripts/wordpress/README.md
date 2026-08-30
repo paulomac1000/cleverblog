@@ -148,6 +148,10 @@ The importers are designed for idempotent re-runs. Taxonomy, media, posts, pages
 
 Posts and pages compare the source-derived target state before updating a versioned Payload document. An unchanged re-run logs `unchanged wp:<id>` and does not create another Payload version. `legacy.importedAt` is preserved across real updates, and a `migrationVersion` change by itself does not multiply document versions.
 
+For posts, `verification`, `review` and `provenance` are migration defaults applied only when the Payload document is first created. Re-runs may update source-owned fields but must not overwrite those three human-owned workflow fields on an existing document.
+
+The current P2c1 scope ends with approved-comments import and query-style redirects. Full migration reconciliation, archive inventory, resolution of outstanding media inventory and the cutover gate are P3 work and are not claimed by this phase.
+
 ## Migration contracts
 
 ### Historical HTML and render HTML
@@ -176,7 +180,7 @@ Media extraction treats `_wp_attached_file` as authoritative when it exists, ver
 migration-data/reports/media-issues.json
 ```
 
-The current unresolved WordPress media IDs are 262 and 263. They remain explicit migration issues until each receives a recover/retire decision; they are not silently substituted with another file.
+The current unresolved WordPress media IDs are 262 and 263. They remain explicit migration issues; their recover/retire decisions and reconciliation against the archive inventory belong to P3 rather than P2c1.
 
 ### Drafts and published rows
 
@@ -188,9 +192,11 @@ The production/main-row migration contract is therefore: only historically publi
 
 Only WordPress comments with `comment_approved === "1"` are imported. Comments are imported topologically: roots first, then descendants, with a bounded maximum parent depth.
 
+`comment_date_gmt` is authoritative for the Payload `createdAt` timestamp. It must have the WordPress UTC form `YYYY-MM-DD HH:MM:SS`; the importer converts it to an explicit UTC ISO timestamp and throws on an invalid value. Both creates and updates write that historical `createdAt`, so a re-run repairs comments that were previously stamped with migration time.
+
 A source comment whose parent is not present in the approved source set is promoted to a root instead of being dropped. Missing or skipped Payload parents are handled with the same flattening fail-safe.
 
-Post resolution is fail-closed. A comment whose `comment_post_ID` cannot be resolved to an imported Payload post is skipped rather than attached to a guessed document; descendants continue through the traversal and are flattened if their parent chain was broken.
+Post resolution is public-only and fail-closed: `comment_post_ID` must resolve by `legacy.wordpressId` to a Payload post whose `_status` is `published`. A comment whose post cannot be resolved is skipped rather than attached to a guessed or draft document; descendants continue through the traversal and are flattened if their parent chain was broken.
 
 Every source-parent flattening, missing Payload parent and unknown-post skip is written to:
 
@@ -198,7 +204,7 @@ Every source-parent flattening, missing Payload parent and unknown-post skip is 
 migration-data/reports/comments-issues.json
 ```
 
-That report is overwritten with the complete findings from the current comments import. Skipped comments remain fail-visible in the report but do not make the whole comments import exit non-zero.
+That report is overwritten with the complete findings from the current comments import. Parent flattening is an intentional migration transformation and does not by itself make the import fail. Any approved comment skipped because its published Payload post cannot be resolved makes the importer log `FAIL` and exit non-zero after the report has been written.
 
 Comments are upserted by `legacyWordPressId`. Re-running an unchanged 12-comment approved set therefore produces zero duplicate documents; the existing non-versioned Comments collection may be updated safely.
 
@@ -213,9 +219,9 @@ page: /?page_id=<wordpressId>
 
 The migration-level redirect model calls these values `fromURL` and `toURL`. In `@payloadcms/plugin-redirects@3.88.0`, the actual collection persists them as `from` and `to.reference`, where `to.reference` is the polymorphic relationship to `posts` or `pages`; redirect type is `301`.
 
-Redirects are upserted by their historical source URL. Only published post/page documents with both `legacy.wordpressId` and a usable slug become migration redirect targets.
+Redirects are upserted by their historical source URL. The importer queries published post/page documents only. Every returned published document must have a positive numeric `legacy.wordpressId` and a non-empty slug; a missing or invalid value throws instead of silently reducing the redirect inventory.
 
-The Payload redirects plugin stores redirect configuration but does not serve redirects itself. `src/middleware.ts` queries the redirects REST collection using the complete incoming `pathname + search`, requests `depth=1`, and resolves relationship targets as:
+The Payload redirects plugin stores redirect configuration but does not serve redirects itself. Next.js 16 `src/proxy.ts` queries the redirects REST collection using the complete incoming `pathname + search`, requests `depth=1`, and resolves relationship targets as:
 
 ```text
 posts -> /articles/<slug>
@@ -224,11 +230,16 @@ pages -> /<slug>
 
 The minimal `[slug]` frontend page route is therefore part of the redirect contract: page redirects to `/kontakt`, `/o-nas`, policy pages and other static migrated pages must resolve to an actual frontend route.
 
-The middleware excludes Payload/API, Next internals, media/admin and static-file requests. Successful redirect hits and misses use a short in-memory 60-second cache; an API failure or missing redirect falls through to normal routing.
+Redirect lookup uses the incoming request origin by default, so production does not depend on a localhost API URL. `REDIRECTS_API_ORIGIN` may optionally supply a different exact origin, for example `https://cleverblog.pl`; it must not include `/api` or another path.
+
+Proxy redirect API requests have a 2-second timeout. Successful redirect hits and misses are cached in memory for 60 seconds, with a hard maximum of 500 entries and oldest-entry eviction when the cache is full. API errors, timeouts and malformed redirect targets fall through to normal Next.js routing.
+
+The proxy matcher excludes `/api`, `/_next`, `/admin`, `/media`, the favicon and common static asset extensions. Historical `.html` and `.php` paths are deliberately not excluded, because they may themselves be legacy redirect sources.
 
 ## Future work
 
 - Add HTML normalisation and `convertHTMLToLexical()` for clean structured content while retaining `legacy.originalHTML` as the immutable source snapshot and `legacy.renderHTML` as the migration working copy.
 - Add explicit warning/fallback classification for unsupported shortcodes, blocks and HTML-to-Lexical conversion failures instead of guessing or silently dropping source content.
-- Verify materialised redirects against a crawler-derived public URL inventory before cutover.
-- Produce a cutover-grade machine migration report covering published content, taxonomy, media, comments and redirects, and fail cutover when any required published legacy item remains unaccounted for.
+- P3: reconcile unresolved media IDs 262/263 and the complete archive inventory instead of treating the current imported subset as cutover-complete.
+- P3: verify materialised redirects against a crawler/archive-derived public URL inventory.
+- P3: produce a cutover-grade machine migration report covering published content, taxonomy, media, comments and redirects, and fail the cutover gate when any required published legacy item remains unaccounted for.

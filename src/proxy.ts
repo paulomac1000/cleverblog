@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 const CACHE_TTL_MS = 60_000
+const CACHE_MAX_ENTRIES = 500
+const LOOKUP_TIMEOUT_MS = 2_000
 
 type ResolvedRedirect = {
   target: string
@@ -33,19 +35,19 @@ type RedirectResponse = {
 const redirectCache = new Map<string, CacheEntry>()
 
 const apiBaseForRequest = (request: NextRequest): URL => {
-  const explicit = process.env.REDIRECTS_API_URL
-  if (explicit) {
-    return new URL(`${explicit.replace(/\/+$/, '')}/`, request.url)
+  const configuredOrigin = process.env.REDIRECTS_API_ORIGIN?.trim()
+
+  if (!configuredOrigin) {
+    return new URL('/api/', request.url)
   }
 
-  const payloadBase = process.env.PAYLOAD_API_URL
-  if (payloadBase) {
-    const trimmed = payloadBase.replace(/\/+$/, '')
-    const withApi = /\/api$/i.test(trimmed) ? trimmed : `${trimmed}/api`
-    return new URL(`${withApi}/`, request.url)
+  const origin = new URL(configuredOrigin)
+
+  if (origin.pathname !== '/' || origin.search || origin.hash) {
+    throw new Error('REDIRECTS_API_ORIGIN must be an origin without a path, query, or fragment')
   }
 
-  return new URL('http://127.0.0.1:3000/api/')
+  return new URL('/api/', origin)
 }
 
 const resolveTarget = (doc: RedirectDocument): ResolvedRedirect | null => {
@@ -78,6 +80,27 @@ const resolveTarget = (doc: RedirectDocument): ResolvedRedirect | null => {
   }
 }
 
+const cacheResult = (sourceURL: string, redirect: ResolvedRedirect | null): void => {
+  if (redirectCache.has(sourceURL)) {
+    redirectCache.delete(sourceURL)
+  }
+
+  while (redirectCache.size >= CACHE_MAX_ENTRIES) {
+    const oldestKey = redirectCache.keys().next().value
+
+    if (oldestKey === undefined) {
+      break
+    }
+
+    redirectCache.delete(oldestKey)
+  }
+
+  redirectCache.set(sourceURL, {
+    expiresAt: Date.now() + CACHE_TTL_MS,
+    redirect,
+  })
+}
+
 const lookupRedirect = async (
   request: NextRequest,
   sourceURL: string,
@@ -93,17 +116,18 @@ const lookupRedirect = async (
     redirectCache.delete(sourceURL)
   }
 
-  const endpoint = new URL('redirects', apiBaseForRequest(request))
-  endpoint.searchParams.set('where[from][equals]', sourceURL)
-  endpoint.searchParams.set('depth', '1')
-  endpoint.searchParams.set('limit', '1')
-
   try {
+    const endpoint = new URL('redirects', apiBaseForRequest(request))
+    endpoint.searchParams.set('where[from][equals]', sourceURL)
+    endpoint.searchParams.set('depth', '1')
+    endpoint.searchParams.set('limit', '1')
+
     const response = await fetch(endpoint, {
       cache: 'no-store',
       headers: {
         accept: 'application/json',
       },
+      signal: AbortSignal.timeout(LOOKUP_TIMEOUT_MS),
     })
 
     if (!response.ok) {
@@ -113,10 +137,7 @@ const lookupRedirect = async (
     const body = (await response.json()) as RedirectResponse
     const redirect = body.docs?.[0] ? resolveTarget(body.docs[0]) : null
 
-    redirectCache.set(sourceURL, {
-      expiresAt: now + CACHE_TTL_MS,
-      redirect,
-    })
+    cacheResult(sourceURL, redirect)
 
     return redirect
   } catch {
@@ -124,7 +145,7 @@ const lookupRedirect = async (
   }
 }
 
-export async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const sourceURL = `${request.nextUrl.pathname}${request.nextUrl.search}`
   const redirect = await lookupRedirect(request, sourceURL)
 
@@ -132,9 +153,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  return Response.redirect(new URL(redirect.target, request.url), redirect.status)
+  return NextResponse.redirect(new URL(redirect.target, request.url), redirect.status)
 }
 
 export const config = {
-  matcher: ['/((?!api(?:/|$)|_next(?:/|$)|media(?:/|$)|admin(?:/|$)|.*\\..*).*)'],
+  matcher: [
+    '/((?!api(?:/|$)|_next(?:/|$)|admin(?:/|$)|media(?:/|$)|favicon\\.ico$|.*\\.(?:jpg|jpeg|png|gif|webp|avif|svg|ico|css|js|txt|xml|json|woff|woff2)$).*)',
+  ],
 }
