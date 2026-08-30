@@ -39,6 +39,27 @@ describe('buildRenderHTML', () => {
     expect(result).not.toContain('wp-content')
   })
 
+  it('rewrites a protocol-relative WordPress uploads URL without retaining the host', () => {
+    const html =
+      '<img src="//cleverblog.pl/wp-content/uploads/2020/05/a.jpg">'
+
+    const result = buildRenderHTML(html, mediaMap)
+
+    expect(result).toContain('src="/api/media/file/7-a.jpg"')
+    expect(result).not.toContain('//cleverblog.pl/api/media')
+    expect(result).not.toContain('wp-content')
+  })
+
+  it('leaves an unknown media variant untouched for reporting', () => {
+    const url =
+      'https://cleverblog.pl/wp-content/uploads/2020/05/missing-300x200.jpg'
+    const result = buildRenderHTML(`<img src="${url}">`, mediaMap)
+
+    expect(result).toContain(`src="${url}"`)
+    expect(result).toContain('missing-300x200.jpg')
+    expect(collectUnrewrittenUrls(result)).toEqual([url])
+  })
+
   it('rewrites resized and scaled variants to the original media asset', () => {
     const resized =
       '<img src="https://cleverblog.pl/wp-content/uploads/2020/05/a-1024x768.jpg">'
@@ -89,6 +110,7 @@ describe('buildRenderHTML', () => {
     const inputs = [
       'https://cleverblog.pl/wp-content/uploads/2020/05/a.jpg',
       'https://cleverblog.pl/blog/wp-content/uploads/2020/05/a.jpg',
+      '//cleverblog.pl/wp-content/uploads/2020/05/a.jpg',
       '/wp-content/uploads/2020/05/a.jpg',
       'https://cleverblog.pl/wp-content/uploads/2020/05/a-1024x768.jpg',
       'https://cleverblog.pl/wp-content/uploads/2020/05/a-scaled.jpg',
@@ -98,6 +120,7 @@ describe('buildRenderHTML', () => {
       const result = buildRenderHTML(`<img src="${src}">`, mediaMap)
 
       expect(result).not.toContain('uploads//api')
+      expect(result).not.toContain('//cleverblog.pl/api/media')
       expect(result).not.toContain('wp-content')
     }
   })

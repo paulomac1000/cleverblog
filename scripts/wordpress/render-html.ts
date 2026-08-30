@@ -59,16 +59,36 @@ export const buildMediaRewriteMap = async (): Promise<Map<string, string>> => {
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-// WP generated variants are normalized only inside WP uploads URLs. External
-// URLs and unrelated text that happen to contain "-WxH" or "-scaled" survive.
-const normalizeVariantUrls = (html: string): string =>
+// WP generated variants are normalized only inside WP uploads URLs and only
+// when the stripped path resolves to a known attachment in the rewrite map.
+// Unknown variants survive unchanged so migration reporting can flag them.
+const normalizeVariantUrls = (
+  html: string,
+  mediaMap: Map<string, string>,
+): string =>
   html.replace(
     /(?:(?:https?:)?\/\/[^\s"'<>)]*)?\/wp-content\/uploads\/[^\s"'<>)]*/gi,
-    (url) =>
-      url.replace(
+    (url) => {
+      const normalizedUrl = url.replace(
         /(?:-\d+x\d+|-scaled)(?=\.(?:jpe?g|png|gif|webp|avif)(?:[?#]|$))/i,
         '',
-      ),
+      )
+
+      if (normalizedUrl === url) return url
+
+      const marker = '/wp-content/uploads/'
+      const markerIndex = normalizedUrl.toLowerCase().indexOf(marker)
+      if (markerIndex === -1) return url
+
+      const relWithSuffix = normalizedUrl.slice(markerIndex + marker.length)
+      const suffixIndex = relWithSuffix.search(/[?#]/)
+      const rel =
+        suffixIndex === -1
+          ? relWithSuffix
+          : relWithSuffix.slice(0, suffixIndex)
+
+      return mediaMap.has(rel) ? normalizedUrl : url
+    },
   )
 
 /**
@@ -82,7 +102,7 @@ export const buildRenderHTML = (html: string, mediaMap: Map<string, string>): st
     for (const [rel, newUrl] of mediaMap) {
       out = out.replace(
         new RegExp(
-          `(?:https?:\\/\\/[^"'\\s)]+)?\\/wp-content\\/uploads\\/${escapeRegExp(rel)}(?=[?#"')\\s]|$)`,
+          `(?:https?:\\/\\/[^"'\\s)]+|\\/\\/[^"'\\s)]+)?\\/wp-content\\/uploads\\/${escapeRegExp(rel)}(?=[?#"')\\s]|$)`,
           'gi',
         ),
         newUrl,
@@ -90,7 +110,8 @@ export const buildRenderHTML = (html: string, mediaMap: Map<string, string>): st
     }
     return out
   }
-  const out = apply(normalizeVariantUrls(apply(html)))
+
+  const out = apply(normalizeVariantUrls(html, mediaMap))
   return sanitizeHtml(out, {
     allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'figure', 'figcaption', 'h1', 'h2']),
     allowedAttributes: {

@@ -44,15 +44,15 @@ wp term list post_tag \
 Capture post-to-term relationships directly from the WordPress taxonomy tables:
 
 ```bash
-wp db query "
-SELECT
-  tr.object_id AS objectId,
-  tt.term_id AS termId,
-  tt.taxonomy AS taxonomy
-FROM wp_term_relationships tr
-JOIN wp_term_taxonomy tt
-  ON tt.term_taxonomy_id = tr.term_taxonomy_id
-" --format=json > /secure-backup/term-relations.json
+wp eval '
+$rows = $GLOBALS["wpdb"]->get_results(
+  "SELECT tr.object_id AS objectId, tt.term_id AS termId, tt.taxonomy AS taxonomy
+   FROM {$GLOBALS["wpdb"]->term_relationships} tr
+   JOIN {$GLOBALS["wpdb"]->term_taxonomy} tt ON tt.term_taxonomy_id = tr.term_taxonomy_id",
+  ARRAY_A
+);
+echo wp_json_encode(array_values($rows));
+' > /secure-backup/term-relations.json
 ```
 
 Capture attachment rows used to build the media manifest:
@@ -63,20 +63,34 @@ wp post list --post_type=attachment --post_status=any \
   --format=json > /secure-backup/media.json
 ```
 
-`_wp_attached_file` is the authoritative uploads-relative path when present. Capture it together with `_wp_attachment_image_alt` from `wp_postmeta` and reshape the SQL rows into the object keyed by attachment ID that `extract-media.ts` consumes:
+`_wp_attached_file` is the authoritative uploads-relative path when present. Capture it together with `_wp_attachment_image_alt` from `wp_postmeta`. The PHP capture emits the object keyed by attachment ID that `extract-media.ts` consumes directly, so no `jq` reshaping step is required:
 
 ```bash
-wp db query "
-SELECT
-  post_id AS wordpressId,
-  MAX(CASE WHEN meta_key = '_wp_attached_file' THEN meta_value END) AS attachedFile,
-  MAX(CASE WHEN meta_key = '_wp_attachment_image_alt' THEN meta_value END) AS alt
-FROM wp_postmeta
-WHERE meta_key IN ('_wp_attached_file', '_wp_attachment_image_alt')
-GROUP BY post_id
-" --format=json \
-  | jq 'map({key: (.wordpressId | tostring), value: {attachedFile, alt}}) | from_entries' \
-  > /secure-backup/attachment-meta.json
+wp eval '
+$sql = $GLOBALS["wpdb"]->prepare(
+  "SELECT
+     post_id AS wordpressId,
+     MAX(CASE WHEN meta_key = %s THEN meta_value END) AS attachedFile,
+     MAX(CASE WHEN meta_key = %s THEN meta_value END) AS alt
+   FROM {$GLOBALS["wpdb"]->postmeta}
+   WHERE meta_key IN (%s, %s)
+   GROUP BY post_id",
+  "_wp_attached_file",
+  "_wp_attachment_image_alt",
+  "_wp_attached_file",
+  "_wp_attachment_image_alt"
+);
+$rows = $GLOBALS["wpdb"]->get_results($sql, ARRAY_A);
+
+$meta = [];
+foreach (array_values($rows) as $row) {
+  $meta[(string) $row["wordpressId"]] = [
+    "attachedFile" => $row["attachedFile"],
+    "alt" => $row["alt"],
+  ];
+}
+echo wp_json_encode((object) $meta);
+' > /secure-backup/attachment-meta.json
 ```
 
 Capture the uploads tree as a tar archive so attachment paths remain intact:
