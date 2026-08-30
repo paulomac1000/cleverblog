@@ -29,6 +29,14 @@ wp post list --post_type=page --post_status=any \
   --format=json > /secure-backup/pages.json
 ```
 
+Capture comments including moderation state and parent relationships:
+
+```bash
+wp comment list --status=all \
+  --fields=comment_ID,comment_post_ID,comment_parent,comment_author,comment_author_email,comment_author_url,comment_content,comment_approved,comment_date,comment_date_gmt \
+  --format=json > /secure-backup/comments.json
+```
+
 Capture taxonomy definitions:
 
 ```bash
@@ -125,6 +133,8 @@ pnpm wordpress:import:taxonomy
 pnpm wordpress:import:media
 pnpm wordpress:import:posts
 pnpm wordpress:import:pages
+pnpm wordpress:import:comments
+pnpm wordpress:import:redirects
 ```
 
 Set a migration version when required, for example:
@@ -134,7 +144,9 @@ WORDPRESS_MIGRATION_VERSION=wp-rehearsal-001 pnpm wordpress:import:posts
 WORDPRESS_MIGRATION_VERSION=wp-rehearsal-001 pnpm wordpress:import:pages
 ```
 
-The importers are designed for idempotent re-runs. Taxonomy, media, posts and pages resolve their WordPress identity and update the corresponding Payload record rather than creating a second migration copy.
+The importers are designed for idempotent re-runs. Taxonomy, media, posts, pages, comments and redirects resolve their WordPress identity or legacy URL and update the corresponding Payload record rather than creating a second migration copy.
+
+Posts and pages compare the source-derived target state before updating a versioned Payload document. An unchanged re-run logs `unchanged wp:<id>` and does not create another Payload version. `legacy.importedAt` is preserved across real updates, and a `migrationVersion` change by itself does not multiply document versions.
 
 ## Migration contracts
 
@@ -172,10 +184,51 @@ WordPress publish records are imported as published Payload documents. Non-publi
 
 The production/main-row migration contract is therefore: only historically published posts and pages are public/published rows; draft/private/unpublished source records must not become published merely because the migration was re-run.
 
+### Comments
+
+Only WordPress comments with `comment_approved === "1"` are imported. Comments are imported topologically: roots first, then descendants, with a bounded maximum parent depth.
+
+A source comment whose parent is not present in the approved source set is promoted to a root instead of being dropped. Missing or skipped Payload parents are handled with the same flattening fail-safe.
+
+Post resolution is fail-closed. A comment whose `comment_post_ID` cannot be resolved to an imported Payload post is skipped rather than attached to a guessed document; descendants continue through the traversal and are flattened if their parent chain was broken.
+
+Every source-parent flattening, missing Payload parent and unknown-post skip is written to:
+
+```text
+migration-data/reports/comments-issues.json
+```
+
+That report is overwritten with the complete findings from the current comments import. Skipped comments remain fail-visible in the report but do not make the whole comments import exit non-zero.
+
+Comments are upserted by `legacyWordPressId`. Re-running an unchanged 12-comment approved set therefore produces zero duplicate documents; the existing non-versioned Comments collection may be updated safely.
+
+### Redirects
+
+Historical WordPress query URLs are materialised from live imported Payload documents rather than from ignored normalized artifacts:
+
+```text
+post: /?p=<wordpressId>
+page: /?page_id=<wordpressId>
+```
+
+The migration-level redirect model calls these values `fromURL` and `toURL`. In `@payloadcms/plugin-redirects@3.88.0`, the actual collection persists them as `from` and `to.reference`, where `to.reference` is the polymorphic relationship to `posts` or `pages`; redirect type is `301`.
+
+Redirects are upserted by their historical source URL. Only published post/page documents with both `legacy.wordpressId` and a usable slug become migration redirect targets.
+
+The Payload redirects plugin stores redirect configuration but does not serve redirects itself. `src/middleware.ts` queries the redirects REST collection using the complete incoming `pathname + search`, requests `depth=1`, and resolves relationship targets as:
+
+```text
+posts -> /articles/<slug>
+pages -> /<slug>
+```
+
+The minimal `[slug]` frontend page route is therefore part of the redirect contract: page redirects to `/kontakt`, `/o-nas`, policy pages and other static migrated pages must resolve to an actual frontend route.
+
+The middleware excludes Payload/API, Next internals, media/admin and static-file requests. Successful redirect hits and misses use a short in-memory 60-second cache; an API failure or missing redirect falls through to normal routing.
+
 ## Future work
 
 - Add HTML normalisation and `convertHTMLToLexical()` for clean structured content while retaining `legacy.originalHTML` as the immutable source snapshot and `legacy.renderHTML` as the migration working copy.
 - Add explicit warning/fallback classification for unsupported shortcodes, blocks and HTML-to-Lexical conversion failures instead of guessing or silently dropping source content.
-- Import comments in two passes so post associations and parent-comment relationships can be reconstructed deterministically.
-- Materialise redirect records for historical WordPress URL forms and verify them against a crawler-derived public URL inventory.
+- Verify materialised redirects against a crawler-derived public URL inventory before cutover.
 - Produce a cutover-grade machine migration report covering published content, taxonomy, media, comments and redirects, and fail cutover when any required published legacy item remains unaccounted for.

@@ -14,6 +14,19 @@ type UnrewrittenMediaEntry = {
   urls: string[]
 }
 
+type ComparablePostInput = {
+  title?: unknown
+  slug?: unknown
+  excerpt?: unknown
+  contentFormat?: unknown
+  commentsEnabled?: unknown
+  publishedAt?: unknown
+  categories?: unknown
+  tags?: unknown
+  legacy?: unknown
+  _status?: unknown
+}
+
 const readJsonOrEmpty = async (filePath: string): Promise<UnrewrittenMediaEntry[]> => {
   try {
     return JSON.parse(await readFile(filePath, 'utf8')) as UnrewrittenMediaEntry[]
@@ -22,6 +35,58 @@ const readJsonOrEmpty = async (filePath: string): Promise<UnrewrittenMediaEntry[
     return []
   }
 }
+
+const asRecord = (value: unknown): Record<string, unknown> =>
+  typeof value === 'object' && value !== null
+    ? (value as Record<string, unknown>)
+    : {}
+
+const normalizeRelationshipIds = (value: unknown): string[] => {
+  if (!Array.isArray(value)) return []
+
+  return value
+    .flatMap((item): string[] => {
+      if (item === null || item === undefined) return []
+
+      if (typeof item === 'object') {
+        const id = (item as { id?: unknown }).id
+        return id === null || id === undefined ? [] : [String(id)]
+      }
+
+      return [String(item)]
+    })
+    .sort()
+}
+
+const comparableLegacy = (value: unknown) => {
+  const legacy = asRecord(value)
+
+  return {
+    wordpressId: legacy.wordpressId ?? null,
+    wordpressGuid: legacy.wordpressGuid ?? null,
+    originalUrl: legacy.originalUrl ?? null,
+    originalSlug: legacy.originalSlug ?? null,
+    originalHTML: legacy.originalHTML ?? null,
+    renderHTML: legacy.renderHTML ?? null,
+    sourceHash: legacy.sourceHash ?? null,
+  }
+}
+
+const comparablePost = (value: ComparablePostInput) => ({
+  title: value.title ?? '',
+  slug: value.slug ?? '',
+  excerpt: value.excerpt ?? '',
+  contentFormat: value.contentFormat ?? null,
+  commentsEnabled: value.commentsEnabled === true,
+  publishedAt: value.publishedAt ?? null,
+  categories: normalizeRelationshipIds(value.categories),
+  tags: normalizeRelationshipIds(value.tags),
+  legacy: comparableLegacy(value.legacy),
+  _status: value._status ?? null,
+})
+
+const sameImportedPost = (existing: ComparablePostInput, target: ComparablePostInput): boolean =>
+  JSON.stringify(comparablePost(existing)) === JSON.stringify(comparablePost(target))
 
 const inputPath = path.join(process.cwd(), 'migration-data/normalized/posts.json')
 const MIGRATION_VERSION = process.env.WORDPRESS_MIGRATION_VERSION ?? 'wp-foundation-v1'
@@ -41,38 +106,59 @@ async function main() {
     termIds: number[],
   ): Promise<number[]> => {
     const resolved: number[] = []
+
     for (const termId of termIds) {
       const found = await payload.find({
         collection,
+        depth: 0,
         limit: 1,
         overrideAccess: true,
         where: { legacyWordPressId: { equals: termId } },
       })
+
       if (!found.docs[0]) {
         throw new Error(
           `Taxonomy relation cannot be resolved: ${collection} term wp:${termId} is missing in Payload`,
         )
       }
+
       resolved.push(found.docs[0].id)
     }
+
     return resolved
   }
 
-  const unrewritten: { collection: string; wordpressId: number; urls: string[] }[] = []
+  const unrewritten: {
+    collection: string
+    wordpressId: number
+    urls: string[]
+  }[] = []
+
+  let created = 0
+  let updated = 0
+  let unchanged = 0
 
   for (const post of posts) {
-    const postRelations = relations.filter((r) => r.objectId === post.wordpressId)
+    const postRelations = relations.filter((relation) => relation.objectId === post.wordpressId)
+
     const categoryIds = await resolveTermIds(
       'categories',
-      postRelations.filter((r) => r.taxonomy === 'category').map((r) => r.termId),
+      postRelations
+        .filter((relation) => relation.taxonomy === 'category')
+        .map((relation) => relation.termId),
     )
+
     const tagIds = await resolveTermIds(
       'tags',
-      postRelations.filter((r) => r.taxonomy === 'post_tag').map((r) => r.termId),
+      postRelations
+        .filter((relation) => relation.taxonomy === 'post_tag')
+        .map((relation) => relation.termId),
     )
 
     const existing = await payload.find({
       collection: 'posts',
+      depth: 0,
+      draft: post.status !== 'publish',
       limit: 1,
       overrideAccess: true,
       where: { 'legacy.wordpressId': { equals: post.wordpressId } },
@@ -80,9 +166,16 @@ async function main() {
 
     const renderHTML = buildRenderHTML(post.originalHTML, mediaMap)
     const leftoverUrls = collectUnrewrittenUrls(renderHTML)
+
     if (leftoverUrls.length) {
-      unrewritten.push({ collection: 'posts', wordpressId: post.wordpressId, urls: leftoverUrls })
+      unrewritten.push({
+        collection: 'posts',
+        wordpressId: post.wordpressId,
+        urls: leftoverUrls,
+      })
     }
+
+    const importedAt = new Date().toISOString()
 
     const data = {
       title: post.title,
@@ -93,7 +186,10 @@ async function main() {
       publishedAt: post.publishedAt ?? undefined,
       verification: { status: 'imported' as const },
       review: { status: 'approved' as const },
-      provenance: { origin: 'wordpress' as const, sourceVisibility: 'public' as const },
+      provenance: {
+        origin: 'wordpress' as const,
+        sourceVisibility: 'public' as const,
+      },
       categories: categoryIds,
       tags: tagIds,
       legacy: {
@@ -104,14 +200,21 @@ async function main() {
         originalHTML: post.originalHTML,
         renderHTML,
         sourceHash: post.sourceHash,
-        importedAt: new Date().toISOString(),
+        importedAt,
         migrationVersion: MIGRATION_VERSION,
       },
       _status: post.status === 'publish' ? ('published' as const) : ('draft' as const),
     }
 
     if (existing.docs[0]) {
-      const priorImportedAt = (existing.docs[0].legacy as { importedAt?: string } | null)?.importedAt
+      if (sameImportedPost(existing.docs[0], data)) {
+        unchanged += 1
+        console.log(`unchanged wp:${post.wordpressId}`)
+        continue
+      }
+
+      const priorImportedAt = existing.docs[0].legacy?.importedAt
+
       await payload.update({
         collection: 'posts',
         id: existing.docs[0].id,
@@ -119,31 +222,47 @@ async function main() {
           ...data,
           legacy: {
             ...data.legacy,
-            importedAt: priorImportedAt ?? new Date().toISOString(),
+            importedAt: priorImportedAt ?? importedAt,
           },
         },
         draft: post.status !== 'publish',
         context: { wordpressMigration: true },
         overrideAccess: true,
       })
+
+      updated += 1
       console.log(`updated wp:${post.wordpressId} -> payload:${existing.docs[0].id}`)
     } else {
-      const created = await payload.create({
+      const createdPost = await payload.create({
         collection: 'posts',
         data,
         draft: post.status !== 'publish',
         context: { wordpressMigration: true },
         overrideAccess: true,
       })
-      console.log(`created wp:${post.wordpressId} -> payload:${created.id}`)
+
+      created += 1
+      console.log(`created wp:${post.wordpressId} -> payload:${createdPost.id}`)
     }
   }
 
-  const reportPath = path.join(process.cwd(), 'migration-data/reports/unrewritten-media-urls.json')
+  console.log(
+    `posts import: ${created} created, ${updated} updated, ${unchanged} unchanged (${posts.length} posts)`,
+  )
+
+  const reportPath = path.join(
+    process.cwd(),
+    'migration-data/reports/unrewritten-media-urls.json',
+  )
   const prior = await readJsonOrEmpty(reportPath)
   const others = prior.filter((entry) => entry.collection !== 'posts')
+
   await mkdir(path.dirname(reportPath), { recursive: true })
-  await writeFile(reportPath, `${JSON.stringify([...others, ...unrewritten], null, 2)}\n`)
+  await writeFile(
+    reportPath,
+    `${JSON.stringify([...others, ...unrewritten], null, 2)}\n`,
+  )
+
   console.log(
     `posts import: unrewritten WP media urls in ${unrewritten.length} posts (see migration-data/reports/unrewritten-media-urls.json)`,
   )

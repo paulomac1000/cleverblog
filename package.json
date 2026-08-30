@@ -18,7 +18,9 @@
     "wordpress:import:taxonomy": "tsx scripts/wordpress/import-taxonomy.ts",
     "wordpress:import:media": "tsx scripts/wordpress/import-media.ts",
     "wordpress:normalize:pages": "tsx scripts/wordpress/normalize-pages.ts",
-    "wordpress:import:pages": "tsx scripts/wordpress/import-pages.ts"
+    "wordpress:import:pages": "tsx scripts/wordpress/import-pages.ts",
+    "wordpress:import:comments": "tsx scripts/wordpress/import-comments.ts",
+    "wordpress:import:redirects": "tsx scripts/wordpress/import-redirects.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.88.0",
