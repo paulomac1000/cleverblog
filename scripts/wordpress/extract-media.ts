@@ -194,7 +194,10 @@ const main = async () => {
   const sourceDir = path.join(process.cwd(), 'migration-data/source')
   const uploadsRoot = path.join(rawDir, 'uploads')
 
-  const items = JSON.parse(await readFile(path.join(rawDir, 'media.json'), 'utf8')) as WpMediaItem[]
+  const items = JSON.parse(
+    await readFile(path.join(rawDir, 'media.json'), 'utf8'),
+  ) as WpMediaItem[]
+
   const attachmentMeta = JSON.parse(
     await readFile(path.join(rawDir, 'attachment-meta.json'), 'utf8'),
   ) as Record<string, WpAttachmentMeta>
@@ -218,10 +221,14 @@ const main = async () => {
     media: normalized,
     unresolved,
   }
-  await writeFile(path.join(outDir, 'media-manifest.json'), JSON.stringify(manifest, null, 2))
+
+  await writeFile(
+    path.join(outDir, 'media-manifest.json'),
+    JSON.stringify(manifest, null, 2),
+  )
 
   // Persistent, sanitised report (committed to git): unresolved media with an
-  // explicit recover|retire decision field for the cutover gate.
+  // explicit recover|retire|replace decision field for the cutover gate.
   const issues = {
     generatedAt: new Date().toISOString(),
     unresolved: unresolved.map((m) => ({
@@ -232,10 +239,14 @@ const main = async () => {
       pathSource: m.pathSource,
       reason: m.reason,
       status: 'unresolved' as const,
-      decision: null as 'recover' | 'retire' | null,
+      decision: null as 'recover' | 'retire' | 'replace' | null,
     })),
   }
-  await writeFile(path.join(reportsDir, 'media-issues.json'), JSON.stringify(issues, null, 2))
+
+  await writeFile(
+    path.join(reportsDir, 'media-issues.json'),
+    JSON.stringify(issues, null, 2),
+  )
 
   // Stable, portable source map (committed): WP identity + checksums only,
   // no target-database IDs.
@@ -249,16 +260,28 @@ const main = async () => {
     sha256: m.sha256,
     altFromMeta: m.alt,
   }))
+
   await writeFile(
     path.join(sourceDir, 'media-source.json'),
-    JSON.stringify({ generatedAt: new Date().toISOString(), media: sourceMap }, null, 2),
+    JSON.stringify(
+      {
+        generatedAt: new Date().toISOString(),
+        media: sourceMap,
+      },
+      null,
+      2,
+    ),
   )
 
   console.log(
     `media normalized: ${normalized.length} ok, ${unresolved.length} unresolved`,
   )
-  console.log(`report: migration-data/reports/media-issues.json (${issues.unresolved.length} unresolved)`)
-  console.log(`stable source map: migration-data/source/media-source.json (${sourceMap.length} entries)`)
+  console.log(
+    `report: migration-data/reports/media-issues.json (${issues.unresolved.length} unresolved)`,
+  )
+  console.log(
+    `stable source map: migration-data/source/media-source.json (${sourceMap.length} entries)`,
+  )
 }
 
 if (process.argv[1] && process.argv[1].endsWith('extract-media.ts')) {

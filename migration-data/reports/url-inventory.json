@@ -1,1093 +1,3690 @@
 {
-  "generatedAt": "2026-08-30T12:02:01.948Z",
+  "generatedAt": "2026-08-30T13:03:16.214Z",
+  "sourceGeneratedAt": "2026-08-30T12:49:29.051Z",
+  "wordpressSource": {
+    "posts": 41,
+    "pages": 3,
+    "categories": 7,
+    "tags": 105
+  },
+  "expected": [
+    {
+      "collection": "categories",
+      "wordpressId": 1,
+      "fromURL": "/?cat=1"
+    },
+    {
+      "collection": "categories",
+      "wordpressId": 25,
+      "fromURL": "/?cat=25"
+    },
+    {
+      "collection": "categories",
+      "wordpressId": 32,
+      "fromURL": "/?cat=32"
+    },
+    {
+      "collection": "categories",
+      "wordpressId": 6,
+      "fromURL": "/?cat=6"
+    },
+    {
+      "collection": "categories",
+      "wordpressId": 7,
+      "fromURL": "/?cat=7"
+    },
+    {
+      "collection": "categories",
+      "wordpressId": 8,
+      "fromURL": "/?cat=8"
+    },
+    {
+      "collection": "categories",
+      "wordpressId": 9,
+      "fromURL": "/?cat=9"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 101,
+      "fromURL": "/?p=101"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 148,
+      "fromURL": "/?p=148"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 158,
+      "fromURL": "/?p=158"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 172,
+      "fromURL": "/?p=172"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 174,
+      "fromURL": "/?p=174"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 202,
+      "fromURL": "/?p=202"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 204,
+      "fromURL": "/?p=204"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 206,
+      "fromURL": "/?p=206"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 208,
+      "fromURL": "/?p=208"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 256,
+      "fromURL": "/?p=256"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 267,
+      "fromURL": "/?p=267"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 313,
+      "fromURL": "/?p=313"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 34,
+      "fromURL": "/?p=34"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 391,
+      "fromURL": "/?p=391"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 41,
+      "fromURL": "/?p=41"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 421,
+      "fromURL": "/?p=421"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 477,
+      "fromURL": "/?p=477"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 484,
+      "fromURL": "/?p=484"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 487,
+      "fromURL": "/?p=487"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 495,
+      "fromURL": "/?p=495"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 509,
+      "fromURL": "/?p=509"
+    },
+    {
+      "collection": "posts",
+      "wordpressId": 79,
+      "fromURL": "/?p=79"
+    },
+    {
+      "collection": "pages",
+      "wordpressId": 11,
+      "fromURL": "/?page_id=11"
+    },
+    {
+      "collection": "pages",
+      "wordpressId": 12,
+      "fromURL": "/?page_id=12"
+    },
+    {
+      "collection": "tags",
+      "slug": "4shared",
+      "fromURL": "/?tag=4shared"
+    },
+    {
+      "collection": "tags",
+      "slug": "accounts",
+      "fromURL": "/?tag=accounts"
+    },
+    {
+      "collection": "tags",
+      "slug": "backup",
+      "fromURL": "/?tag=backup"
+    },
+    {
+      "collection": "tags",
+      "slug": "baza-danych",
+      "fromURL": "/?tag=baza-danych"
+    },
+    {
+      "collection": "tags",
+      "slug": "bezpieczenstwo",
+      "fromURL": "/?tag=bezpieczenstwo"
+    },
+    {
+      "collection": "tags",
+      "slug": "bootloader",
+      "fromURL": "/?tag=bootloader"
+    },
+    {
+      "collection": "tags",
+      "slug": "cc2531",
+      "fromURL": "/?tag=cc2531"
+    },
+    {
+      "collection": "tags",
+      "slug": "cc2652p",
+      "fromURL": "/?tag=cc2652p"
+    },
+    {
+      "collection": "tags",
+      "slug": "ch9102x",
+      "fromURL": "/?tag=ch9102x"
+    },
+    {
+      "collection": "tags",
+      "slug": "chmod",
+      "fromURL": "/?tag=chmod"
+    },
+    {
+      "collection": "tags",
+      "slug": "cisco-epc3925",
+      "fromURL": "/?tag=cisco-epc3925"
+    },
+    {
+      "collection": "tags",
+      "slug": "cp",
+      "fromURL": "/?tag=cp"
+    },
+    {
+      "collection": "tags",
+      "slug": "dlna",
+      "fromURL": "/?tag=dlna"
+    },
+    {
+      "collection": "tags",
+      "slug": "dodanie-sulugi",
+      "fromURL": "/?tag=dodanie-sulugi"
+    },
+    {
+      "collection": "tags",
+      "slug": "dodanie-uslugi",
+      "fromURL": "/?tag=dodanie-uslugi"
+    },
+    {
+      "collection": "tags",
+      "slug": "dodawanie-uslugi",
+      "fromURL": "/?tag=dodawanie-uslugi"
+    },
+    {
+      "collection": "tags",
+      "slug": "domoticz",
+      "fromURL": "/?tag=domoticz"
+    },
+    {
+      "collection": "tags",
+      "slug": "dotnet",
+      "fromURL": "/?tag=dotnet"
+    },
+    {
+      "collection": "tags",
+      "slug": "ebyte-e18-2g4u04b",
+      "fromURL": "/?tag=ebyte-e18-2g4u04b"
+    },
+    {
+      "collection": "tags",
+      "slug": "etc-init-d",
+      "fromURL": "/?tag=etc-init-d"
+    },
+    {
+      "collection": "tags",
+      "slug": "fd",
+      "fromURL": "/?tag=fd"
+    },
+    {
+      "collection": "tags",
+      "slug": "fd-file",
+      "fromURL": "/?tag=fd-file"
+    },
+    {
+      "collection": "tags",
+      "slug": "fd-find",
+      "fromURL": "/?tag=fd-find"
+    },
+    {
+      "collection": "tags",
+      "slug": "filesystem",
+      "fromURL": "/?tag=filesystem"
+    },
+    {
+      "collection": "tags",
+      "slug": "find",
+      "fromURL": "/?tag=find"
+    },
+    {
+      "collection": "tags",
+      "slug": "firmware",
+      "fromURL": "/?tag=firmware"
+    },
+    {
+      "collection": "tags",
+      "slug": "flash_cc2531",
+      "fromURL": "/?tag=flash_cc2531"
+    },
+    {
+      "collection": "tags",
+      "slug": "flashowanie",
+      "fromURL": "/?tag=flashowanie"
+    },
+    {
+      "collection": "tags",
+      "slug": "forcefsck",
+      "fromURL": "/?tag=forcefsck"
+    },
+    {
+      "collection": "tags",
+      "slug": "fsck",
+      "fromURL": "/?tag=fsck"
+    },
+    {
+      "collection": "tags",
+      "slug": "git",
+      "fromURL": "/?tag=git"
+    },
+    {
+      "collection": "tags",
+      "slug": "groupadd",
+      "fromURL": "/?tag=groupadd"
+    },
+    {
+      "collection": "tags",
+      "slug": "groupdel",
+      "fromURL": "/?tag=groupdel"
+    },
+    {
+      "collection": "tags",
+      "slug": "groups",
+      "fromURL": "/?tag=groups"
+    },
+    {
+      "collection": "tags",
+      "slug": "haslo",
+      "fromURL": "/?tag=haslo"
+    },
+    {
+      "collection": "tags",
+      "slug": "homeassistant",
+      "fromURL": "/?tag=homeassistant"
+    },
+    {
+      "collection": "tags",
+      "slug": "init-d",
+      "fromURL": "/?tag=init-d"
+    },
+    {
+      "collection": "tags",
+      "slug": "intelhex",
+      "fromURL": "/?tag=intelhex"
+    },
+    {
+      "collection": "tags",
+      "slug": "journalctl",
+      "fromURL": "/?tag=journalctl"
+    },
+    {
+      "collection": "tags",
+      "slug": "jupyter",
+      "fromURL": "/?tag=jupyter"
+    },
+    {
+      "collection": "tags",
+      "slug": "jupyternotebook",
+      "fromURL": "/?tag=jupyternotebook"
+    },
+    {
+      "collection": "tags",
+      "slug": "katalogi",
+      "fromURL": "/?tag=katalogi"
+    },
+    {
+      "collection": "tags",
+      "slug": "kopiowanie",
+      "fromURL": "/?tag=kopiowanie"
+    },
+    {
+      "collection": "tags",
+      "slug": "linux",
+      "fromURL": "/?tag=linux"
+    },
+    {
+      "collection": "tags",
+      "slug": "logi",
+      "fromURL": "/?tag=logi"
+    },
+    {
+      "collection": "tags",
+      "slug": "macos",
+      "fromURL": "/?tag=macos"
+    },
+    {
+      "collection": "tags",
+      "slug": "mariadb",
+      "fromURL": "/?tag=mariadb"
+    },
+    {
+      "collection": "tags",
+      "slug": "mikr-us",
+      "fromURL": "/?tag=mikr-us"
+    },
+    {
+      "collection": "tags",
+      "slug": "minidlna",
+      "fromURL": "/?tag=minidlna"
+    },
+    {
+      "collection": "tags",
+      "slug": "mitemperature",
+      "fromURL": "/?tag=mitemperature"
+    },
+    {
+      "collection": "tags",
+      "slug": "mysql",
+      "fromURL": "/?tag=mysql"
+    },
+    {
+      "collection": "tags",
+      "slug": "nokia-g-240w-c",
+      "fromURL": "/?tag=nokia-g-240w-c"
+    },
+    {
+      "collection": "tags",
+      "slug": "now-usluga",
+      "fromURL": "/?tag=now-usluga"
+    },
+    {
+      "collection": "tags",
+      "slug": "nvram_backup",
+      "fromURL": "/?tag=nvram_backup"
+    },
+    {
+      "collection": "tags",
+      "slug": "openvpn",
+      "fromURL": "/?tag=openvpn"
+    },
+    {
+      "collection": "tags",
+      "slug": "openwrt",
+      "fromURL": "/?tag=openwrt"
+    },
+    {
+      "collection": "tags",
+      "slug": "openwrt-watchodg",
+      "fromURL": "/?tag=openwrt-watchodg"
+    },
+    {
+      "collection": "tags",
+      "slug": "passwd",
+      "fromURL": "/?tag=passwd"
+    },
+    {
+      "collection": "tags",
+      "slug": "password",
+      "fromURL": "/?tag=password"
+    },
+    {
+      "collection": "tags",
+      "slug": "pip",
+      "fromURL": "/?tag=pip"
+    },
+    {
+      "collection": "tags",
+      "slug": "pliki",
+      "fromURL": "/?tag=pliki"
+    },
+    {
+      "collection": "tags",
+      "slug": "printer",
+      "fromURL": "/?tag=printer"
+    },
+    {
+      "collection": "tags",
+      "slug": "pyserial",
+      "fromURL": "/?tag=pyserial"
+    },
+    {
+      "collection": "tags",
+      "slug": "python",
+      "fromURL": "/?tag=python"
+    },
+    {
+      "collection": "tags",
+      "slug": "python-magic",
+      "fromURL": "/?tag=python-magic"
+    },
+    {
+      "collection": "tags",
+      "slug": "queue",
+      "fromURL": "/?tag=queue"
+    },
+    {
+      "collection": "tags",
+      "slug": "raspberry",
+      "fromURL": "/?tag=raspberry"
+    },
+    {
+      "collection": "tags",
+      "slug": "restart-uslugi",
+      "fromURL": "/?tag=restart-uslugi"
+    },
+    {
+      "collection": "tags",
+      "slug": "router",
+      "fromURL": "/?tag=router"
+    },
+    {
+      "collection": "tags",
+      "slug": "router-watchdog",
+      "fromURL": "/?tag=router-watchdog"
+    },
+    {
+      "collection": "tags",
+      "slug": "scp",
+      "fromURL": "/?tag=scp"
+    },
+    {
+      "collection": "tags",
+      "slug": "service",
+      "fromURL": "/?tag=service"
+    },
+    {
+      "collection": "tags",
+      "slug": "service-status",
+      "fromURL": "/?tag=service-status"
+    },
+    {
+      "collection": "tags",
+      "slug": "services",
+      "fromURL": "/?tag=services"
+    },
+    {
+      "collection": "tags",
+      "slug": "ssh",
+      "fromURL": "/?tag=ssh"
+    },
+    {
+      "collection": "tags",
+      "slug": "status",
+      "fromURL": "/?tag=status"
+    },
+    {
+      "collection": "tags",
+      "slug": "system-d",
+      "fromURL": "/?tag=system-d"
+    },
+    {
+      "collection": "tags",
+      "slug": "system-operacyjny",
+      "fromURL": "/?tag=system-operacyjny"
+    },
+    {
+      "collection": "tags",
+      "slug": "system-plikow",
+      "fromURL": "/?tag=system-plikow"
+    },
+    {
+      "collection": "tags",
+      "slug": "systemctl",
+      "fromURL": "/?tag=systemctl"
+    },
+    {
+      "collection": "tags",
+      "slug": "systemd",
+      "fromURL": "/?tag=systemd"
+    },
+    {
+      "collection": "tags",
+      "slug": "transfer",
+      "fromURL": "/?tag=transfer"
+    },
+    {
+      "collection": "tags",
+      "slug": "tune2fs",
+      "fromURL": "/?tag=tune2fs"
+    },
+    {
+      "collection": "tags",
+      "slug": "unix",
+      "fromURL": "/?tag=unix"
+    },
+    {
+      "collection": "tags",
+      "slug": "uprawnienia",
+      "fromURL": "/?tag=uprawnienia"
+    },
+    {
+      "collection": "tags",
+      "slug": "uruchomienie-uslugi",
+      "fromURL": "/?tag=uruchomienie-uslugi"
+    },
+    {
+      "collection": "tags",
+      "slug": "usb-serial",
+      "fromURL": "/?tag=usb-serial"
+    },
+    {
+      "collection": "tags",
+      "slug": "user",
+      "fromURL": "/?tag=user"
+    },
+    {
+      "collection": "tags",
+      "slug": "usermod",
+      "fromURL": "/?tag=usermod"
+    },
+    {
+      "collection": "tags",
+      "slug": "uslugi",
+      "fromURL": "/?tag=uslugi"
+    },
+    {
+      "collection": "tags",
+      "slug": "uzytkownik",
+      "fromURL": "/?tag=uzytkownik"
+    },
+    {
+      "collection": "tags",
+      "slug": "vpn",
+      "fromURL": "/?tag=vpn"
+    },
+    {
+      "collection": "tags",
+      "slug": "watchdog",
+      "fromURL": "/?tag=watchdog"
+    },
+    {
+      "collection": "tags",
+      "slug": "webdav",
+      "fromURL": "/?tag=webdav"
+    },
+    {
+      "collection": "tags",
+      "slug": "wget",
+      "fromURL": "/?tag=wget"
+    },
+    {
+      "collection": "tags",
+      "slug": "wiringpi",
+      "fromURL": "/?tag=wiringpi"
+    },
+    {
+      "collection": "tags",
+      "slug": "wyszukiwanie",
+      "fromURL": "/?tag=wyszukiwanie"
+    },
+    {
+      "collection": "tags",
+      "slug": "xiaomi",
+      "fromURL": "/?tag=xiaomi"
+    },
+    {
+      "collection": "tags",
+      "slug": "z-stack_home",
+      "fromURL": "/?tag=z-stack_home"
+    },
+    {
+      "collection": "tags",
+      "slug": "z-stack-firmware",
+      "fromURL": "/?tag=z-stack-firmware"
+    },
+    {
+      "collection": "tags",
+      "slug": "zarzadzanie-plikami",
+      "fromURL": "/?tag=zarzadzanie-plikami"
+    },
+    {
+      "collection": "tags",
+      "slug": "zatrzymanie-uslugi",
+      "fromURL": "/?tag=zatrzymanie-uslugi"
+    },
+    {
+      "collection": "tags",
+      "slug": "zigbee2mqtt",
+      "fromURL": "/?tag=zigbee2mqtt"
+    },
+    {
+      "collection": "tags",
+      "slug": "zigpy-znp",
+      "fromURL": "/?tag=zigpy-znp"
+    },
+    {
+      "collection": "tags",
+      "slug": "znajdz",
+      "fromURL": "/?tag=znajdz"
+    }
+  ],
   "sources": [
     {
-      "sourceClass": "category-archive-query",
-      "fromURL": "/?cat=1",
-      "relationTo": "categories",
+      "expected": {
+        "collection": "categories",
+        "wordpressId": 1,
+        "fromURL": "/?cat=1"
+      },
       "payloadId": 1,
-      "wordpressId": 1,
-      "slug": "bez-kategorii"
+      "payloadSlug": "bez-kategorii",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "category-archive-query",
-      "fromURL": "/?cat=25",
-      "relationTo": "categories",
+      "expected": {
+        "collection": "categories",
+        "wordpressId": 25,
+        "fromURL": "/?cat=25"
+      },
       "payloadId": 3,
-      "wordpressId": 25,
-      "slug": "home-assistant"
+      "payloadSlug": "home-assistant",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "category-archive-query",
-      "fromURL": "/?cat=32",
-      "relationTo": "categories",
+      "expected": {
+        "collection": "categories",
+        "wordpressId": 32,
+        "fromURL": "/?cat=32"
+      },
       "payloadId": 4,
-      "wordpressId": 32,
-      "slug": "linux"
+      "payloadSlug": "linux",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "category-archive-query",
-      "fromURL": "/?cat=6",
-      "relationTo": "categories",
+      "expected": {
+        "collection": "categories",
+        "wordpressId": 6,
+        "fromURL": "/?cat=6"
+      },
       "payloadId": 5,
-      "wordpressId": 6,
-      "slug": "mikr-us"
+      "payloadSlug": "mikr-us",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "category-archive-query",
-      "fromURL": "/?cat=7",
-      "relationTo": "categories",
+      "expected": {
+        "collection": "categories",
+        "wordpressId": 7,
+        "fromURL": "/?cat=7"
+      },
       "payloadId": 7,
-      "wordpressId": 7,
-      "slug": "raspberry"
+      "payloadSlug": "raspberry",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "category-archive-query",
-      "fromURL": "/?cat=8",
-      "relationTo": "categories",
+      "expected": {
+        "collection": "categories",
+        "wordpressId": 8,
+        "fromURL": "/?cat=8"
+      },
       "payloadId": 2,
-      "wordpressId": 8,
-      "slug": "domoticz"
+      "payloadSlug": "domoticz",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "category-archive-query",
-      "fromURL": "/?cat=9",
-      "relationTo": "categories",
+      "expected": {
+        "collection": "categories",
+        "wordpressId": 9,
+        "fromURL": "/?cat=9"
+      },
       "payloadId": 6,
-      "wordpressId": 9,
-      "slug": "python"
+      "payloadSlug": "python",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=101",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 101,
+        "fromURL": "/?p=101"
+      },
       "payloadId": 38,
-      "wordpressId": 101,
-      "slug": "https-cleverblog-pl-p101"
+      "payloadSlug": "https-cleverblog-pl-p101",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=148",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 148,
+        "fromURL": "/?p=148"
+      },
       "payloadId": 37,
-      "wordpressId": 148,
-      "slug": "dotnet-na-raspberry"
+      "payloadSlug": "dotnet-na-raspberry",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=158",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 158,
+        "fromURL": "/?p=158"
+      },
       "payloadId": 14,
-      "wordpressId": 158,
-      "slug": "wyszukiwanie-plikow-w-systemie-linux"
+      "payloadSlug": "wyszukiwanie-plikow-w-systemie-linux",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=172",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 172,
+        "fromURL": "/?p=172"
+      },
       "payloadId": 8,
-      "wordpressId": 172,
-      "slug": "linux-sprawdzenie-systemu-plikow-przy-nastepnym-restarcie"
+      "payloadSlug": "linux-sprawdzenie-systemu-plikow-przy-nastepnym-restarcie",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=174",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 174,
+        "fromURL": "/?p=174"
+      },
       "payloadId": 20,
-      "wordpressId": 174,
-      "slug": "baza-mysql-na-raspberry"
+      "payloadSlug": "baza-mysql-na-raspberry",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=202",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 202,
+        "fromURL": "/?p=202"
+      },
       "payloadId": 17,
-      "wordpressId": 202,
-      "slug": "wlasny-serwer-openvpn-na-linux"
+      "payloadSlug": "wlasny-serwer-openvpn-na-linux",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=204",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 204,
+        "fromURL": "/?p=204"
+      },
       "payloadId": 12,
-      "wordpressId": 204,
-      "slug": "domoticz-integracja-z-xiaomi-mi-temperature-humidity-monitor"
+      "payloadSlug": "domoticz-integracja-z-xiaomi-mi-temperature-humidity-monitor",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=206",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 206,
+        "fromURL": "/?p=206"
+      },
       "payloadId": 15,
-      "wordpressId": 206,
-      "slug": "raspberry-lub-inny-linux-internet-watchdog"
+      "payloadSlug": "raspberry-lub-inny-linux-internet-watchdog",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=208",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 208,
+        "fromURL": "/?p=208"
+      },
       "payloadId": 11,
-      "wordpressId": 208,
-      "slug": "domoticz-integracja-z-drukarka"
+      "payloadSlug": "domoticz-integracja-z-drukarka",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=256",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 256,
+        "fromURL": "/?p=256"
+      },
       "payloadId": 19,
-      "wordpressId": 256,
-      "slug": "zmiana-lub-nadanie-hasla-uzytkownika-w-systemie-linux"
+      "payloadSlug": "zmiana-lub-nadanie-hasla-uzytkownika-w-systemie-linux",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=267",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 267,
+        "fromURL": "/?p=267"
+      },
       "payloadId": 16,
-      "wordpressId": 267,
-      "slug": "instalacja-home-assistant-na-raspberry"
+      "payloadSlug": "instalacja-home-assistant-na-raspberry",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=313",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 313,
+        "fromURL": "/?p=313"
+      },
       "payloadId": 13,
-      "wordpressId": 313,
-      "slug": "dodawanie-uzytkownika-do-grupy"
+      "payloadSlug": "dodawanie-uzytkownika-do-grupy",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=34",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 34,
+        "fromURL": "/?p=34"
+      },
       "payloadId": 41,
-      "wordpressId": 34,
-      "slug": "jupyter-notebook-na-raspberry-pi"
+      "payloadSlug": "jupyter-notebook-na-raspberry-pi",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=391",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 391,
+        "fromURL": "/?p=391"
+      },
       "payloadId": 10,
-      "wordpressId": 391,
-      "slug": "programowanie-i-flashowanie-cc2531-bez-kabla-z-uzyciem-raspberrypi"
+      "payloadSlug": "programowanie-i-flashowanie-cc2531-bez-kabla-z-uzyciem-raspberrypi",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=41",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 41,
+        "fromURL": "/?p=41"
+      },
       "payloadId": 40,
-      "wordpressId": 41,
-      "slug": "zdalny-dostep-do-dyskow-internetowych-montowanie-webdav-na-linuksie-raspberrypi-mikr-us"
+      "payloadSlug": "zdalny-dostep-do-dyskow-internetowych-montowanie-webdav-na-linuksie-raspberrypi-mikr-us",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=421",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 421,
+        "fromURL": "/?p=421"
+      },
       "payloadId": 9,
-      "wordpressId": 421,
-      "slug": "kopiowanie-plikow-przez-ssh"
+      "payloadSlug": "kopiowanie-plikow-przez-ssh",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=477",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 477,
+        "fromURL": "/?p=477"
+      },
       "payloadId": 7,
-      "wordpressId": 477,
-      "slug": "linux-wyswietlanie-logow"
+      "payloadSlug": "linux-wyswietlanie-logow",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=484",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 484,
+        "fromURL": "/?p=484"
+      },
       "payloadId": 6,
-      "wordpressId": 484,
-      "slug": "linux-dodawanie-uslugi"
+      "payloadSlug": "linux-dodawanie-uslugi",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=487",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 487,
+        "fromURL": "/?p=487"
+      },
       "payloadId": 5,
-      "wordpressId": 487,
-      "slug": "linux-zarzadzanie-uslugami"
+      "payloadSlug": "linux-zarzadzanie-uslugami",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=495",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 495,
+        "fromURL": "/?p=495"
+      },
       "payloadId": 2,
-      "wordpressId": 495,
-      "slug": "linux-chmod"
+      "payloadSlug": "linux-chmod",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=509",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 509,
+        "fromURL": "/?p=509"
+      },
       "payloadId": 1,
-      "wordpressId": 509,
-      "slug": "flashowania-ukladu-cc2652p-z-wykorzystaniem-ch9102x"
+      "payloadSlug": "flashowania-ukladu-cc2652p-z-wykorzystaniem-ch9102x",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-post-query",
-      "fromURL": "/?p=79",
-      "relationTo": "posts",
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 79,
+        "fromURL": "/?p=79"
+      },
       "payloadId": 39,
-      "wordpressId": 79,
-      "slug": "mysql-mariadb-dostep-z-zewnatrz"
+      "payloadSlug": "mysql-mariadb-dostep-z-zewnatrz",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-page-query",
-      "fromURL": "/?page_id=11",
-      "relationTo": "pages",
+      "expected": {
+        "collection": "pages",
+        "wordpressId": 11,
+        "fromURL": "/?page_id=11"
+      },
       "payloadId": 1,
-      "wordpressId": 11,
-      "slug": "o-nas"
+      "payloadSlug": "o-nas",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "published-page-query",
-      "fromURL": "/?page_id=12",
-      "relationTo": "pages",
+      "expected": {
+        "collection": "pages",
+        "wordpressId": 12,
+        "fromURL": "/?page_id=12"
+      },
       "payloadId": 2,
-      "wordpressId": 12,
-      "slug": "kontakt"
+      "payloadSlug": "kontakt",
+      "payloadStatus": "published",
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=4shared",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "4shared",
+        "fromURL": "/?tag=4shared"
+      },
       "payloadId": 2,
-      "wordpressId": 14,
-      "slug": "4shared"
+      "payloadSlug": "4shared",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=accounts",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "accounts",
+        "fromURL": "/?tag=accounts"
+      },
       "payloadId": 3,
-      "wordpressId": 40,
-      "slug": "accounts"
+      "payloadSlug": "accounts",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=backup",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "backup",
+        "fromURL": "/?tag=backup"
+      },
       "payloadId": 4,
-      "wordpressId": 12,
-      "slug": "backup"
+      "payloadSlug": "backup",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=baza-danych",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "baza-danych",
+        "fromURL": "/?tag=baza-danych"
+      },
       "payloadId": 5,
-      "wordpressId": 22,
-      "slug": "baza-danych"
+      "payloadSlug": "baza-danych",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=bezpieczenstwo",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "bezpieczenstwo",
+        "fromURL": "/?tag=bezpieczenstwo"
+      },
       "payloadId": 6,
-      "wordpressId": 104,
-      "slug": "bezpieczenstwo"
+      "payloadSlug": "bezpieczenstwo",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=bootloader",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "bootloader",
+        "fromURL": "/?tag=bootloader"
+      },
       "payloadId": 7,
-      "wordpressId": 106,
-      "slug": "bootloader"
+      "payloadSlug": "bootloader",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=cc2531",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "cc2531",
+        "fromURL": "/?tag=cc2531"
+      },
       "payloadId": 8,
-      "wordpressId": 55,
-      "slug": "cc2531"
+      "payloadSlug": "cc2531",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=cc2652p",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "cc2652p",
+        "fromURL": "/?tag=cc2652p"
+      },
       "payloadId": 9,
-      "wordpressId": 109,
-      "slug": "cc2652p"
+      "payloadSlug": "cc2652p",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=ch9102x",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "ch9102x",
+        "fromURL": "/?tag=ch9102x"
+      },
       "payloadId": 10,
-      "wordpressId": 107,
-      "slug": "ch9102x"
+      "payloadSlug": "ch9102x",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=chmod",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "chmod",
+        "fromURL": "/?tag=chmod"
+      },
       "payloadId": 11,
-      "wordpressId": 97,
-      "slug": "chmod"
+      "payloadSlug": "chmod",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=cisco-epc3925",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "cisco-epc3925",
+        "fromURL": "/?tag=cisco-epc3925"
+      },
       "payloadId": 12,
-      "wordpressId": 30,
-      "slug": "cisco-epc3925"
+      "payloadSlug": "cisco-epc3925",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=cp",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "cp",
+        "fromURL": "/?tag=cp"
+      },
       "payloadId": 13,
-      "wordpressId": 68,
-      "slug": "cp"
+      "payloadSlug": "cp",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=dlna",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "dlna",
+        "fromURL": "/?tag=dlna"
+      },
       "payloadId": 14,
-      "wordpressId": 20,
-      "slug": "dlna"
+      "payloadSlug": "dlna",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=dodanie-sulugi",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "dodanie-sulugi",
+        "fromURL": "/?tag=dodanie-sulugi"
+      },
       "payloadId": 15,
-      "wordpressId": 85,
-      "slug": "dodanie-sulugi"
+      "payloadSlug": "dodanie-sulugi",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=dodanie-uslugi",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "dodanie-uslugi",
+        "fromURL": "/?tag=dodanie-uslugi"
+      },
       "payloadId": 16,
-      "wordpressId": 87,
-      "slug": "dodanie-uslugi"
+      "payloadSlug": "dodanie-uslugi",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=dodawanie-uslugi",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "dodawanie-uslugi",
+        "fromURL": "/?tag=dodawanie-uslugi"
+      },
       "payloadId": 17,
-      "wordpressId": 86,
-      "slug": "dodawanie-uslugi"
+      "payloadSlug": "dodawanie-uslugi",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=domoticz",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "domoticz",
+        "fromURL": "/?tag=domoticz"
+      },
       "payloadId": 18,
-      "wordpressId": 42,
-      "slug": "domoticz"
+      "payloadSlug": "domoticz",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=dotnet",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "dotnet",
+        "fromURL": "/?tag=dotnet"
+      },
       "payloadId": 19,
-      "wordpressId": 21,
-      "slug": "dotnet"
+      "payloadSlug": "dotnet",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=ebyte-e18-2g4u04b",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "ebyte-e18-2g4u04b",
+        "fromURL": "/?tag=ebyte-e18-2g4u04b"
+      },
       "payloadId": 20,
-      "wordpressId": 56,
-      "slug": "ebyte-e18-2g4u04b"
+      "payloadSlug": "ebyte-e18-2g4u04b",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=etc-init-d",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "etc-init-d",
+        "fromURL": "/?tag=etc-init-d"
+      },
       "payloadId": 1,
-      "wordpressId": 95,
-      "slug": "etc-init-d"
+      "payloadSlug": "etc-init-d",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=fd",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "fd",
+        "fromURL": "/?tag=fd"
+      },
       "payloadId": 21,
-      "wordpressId": 34,
-      "slug": "fd"
+      "payloadSlug": "fd",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=fd-file",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "fd-file",
+        "fromURL": "/?tag=fd-file"
+      },
       "payloadId": 22,
-      "wordpressId": 35,
-      "slug": "fd-file"
+      "payloadSlug": "fd-file",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=fd-find",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "fd-find",
+        "fromURL": "/?tag=fd-find"
+      },
       "payloadId": 23,
-      "wordpressId": 51,
-      "slug": "fd-find"
+      "payloadSlug": "fd-find",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=filesystem",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "filesystem",
+        "fromURL": "/?tag=filesystem"
+      },
       "payloadId": 24,
-      "wordpressId": 75,
-      "slug": "filesystem"
+      "payloadSlug": "filesystem",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=find",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "find",
+        "fromURL": "/?tag=find"
+      },
       "payloadId": 25,
-      "wordpressId": 33,
-      "slug": "find"
+      "payloadSlug": "find",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=firmware",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "firmware",
+        "fromURL": "/?tag=firmware"
+      },
       "payloadId": 26,
-      "wordpressId": 110,
-      "slug": "firmware"
+      "payloadSlug": "firmware",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=flash_cc2531",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "flash_cc2531",
+        "fromURL": "/?tag=flash_cc2531"
+      },
       "payloadId": 27,
-      "wordpressId": 58,
-      "slug": "flash_cc2531"
+      "payloadSlug": "flash_cc2531",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=flashowanie",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "flashowanie",
+        "fromURL": "/?tag=flashowanie"
+      },
       "payloadId": 28,
-      "wordpressId": 108,
-      "slug": "flashowanie"
+      "payloadSlug": "flashowanie",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=forcefsck",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "forcefsck",
+        "fromURL": "/?tag=forcefsck"
+      },
       "payloadId": 29,
-      "wordpressId": 76,
-      "slug": "forcefsck"
+      "payloadSlug": "forcefsck",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=fsck",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "fsck",
+        "fromURL": "/?tag=fsck"
+      },
       "payloadId": 30,
-      "wordpressId": 72,
-      "slug": "fsck"
+      "payloadSlug": "fsck",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=git",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "git",
+        "fromURL": "/?tag=git"
+      },
       "payloadId": 31,
-      "wordpressId": 111,
-      "slug": "git"
+      "payloadSlug": "git",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=groupadd",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "groupadd",
+        "fromURL": "/?tag=groupadd"
+      },
       "payloadId": 32,
-      "wordpressId": 36,
-      "slug": "groupadd"
+      "payloadSlug": "groupadd",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=groupdel",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "groupdel",
+        "fromURL": "/?tag=groupdel"
+      },
       "payloadId": 33,
-      "wordpressId": 37,
-      "slug": "groupdel"
+      "payloadSlug": "groupdel",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=groups",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "groups",
+        "fromURL": "/?tag=groups"
+      },
       "payloadId": 34,
-      "wordpressId": 39,
-      "slug": "groups"
+      "payloadSlug": "groups",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=haslo",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "haslo",
+        "fromURL": "/?tag=haslo"
+      },
       "payloadId": 35,
-      "wordpressId": 46,
-      "slug": "haslo"
+      "payloadSlug": "haslo",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=homeassistant",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "homeassistant",
+        "fromURL": "/?tag=homeassistant"
+      },
       "payloadId": 36,
-      "wordpressId": 26,
-      "slug": "homeassistant"
+      "payloadSlug": "homeassistant",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=init-d",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "init-d",
+        "fromURL": "/?tag=init-d"
+      },
       "payloadId": 37,
-      "wordpressId": 96,
-      "slug": "init-d"
+      "payloadSlug": "init-d",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=intelhex",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "intelhex",
+        "fromURL": "/?tag=intelhex"
+      },
       "payloadId": 38,
-      "wordpressId": 120,
-      "slug": "intelhex"
+      "payloadSlug": "intelhex",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=journalctl",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "journalctl",
+        "fromURL": "/?tag=journalctl"
+      },
       "payloadId": 39,
-      "wordpressId": 79,
-      "slug": "journalctl"
+      "payloadSlug": "journalctl",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=jupyter",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "jupyter",
+        "fromURL": "/?tag=jupyter"
+      },
       "payloadId": 40,
-      "wordpressId": 15,
-      "slug": "jupyter"
+      "payloadSlug": "jupyter",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=jupyternotebook",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "jupyternotebook",
+        "fromURL": "/?tag=jupyternotebook"
+      },
       "payloadId": 41,
-      "wordpressId": 5,
-      "slug": "jupyternotebook"
+      "payloadSlug": "jupyternotebook",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=katalogi",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "katalogi",
+        "fromURL": "/?tag=katalogi"
+      },
       "payloadId": 42,
-      "wordpressId": 100,
-      "slug": "katalogi"
+      "payloadSlug": "katalogi",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=kopiowanie",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "kopiowanie",
+        "fromURL": "/?tag=kopiowanie"
+      },
       "payloadId": 43,
-      "wordpressId": 71,
-      "slug": "kopiowanie"
+      "payloadSlug": "kopiowanie",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=linux",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "linux",
+        "fromURL": "/?tag=linux"
+      },
       "payloadId": 44,
-      "wordpressId": 11,
-      "slug": "linux"
+      "payloadSlug": "linux",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=logi",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "logi",
+        "fromURL": "/?tag=logi"
+      },
       "payloadId": 45,
-      "wordpressId": 77,
-      "slug": "logi"
+      "payloadSlug": "logi",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=macos",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "macos",
+        "fromURL": "/?tag=macos"
+      },
       "payloadId": 46,
-      "wordpressId": 112,
-      "slug": "macos"
+      "payloadSlug": "macos",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=mariadb",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "mariadb",
+        "fromURL": "/?tag=mariadb"
+      },
       "payloadId": 47,
-      "wordpressId": 18,
-      "slug": "mariadb"
+      "payloadSlug": "mariadb",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=mikr-us",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "mikr-us",
+        "fromURL": "/?tag=mikr-us"
+      },
       "payloadId": 48,
-      "wordpressId": 10,
-      "slug": "mikr-us"
+      "payloadSlug": "mikr-us",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=minidlna",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "minidlna",
+        "fromURL": "/?tag=minidlna"
+      },
       "payloadId": 49,
-      "wordpressId": 19,
-      "slug": "minidlna"
+      "payloadSlug": "minidlna",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=mitemperature",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "mitemperature",
+        "fromURL": "/?tag=mitemperature"
+      },
       "payloadId": 50,
-      "wordpressId": 43,
-      "slug": "mitemperature"
+      "payloadSlug": "mitemperature",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=mysql",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "mysql",
+        "fromURL": "/?tag=mysql"
+      },
       "payloadId": 51,
-      "wordpressId": 17,
-      "slug": "mysql"
+      "payloadSlug": "mysql",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=nokia-g-240w-c",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "nokia-g-240w-c",
+        "fromURL": "/?tag=nokia-g-240w-c"
+      },
       "payloadId": 52,
-      "wordpressId": 31,
-      "slug": "nokia-g-240w-c"
+      "payloadSlug": "nokia-g-240w-c",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=now-usluga",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "now-usluga",
+        "fromURL": "/?tag=now-usluga"
+      },
       "payloadId": 53,
-      "wordpressId": 88,
-      "slug": "now-usluga"
+      "payloadSlug": "now-usluga",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=nvram_backup",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "nvram_backup",
+        "fromURL": "/?tag=nvram_backup"
+      },
       "payloadId": 54,
-      "wordpressId": 119,
-      "slug": "nvram_backup"
+      "payloadSlug": "nvram_backup",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=openvpn",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "openvpn",
+        "fromURL": "/?tag=openvpn"
+      },
       "payloadId": 55,
-      "wordpressId": 24,
-      "slug": "openvpn"
+      "payloadSlug": "openvpn",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=openwrt",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "openwrt",
+        "fromURL": "/?tag=openwrt"
+      },
       "payloadId": 56,
-      "wordpressId": 29,
-      "slug": "openwrt"
+      "payloadSlug": "openwrt",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=openwrt-watchodg",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "openwrt-watchodg",
+        "fromURL": "/?tag=openwrt-watchodg"
+      },
       "payloadId": 57,
-      "wordpressId": 81,
-      "slug": "openwrt-watchodg"
+      "payloadSlug": "openwrt-watchodg",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=passwd",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "passwd",
+        "fromURL": "/?tag=passwd"
+      },
       "payloadId": 58,
-      "wordpressId": 48,
-      "slug": "passwd"
+      "payloadSlug": "passwd",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=password",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "password",
+        "fromURL": "/?tag=password"
+      },
       "payloadId": 59,
-      "wordpressId": 45,
-      "slug": "password"
+      "payloadSlug": "password",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=pip",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "pip",
+        "fromURL": "/?tag=pip"
+      },
       "payloadId": 60,
-      "wordpressId": 114,
-      "slug": "pip"
+      "payloadSlug": "pip",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=pliki",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "pliki",
+        "fromURL": "/?tag=pliki"
+      },
       "payloadId": 61,
-      "wordpressId": 99,
-      "slug": "pliki"
+      "payloadSlug": "pliki",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=printer",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "printer",
+        "fromURL": "/?tag=printer"
+      },
       "payloadId": 62,
-      "wordpressId": 52,
-      "slug": "printer"
+      "payloadSlug": "printer",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=pyserial",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "pyserial",
+        "fromURL": "/?tag=pyserial"
+      },
       "payloadId": 63,
-      "wordpressId": 116,
-      "slug": "pyserial"
+      "payloadSlug": "pyserial",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=python",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "python",
+        "fromURL": "/?tag=python"
+      },
       "payloadId": 64,
-      "wordpressId": 16,
-      "slug": "python"
+      "payloadSlug": "python",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=python-magic",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "python-magic",
+        "fromURL": "/?tag=python-magic"
+      },
       "payloadId": 65,
-      "wordpressId": 117,
-      "slug": "python-magic"
+      "payloadSlug": "python-magic",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=queue",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "queue",
+        "fromURL": "/?tag=queue"
+      },
       "payloadId": 66,
-      "wordpressId": 53,
-      "slug": "queue"
+      "payloadSlug": "queue",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=raspberry",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "raspberry",
+        "fromURL": "/?tag=raspberry"
+      },
       "payloadId": 67,
-      "wordpressId": 4,
-      "slug": "raspberry"
+      "payloadSlug": "raspberry",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=restart-uslugi",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "restart-uslugi",
+        "fromURL": "/?tag=restart-uslugi"
+      },
       "payloadId": 68,
-      "wordpressId": 93,
-      "slug": "restart-uslugi"
+      "payloadSlug": "restart-uslugi",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=router",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "router",
+        "fromURL": "/?tag=router"
+      },
       "payloadId": 69,
-      "wordpressId": 28,
-      "slug": "router"
+      "payloadSlug": "router",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=router-watchdog",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "router-watchdog",
+        "fromURL": "/?tag=router-watchdog"
+      },
       "payloadId": 70,
-      "wordpressId": 82,
-      "slug": "router-watchdog"
+      "payloadSlug": "router-watchdog",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=scp",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "scp",
+        "fromURL": "/?tag=scp"
+      },
       "payloadId": 71,
-      "wordpressId": 69,
-      "slug": "scp"
+      "payloadSlug": "scp",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=service",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "service",
+        "fromURL": "/?tag=service"
+      },
       "payloadId": 72,
-      "wordpressId": 84,
-      "slug": "service"
+      "payloadSlug": "service",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=service-status",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "service-status",
+        "fromURL": "/?tag=service-status"
+      },
       "payloadId": 73,
-      "wordpressId": 80,
-      "slug": "service-status"
+      "payloadSlug": "service-status",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=services",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "services",
+        "fromURL": "/?tag=services"
+      },
       "payloadId": 74,
-      "wordpressId": 89,
-      "slug": "services"
+      "payloadSlug": "services",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=ssh",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "ssh",
+        "fromURL": "/?tag=ssh"
+      },
       "payloadId": 75,
-      "wordpressId": 67,
-      "slug": "ssh"
+      "payloadSlug": "ssh",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=status",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "status",
+        "fromURL": "/?tag=status"
+      },
       "payloadId": 76,
-      "wordpressId": 54,
-      "slug": "status"
+      "payloadSlug": "status",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=system-d",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "system-d",
+        "fromURL": "/?tag=system-d"
+      },
       "payloadId": 79,
-      "wordpressId": 94,
-      "slug": "system-d"
+      "payloadSlug": "system-d",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=system-operacyjny",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "system-operacyjny",
+        "fromURL": "/?tag=system-operacyjny"
+      },
       "payloadId": 77,
-      "wordpressId": 103,
-      "slug": "system-operacyjny"
+      "payloadSlug": "system-operacyjny",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=system-plikow",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "system-plikow",
+        "fromURL": "/?tag=system-plikow"
+      },
       "payloadId": 78,
-      "wordpressId": 74,
-      "slug": "system-plikow"
+      "payloadSlug": "system-plikow",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=systemctl",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "systemctl",
+        "fromURL": "/?tag=systemctl"
+      },
       "payloadId": 80,
-      "wordpressId": 78,
-      "slug": "systemctl"
+      "payloadSlug": "systemctl",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=systemd",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "systemd",
+        "fromURL": "/?tag=systemd"
+      },
       "payloadId": 81,
-      "wordpressId": 83,
-      "slug": "systemd"
+      "payloadSlug": "systemd",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=transfer",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "transfer",
+        "fromURL": "/?tag=transfer"
+      },
       "payloadId": 82,
-      "wordpressId": 70,
-      "slug": "transfer"
+      "payloadSlug": "transfer",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=tune2fs",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "tune2fs",
+        "fromURL": "/?tag=tune2fs"
+      },
       "payloadId": 83,
-      "wordpressId": 73,
-      "slug": "tune2fs"
+      "payloadSlug": "tune2fs",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=unix",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "unix",
+        "fromURL": "/?tag=unix"
+      },
       "payloadId": 84,
-      "wordpressId": 101,
-      "slug": "unix"
+      "payloadSlug": "unix",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=uprawnienia",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "uprawnienia",
+        "fromURL": "/?tag=uprawnienia"
+      },
       "payloadId": 85,
-      "wordpressId": 98,
-      "slug": "uprawnienia"
+      "payloadSlug": "uprawnienia",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=uruchomienie-uslugi",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "uruchomienie-uslugi",
+        "fromURL": "/?tag=uruchomienie-uslugi"
+      },
       "payloadId": 86,
-      "wordpressId": 91,
-      "slug": "uruchomienie-uslugi"
+      "payloadSlug": "uruchomienie-uslugi",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=usb-serial",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "usb-serial",
+        "fromURL": "/?tag=usb-serial"
+      },
       "payloadId": 87,
-      "wordpressId": 115,
-      "slug": "usb-serial"
+      "payloadSlug": "usb-serial",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=user",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "user",
+        "fromURL": "/?tag=user"
+      },
       "payloadId": 88,
-      "wordpressId": 44,
-      "slug": "user"
+      "payloadSlug": "user",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=usermod",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "usermod",
+        "fromURL": "/?tag=usermod"
+      },
       "payloadId": 89,
-      "wordpressId": 38,
-      "slug": "usermod"
+      "payloadSlug": "usermod",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=uslugi",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "uslugi",
+        "fromURL": "/?tag=uslugi"
+      },
       "payloadId": 90,
-      "wordpressId": 90,
-      "slug": "uslugi"
+      "payloadSlug": "uslugi",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=uzytkownik",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "uzytkownik",
+        "fromURL": "/?tag=uzytkownik"
+      },
       "payloadId": 91,
-      "wordpressId": 47,
-      "slug": "uzytkownik"
+      "payloadSlug": "uzytkownik",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=vpn",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "vpn",
+        "fromURL": "/?tag=vpn"
+      },
       "payloadId": 92,
-      "wordpressId": 23,
-      "slug": "vpn"
+      "payloadSlug": "vpn",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=watchdog",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "watchdog",
+        "fromURL": "/?tag=watchdog"
+      },
       "payloadId": 93,
-      "wordpressId": 27,
-      "slug": "watchdog"
+      "payloadSlug": "watchdog",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=webdav",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "webdav",
+        "fromURL": "/?tag=webdav"
+      },
       "payloadId": 94,
-      "wordpressId": 13,
-      "slug": "webdav"
+      "payloadSlug": "webdav",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=wget",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "wget",
+        "fromURL": "/?tag=wget"
+      },
       "payloadId": 95,
-      "wordpressId": 113,
-      "slug": "wget"
+      "payloadSlug": "wget",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=wiringpi",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "wiringpi",
+        "fromURL": "/?tag=wiringpi"
+      },
       "payloadId": 96,
-      "wordpressId": 57,
-      "slug": "wiringpi"
+      "payloadSlug": "wiringpi",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=wyszukiwanie",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "wyszukiwanie",
+        "fromURL": "/?tag=wyszukiwanie"
+      },
       "payloadId": 97,
-      "wordpressId": 49,
-      "slug": "wyszukiwanie"
+      "payloadSlug": "wyszukiwanie",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=xiaomi",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "xiaomi",
+        "fromURL": "/?tag=xiaomi"
+      },
       "payloadId": 98,
-      "wordpressId": 41,
-      "slug": "xiaomi"
+      "payloadSlug": "xiaomi",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=z-stack_home",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "z-stack_home",
+        "fromURL": "/?tag=z-stack_home"
+      },
       "payloadId": 99,
-      "wordpressId": 60,
-      "slug": "z-stack_home"
+      "payloadSlug": "z-stack_home",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=z-stack-firmware",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "z-stack-firmware",
+        "fromURL": "/?tag=z-stack-firmware"
+      },
       "payloadId": 100,
-      "wordpressId": 59,
-      "slug": "z-stack-firmware"
+      "payloadSlug": "z-stack-firmware",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=zarzadzanie-plikami",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "zarzadzanie-plikami",
+        "fromURL": "/?tag=zarzadzanie-plikami"
+      },
       "payloadId": 101,
-      "wordpressId": 102,
-      "slug": "zarzadzanie-plikami"
+      "payloadSlug": "zarzadzanie-plikami",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=zatrzymanie-uslugi",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "zatrzymanie-uslugi",
+        "fromURL": "/?tag=zatrzymanie-uslugi"
+      },
       "payloadId": 102,
-      "wordpressId": 92,
-      "slug": "zatrzymanie-uslugi"
+      "payloadSlug": "zatrzymanie-uslugi",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=zigbee2mqtt",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "zigbee2mqtt",
+        "fromURL": "/?tag=zigbee2mqtt"
+      },
       "payloadId": 103,
-      "wordpressId": 105,
-      "slug": "zigbee2mqtt"
+      "payloadSlug": "zigbee2mqtt",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=zigpy-znp",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "zigpy-znp",
+        "fromURL": "/?tag=zigpy-znp"
+      },
       "payloadId": 104,
-      "wordpressId": 118,
-      "slug": "zigpy-znp"
+      "payloadSlug": "zigpy-znp",
+      "payloadStatus": null,
+      "isPublic": true
     },
     {
-      "sourceClass": "tag-archive-query",
-      "fromURL": "/?tag=znajdz",
-      "relationTo": "tags",
+      "expected": {
+        "collection": "tags",
+        "slug": "znajdz",
+        "fromURL": "/?tag=znajdz"
+      },
       "payloadId": 105,
-      "wordpressId": 50,
-      "slug": "znajdz"
+      "payloadSlug": "znajdz",
+      "payloadStatus": null,
+      "isPublic": true
+    }
+  ],
+  "missingFromPayload": [],
+  "notPublicInPayload": [],
+  "redirectChecks": [
+    {
+      "expected": {
+        "collection": "categories",
+        "wordpressId": 1,
+        "fromURL": "/?cat=1"
+      },
+      "payloadId": 1,
+      "status": "ok",
+      "actualRelationTo": "categories",
+      "actualPayloadId": 1
+    },
+    {
+      "expected": {
+        "collection": "categories",
+        "wordpressId": 25,
+        "fromURL": "/?cat=25"
+      },
+      "payloadId": 3,
+      "status": "ok",
+      "actualRelationTo": "categories",
+      "actualPayloadId": 3
+    },
+    {
+      "expected": {
+        "collection": "categories",
+        "wordpressId": 32,
+        "fromURL": "/?cat=32"
+      },
+      "payloadId": 4,
+      "status": "ok",
+      "actualRelationTo": "categories",
+      "actualPayloadId": 4
+    },
+    {
+      "expected": {
+        "collection": "categories",
+        "wordpressId": 6,
+        "fromURL": "/?cat=6"
+      },
+      "payloadId": 5,
+      "status": "ok",
+      "actualRelationTo": "categories",
+      "actualPayloadId": 5
+    },
+    {
+      "expected": {
+        "collection": "categories",
+        "wordpressId": 7,
+        "fromURL": "/?cat=7"
+      },
+      "payloadId": 7,
+      "status": "ok",
+      "actualRelationTo": "categories",
+      "actualPayloadId": 7
+    },
+    {
+      "expected": {
+        "collection": "categories",
+        "wordpressId": 8,
+        "fromURL": "/?cat=8"
+      },
+      "payloadId": 2,
+      "status": "ok",
+      "actualRelationTo": "categories",
+      "actualPayloadId": 2
+    },
+    {
+      "expected": {
+        "collection": "categories",
+        "wordpressId": 9,
+        "fromURL": "/?cat=9"
+      },
+      "payloadId": 6,
+      "status": "ok",
+      "actualRelationTo": "categories",
+      "actualPayloadId": 6
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 101,
+        "fromURL": "/?p=101"
+      },
+      "payloadId": 38,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 38
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 148,
+        "fromURL": "/?p=148"
+      },
+      "payloadId": 37,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 37
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 158,
+        "fromURL": "/?p=158"
+      },
+      "payloadId": 14,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 14
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 172,
+        "fromURL": "/?p=172"
+      },
+      "payloadId": 8,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 8
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 174,
+        "fromURL": "/?p=174"
+      },
+      "payloadId": 20,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 20
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 202,
+        "fromURL": "/?p=202"
+      },
+      "payloadId": 17,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 17
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 204,
+        "fromURL": "/?p=204"
+      },
+      "payloadId": 12,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 12
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 206,
+        "fromURL": "/?p=206"
+      },
+      "payloadId": 15,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 15
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 208,
+        "fromURL": "/?p=208"
+      },
+      "payloadId": 11,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 11
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 256,
+        "fromURL": "/?p=256"
+      },
+      "payloadId": 19,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 19
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 267,
+        "fromURL": "/?p=267"
+      },
+      "payloadId": 16,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 16
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 313,
+        "fromURL": "/?p=313"
+      },
+      "payloadId": 13,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 13
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 34,
+        "fromURL": "/?p=34"
+      },
+      "payloadId": 41,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 41
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 391,
+        "fromURL": "/?p=391"
+      },
+      "payloadId": 10,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 10
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 41,
+        "fromURL": "/?p=41"
+      },
+      "payloadId": 40,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 40
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 421,
+        "fromURL": "/?p=421"
+      },
+      "payloadId": 9,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 9
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 477,
+        "fromURL": "/?p=477"
+      },
+      "payloadId": 7,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 7
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 484,
+        "fromURL": "/?p=484"
+      },
+      "payloadId": 6,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 6
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 487,
+        "fromURL": "/?p=487"
+      },
+      "payloadId": 5,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 5
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 495,
+        "fromURL": "/?p=495"
+      },
+      "payloadId": 2,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 2
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 509,
+        "fromURL": "/?p=509"
+      },
+      "payloadId": 1,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 1
+    },
+    {
+      "expected": {
+        "collection": "posts",
+        "wordpressId": 79,
+        "fromURL": "/?p=79"
+      },
+      "payloadId": 39,
+      "status": "ok",
+      "actualRelationTo": "posts",
+      "actualPayloadId": 39
+    },
+    {
+      "expected": {
+        "collection": "pages",
+        "wordpressId": 11,
+        "fromURL": "/?page_id=11"
+      },
+      "payloadId": 1,
+      "status": "ok",
+      "actualRelationTo": "pages",
+      "actualPayloadId": 1
+    },
+    {
+      "expected": {
+        "collection": "pages",
+        "wordpressId": 12,
+        "fromURL": "/?page_id=12"
+      },
+      "payloadId": 2,
+      "status": "ok",
+      "actualRelationTo": "pages",
+      "actualPayloadId": 2
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "4shared",
+        "fromURL": "/?tag=4shared"
+      },
+      "payloadId": 2,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 2
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "accounts",
+        "fromURL": "/?tag=accounts"
+      },
+      "payloadId": 3,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 3
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "backup",
+        "fromURL": "/?tag=backup"
+      },
+      "payloadId": 4,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 4
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "baza-danych",
+        "fromURL": "/?tag=baza-danych"
+      },
+      "payloadId": 5,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 5
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "bezpieczenstwo",
+        "fromURL": "/?tag=bezpieczenstwo"
+      },
+      "payloadId": 6,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 6
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "bootloader",
+        "fromURL": "/?tag=bootloader"
+      },
+      "payloadId": 7,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 7
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "cc2531",
+        "fromURL": "/?tag=cc2531"
+      },
+      "payloadId": 8,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 8
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "cc2652p",
+        "fromURL": "/?tag=cc2652p"
+      },
+      "payloadId": 9,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 9
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "ch9102x",
+        "fromURL": "/?tag=ch9102x"
+      },
+      "payloadId": 10,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 10
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "chmod",
+        "fromURL": "/?tag=chmod"
+      },
+      "payloadId": 11,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 11
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "cisco-epc3925",
+        "fromURL": "/?tag=cisco-epc3925"
+      },
+      "payloadId": 12,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 12
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "cp",
+        "fromURL": "/?tag=cp"
+      },
+      "payloadId": 13,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 13
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "dlna",
+        "fromURL": "/?tag=dlna"
+      },
+      "payloadId": 14,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 14
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "dodanie-sulugi",
+        "fromURL": "/?tag=dodanie-sulugi"
+      },
+      "payloadId": 15,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 15
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "dodanie-uslugi",
+        "fromURL": "/?tag=dodanie-uslugi"
+      },
+      "payloadId": 16,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 16
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "dodawanie-uslugi",
+        "fromURL": "/?tag=dodawanie-uslugi"
+      },
+      "payloadId": 17,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 17
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "domoticz",
+        "fromURL": "/?tag=domoticz"
+      },
+      "payloadId": 18,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 18
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "dotnet",
+        "fromURL": "/?tag=dotnet"
+      },
+      "payloadId": 19,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 19
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "ebyte-e18-2g4u04b",
+        "fromURL": "/?tag=ebyte-e18-2g4u04b"
+      },
+      "payloadId": 20,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 20
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "etc-init-d",
+        "fromURL": "/?tag=etc-init-d"
+      },
+      "payloadId": 1,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 1
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "fd",
+        "fromURL": "/?tag=fd"
+      },
+      "payloadId": 21,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 21
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "fd-file",
+        "fromURL": "/?tag=fd-file"
+      },
+      "payloadId": 22,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 22
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "fd-find",
+        "fromURL": "/?tag=fd-find"
+      },
+      "payloadId": 23,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 23
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "filesystem",
+        "fromURL": "/?tag=filesystem"
+      },
+      "payloadId": 24,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 24
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "find",
+        "fromURL": "/?tag=find"
+      },
+      "payloadId": 25,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 25
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "firmware",
+        "fromURL": "/?tag=firmware"
+      },
+      "payloadId": 26,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 26
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "flash_cc2531",
+        "fromURL": "/?tag=flash_cc2531"
+      },
+      "payloadId": 27,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 27
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "flashowanie",
+        "fromURL": "/?tag=flashowanie"
+      },
+      "payloadId": 28,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 28
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "forcefsck",
+        "fromURL": "/?tag=forcefsck"
+      },
+      "payloadId": 29,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 29
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "fsck",
+        "fromURL": "/?tag=fsck"
+      },
+      "payloadId": 30,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 30
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "git",
+        "fromURL": "/?tag=git"
+      },
+      "payloadId": 31,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 31
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "groupadd",
+        "fromURL": "/?tag=groupadd"
+      },
+      "payloadId": 32,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 32
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "groupdel",
+        "fromURL": "/?tag=groupdel"
+      },
+      "payloadId": 33,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 33
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "groups",
+        "fromURL": "/?tag=groups"
+      },
+      "payloadId": 34,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 34
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "haslo",
+        "fromURL": "/?tag=haslo"
+      },
+      "payloadId": 35,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 35
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "homeassistant",
+        "fromURL": "/?tag=homeassistant"
+      },
+      "payloadId": 36,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 36
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "init-d",
+        "fromURL": "/?tag=init-d"
+      },
+      "payloadId": 37,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 37
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "intelhex",
+        "fromURL": "/?tag=intelhex"
+      },
+      "payloadId": 38,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 38
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "journalctl",
+        "fromURL": "/?tag=journalctl"
+      },
+      "payloadId": 39,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 39
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "jupyter",
+        "fromURL": "/?tag=jupyter"
+      },
+      "payloadId": 40,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 40
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "jupyternotebook",
+        "fromURL": "/?tag=jupyternotebook"
+      },
+      "payloadId": 41,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 41
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "katalogi",
+        "fromURL": "/?tag=katalogi"
+      },
+      "payloadId": 42,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 42
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "kopiowanie",
+        "fromURL": "/?tag=kopiowanie"
+      },
+      "payloadId": 43,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 43
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "linux",
+        "fromURL": "/?tag=linux"
+      },
+      "payloadId": 44,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 44
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "logi",
+        "fromURL": "/?tag=logi"
+      },
+      "payloadId": 45,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 45
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "macos",
+        "fromURL": "/?tag=macos"
+      },
+      "payloadId": 46,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 46
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "mariadb",
+        "fromURL": "/?tag=mariadb"
+      },
+      "payloadId": 47,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 47
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "mikr-us",
+        "fromURL": "/?tag=mikr-us"
+      },
+      "payloadId": 48,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 48
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "minidlna",
+        "fromURL": "/?tag=minidlna"
+      },
+      "payloadId": 49,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 49
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "mitemperature",
+        "fromURL": "/?tag=mitemperature"
+      },
+      "payloadId": 50,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 50
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "mysql",
+        "fromURL": "/?tag=mysql"
+      },
+      "payloadId": 51,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 51
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "nokia-g-240w-c",
+        "fromURL": "/?tag=nokia-g-240w-c"
+      },
+      "payloadId": 52,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 52
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "now-usluga",
+        "fromURL": "/?tag=now-usluga"
+      },
+      "payloadId": 53,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 53
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "nvram_backup",
+        "fromURL": "/?tag=nvram_backup"
+      },
+      "payloadId": 54,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 54
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "openvpn",
+        "fromURL": "/?tag=openvpn"
+      },
+      "payloadId": 55,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 55
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "openwrt",
+        "fromURL": "/?tag=openwrt"
+      },
+      "payloadId": 56,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 56
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "openwrt-watchodg",
+        "fromURL": "/?tag=openwrt-watchodg"
+      },
+      "payloadId": 57,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 57
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "passwd",
+        "fromURL": "/?tag=passwd"
+      },
+      "payloadId": 58,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 58
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "password",
+        "fromURL": "/?tag=password"
+      },
+      "payloadId": 59,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 59
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "pip",
+        "fromURL": "/?tag=pip"
+      },
+      "payloadId": 60,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 60
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "pliki",
+        "fromURL": "/?tag=pliki"
+      },
+      "payloadId": 61,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 61
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "printer",
+        "fromURL": "/?tag=printer"
+      },
+      "payloadId": 62,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 62
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "pyserial",
+        "fromURL": "/?tag=pyserial"
+      },
+      "payloadId": 63,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 63
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "python",
+        "fromURL": "/?tag=python"
+      },
+      "payloadId": 64,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 64
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "python-magic",
+        "fromURL": "/?tag=python-magic"
+      },
+      "payloadId": 65,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 65
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "queue",
+        "fromURL": "/?tag=queue"
+      },
+      "payloadId": 66,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 66
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "raspberry",
+        "fromURL": "/?tag=raspberry"
+      },
+      "payloadId": 67,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 67
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "restart-uslugi",
+        "fromURL": "/?tag=restart-uslugi"
+      },
+      "payloadId": 68,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 68
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "router",
+        "fromURL": "/?tag=router"
+      },
+      "payloadId": 69,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 69
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "router-watchdog",
+        "fromURL": "/?tag=router-watchdog"
+      },
+      "payloadId": 70,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 70
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "scp",
+        "fromURL": "/?tag=scp"
+      },
+      "payloadId": 71,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 71
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "service",
+        "fromURL": "/?tag=service"
+      },
+      "payloadId": 72,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 72
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "service-status",
+        "fromURL": "/?tag=service-status"
+      },
+      "payloadId": 73,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 73
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "services",
+        "fromURL": "/?tag=services"
+      },
+      "payloadId": 74,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 74
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "ssh",
+        "fromURL": "/?tag=ssh"
+      },
+      "payloadId": 75,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 75
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "status",
+        "fromURL": "/?tag=status"
+      },
+      "payloadId": 76,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 76
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "system-d",
+        "fromURL": "/?tag=system-d"
+      },
+      "payloadId": 79,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 79
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "system-operacyjny",
+        "fromURL": "/?tag=system-operacyjny"
+      },
+      "payloadId": 77,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 77
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "system-plikow",
+        "fromURL": "/?tag=system-plikow"
+      },
+      "payloadId": 78,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 78
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "systemctl",
+        "fromURL": "/?tag=systemctl"
+      },
+      "payloadId": 80,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 80
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "systemd",
+        "fromURL": "/?tag=systemd"
+      },
+      "payloadId": 81,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 81
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "transfer",
+        "fromURL": "/?tag=transfer"
+      },
+      "payloadId": 82,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 82
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "tune2fs",
+        "fromURL": "/?tag=tune2fs"
+      },
+      "payloadId": 83,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 83
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "unix",
+        "fromURL": "/?tag=unix"
+      },
+      "payloadId": 84,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 84
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "uprawnienia",
+        "fromURL": "/?tag=uprawnienia"
+      },
+      "payloadId": 85,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 85
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "uruchomienie-uslugi",
+        "fromURL": "/?tag=uruchomienie-uslugi"
+      },
+      "payloadId": 86,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 86
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "usb-serial",
+        "fromURL": "/?tag=usb-serial"
+      },
+      "payloadId": 87,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 87
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "user",
+        "fromURL": "/?tag=user"
+      },
+      "payloadId": 88,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 88
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "usermod",
+        "fromURL": "/?tag=usermod"
+      },
+      "payloadId": 89,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 89
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "uslugi",
+        "fromURL": "/?tag=uslugi"
+      },
+      "payloadId": 90,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 90
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "uzytkownik",
+        "fromURL": "/?tag=uzytkownik"
+      },
+      "payloadId": 91,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 91
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "vpn",
+        "fromURL": "/?tag=vpn"
+      },
+      "payloadId": 92,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 92
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "watchdog",
+        "fromURL": "/?tag=watchdog"
+      },
+      "payloadId": 93,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 93
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "webdav",
+        "fromURL": "/?tag=webdav"
+      },
+      "payloadId": 94,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 94
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "wget",
+        "fromURL": "/?tag=wget"
+      },
+      "payloadId": 95,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 95
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "wiringpi",
+        "fromURL": "/?tag=wiringpi"
+      },
+      "payloadId": 96,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 96
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "wyszukiwanie",
+        "fromURL": "/?tag=wyszukiwanie"
+      },
+      "payloadId": 97,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 97
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "xiaomi",
+        "fromURL": "/?tag=xiaomi"
+      },
+      "payloadId": 98,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 98
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "z-stack_home",
+        "fromURL": "/?tag=z-stack_home"
+      },
+      "payloadId": 99,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 99
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "z-stack-firmware",
+        "fromURL": "/?tag=z-stack-firmware"
+      },
+      "payloadId": 100,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 100
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "zarzadzanie-plikami",
+        "fromURL": "/?tag=zarzadzanie-plikami"
+      },
+      "payloadId": 101,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 101
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "zatrzymanie-uslugi",
+        "fromURL": "/?tag=zatrzymanie-uslugi"
+      },
+      "payloadId": 102,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 102
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "zigbee2mqtt",
+        "fromURL": "/?tag=zigbee2mqtt"
+      },
+      "payloadId": 103,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 103
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "zigpy-znp",
+        "fromURL": "/?tag=zigpy-znp"
+      },
+      "payloadId": 104,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 104
+    },
+    {
+      "expected": {
+        "collection": "tags",
+        "slug": "znajdz",
+        "fromURL": "/?tag=znajdz"
+      },
+      "payloadId": 105,
+      "status": "ok",
+      "actualRelationTo": "tags",
+      "actualPayloadId": 105
     }
   ],
   "unresolvedPublicIssues": {

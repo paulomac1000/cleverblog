@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { buildRedirectSpecs } from '../../scripts/wordpress/map-redirects'
 
 describe('WordPress redirect mapping', () => {
-  it('maps WordPress post and page query URLs to Payload relationships', () => {
+  it('maps post, page, category and tag query URLs to Payload relationships', () => {
     const result = buildRedirectSpecs([
       {
         wordpressId: 41,
@@ -17,9 +17,29 @@ describe('WordPress redirect mapping', () => {
         collection: 'pages',
         payloadId: 202,
       },
+      {
+        wordpressId: 3,
+        slug: 'news',
+        collection: 'categories',
+        payloadId: 303,
+      },
+      {
+        wordpressId: 9,
+        slug: 'payload',
+        collection: 'tags',
+        payloadId: 404,
+      },
     ])
 
     expect(result).toEqual([
+      {
+        fromURL: '/?cat=3',
+        toURL: {
+          relationTo: 'categories',
+          value: 303,
+        },
+        type: '301',
+      },
       {
         fromURL: '/?p=41',
         toURL: {
@@ -36,45 +56,98 @@ describe('WordPress redirect mapping', () => {
         },
         type: '301',
       },
+      {
+        fromURL: '/?tag=payload',
+        toURL: {
+          relationTo: 'tags',
+          value: 404,
+        },
+        type: '301',
+      },
     ])
   })
 
-  it('deduplicates identical redirect sources', () => {
+  it('deduplicates identical category and tag redirect sources', () => {
     const result = buildRedirectSpecs([
       {
-        wordpressId: 41,
-        slug: 'example-post',
-        collection: 'posts',
-        payloadId: 101,
+        wordpressId: 3,
+        slug: 'news',
+        collection: 'categories',
+        payloadId: 303,
       },
       {
-        wordpressId: 41,
-        slug: 'example-post',
-        collection: 'posts',
-        payloadId: 101,
+        wordpressId: 3,
+        slug: 'news-copy-is-irrelevant-to-cat-query',
+        collection: 'categories',
+        payloadId: 303,
+      },
+      {
+        wordpressId: 9,
+        slug: 'payload',
+        collection: 'tags',
+        payloadId: 404,
+      },
+      {
+        wordpressId: 10,
+        slug: 'payload',
+        collection: 'tags',
+        payloadId: 404,
       },
     ])
 
-    expect(result).toHaveLength(1)
-    expect(result[0]?.fromURL).toBe('/?p=41')
+    expect(result).toEqual([
+      {
+        fromURL: '/?cat=3',
+        toURL: {
+          relationTo: 'categories',
+          value: 303,
+        },
+        type: '301',
+      },
+      {
+        fromURL: '/?tag=payload',
+        toURL: {
+          relationTo: 'tags',
+          value: 404,
+        },
+        type: '301',
+      },
+    ])
   })
 
-  it('fails closed when one legacy URL resolves to conflicting targets', () => {
+  it('fails closed when category or tag legacy URLs resolve to conflicting targets', () => {
     expect(() =>
       buildRedirectSpecs([
         {
-          wordpressId: 41,
-          slug: 'example-post',
-          collection: 'posts',
-          payloadId: 101,
+          wordpressId: 3,
+          slug: 'news',
+          collection: 'categories',
+          payloadId: 303,
         },
         {
-          wordpressId: 41,
-          slug: 'other-copy',
-          collection: 'posts',
-          payloadId: 102,
+          wordpressId: 3,
+          slug: 'other-news',
+          collection: 'categories',
+          payloadId: 304,
         },
       ]),
-    ).toThrow(/Conflicting redirect targets/)
+    ).toThrow(/Conflicting redirect targets for \/\?cat=3/)
+
+    expect(() =>
+      buildRedirectSpecs([
+        {
+          wordpressId: 9,
+          slug: 'payload',
+          collection: 'tags',
+          payloadId: 404,
+        },
+        {
+          wordpressId: 10,
+          slug: 'payload',
+          collection: 'tags',
+          payloadId: 405,
+        },
+      ]),
+    ).toThrow(/Conflicting redirect targets for \/\?tag=payload/)
   })
 })

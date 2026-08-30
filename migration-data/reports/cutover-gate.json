@@ -1,32 +1,63 @@
 {
-  "generatedAt": "2026-08-30T12:02:02.306Z",
+  "generatedAt": "2026-08-30T13:03:16.217Z",
   "status": "blocked",
+  "coverage": {
+    "implemented": [
+      "source-derived public URL universe",
+      "expected Payload presence and public visibility",
+      "legacy query redirect existence and target",
+      "published unrewritten WordPress media URLs",
+      "relevant unresolved media decisions and replacement notes"
+    ],
+    "pending": [
+      "full crawler/archive inventory",
+      "broken internal links scan",
+      "comments coverage check",
+      "canonical/sitemap/robots/RSS checks",
+      "100% source content reconciliation"
+    ]
+  },
   "checks": {
+    "expectedPublicUrls": 136,
+    "missingFromPayload": 0,
+    "payloadNotPublic": 0,
     "redirectSources": 136,
     "missingRedirects": 0,
     "mismatchedRedirects": 0,
     "publishedUnrewrittenMediaEntries": 1,
-    "pendingRelevantMediaDecisions": 2
+    "pendingRelevantMediaDecisions": 2,
+    "missingReplacementNotes": 0
   },
   "blockers": [
     {
-      "code": "unresolved-media-decision",
-      "message": "Media wp:263 (2021/02/image-1.png) is referenced by published content and has no recover/retire decision",
-      "wordpressId": 263
-    },
-    {
-      "code": "unresolved-media-decision",
-      "message": "Media wp:262 (2021/02/image.png) is referenced by published content and has no recover/retire decision",
-      "wordpressId": 262
-    },
-    {
       "code": "unrewritten-media-url",
-      "message": "posts wp:202 is published with 2 unreconciled WordPress media URL(s)",
+      "message": "posts wp:202 is source-published with 2 unreconciled WordPress media URL(s)",
       "collection": "posts",
       "wordpressId": 202,
       "urls": [
         "https://cleverblog.pl/wp-content/uploads/2021/02/image-1.png",
         "https://cleverblog.pl/wp-content/uploads/2021/02/image.png"
+      ]
+    },
+    {
+      "code": "unresolved-media-decision",
+      "message": "Media wp:263 (2021/02/image-1.png) has no recover/retire/replace decision",
+      "wordpressId": 263
+    },
+    {
+      "code": "unresolved-media-decision",
+      "message": "Media wp:262 (2021/02/image.png) has no recover/retire/replace decision",
+      "wordpressId": 262
+    },
+    {
+      "code": "gate-coverage-incomplete",
+      "message": "Cutover coverage is incomplete: full crawler/archive inventory; broken internal links scan; comments coverage check; canonical/sitemap/robots/RSS checks; 100% source content reconciliation",
+      "pendingChecks": [
+        "full crawler/archive inventory",
+        "broken internal links scan",
+        "comments coverage check",
+        "canonical/sitemap/robots/RSS checks",
+        "100% source content reconciliation"
       ]
     }
   ]
