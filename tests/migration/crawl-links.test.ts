@@ -114,6 +114,37 @@ describe('crawler/archive link inventory', () => {
     ).toBeNull()
   })
 
+  it('resolves relative hrefs against the document path, not the site root', () => {
+    expect(
+      normalizeInternalUrl(
+        'image.png',
+        '/articles/linux-chmod/',
+      ),
+    ).toBe(
+      '/articles/linux-chmod/image.png',
+    )
+
+    expect(
+      normalizeInternalUrl(
+        'image.png',
+        '/kontakt',
+      ),
+    ).toBe('/image.png')
+
+    expect(
+      normalizeInternalUrl(
+        '../image.png',
+        '/articles/linux-chmod/',
+      ),
+    ).toBe('/articles/image.png')
+
+    expect(
+      normalizeInternalUrl(
+        'image.png',
+      ),
+    ).toBe('/image.png')
+  })
+
   it('extracts internal href/src references and ignores external references', () => {
     const result =
       extractInternalReferences(

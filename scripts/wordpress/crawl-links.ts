@@ -97,6 +97,7 @@ type ContentRow = {
   status: string
   slug: string
   html: string
+  path: string
 }
 
 type TermRow = {
@@ -213,6 +214,7 @@ const normalizePathname = (
 
 export const normalizeInternalUrl = (
   rawUrl: string,
+  documentPath?: string,
 ): string | null => {
   const value =
     decodeHtmlEntities(rawUrl).trim()
@@ -232,9 +234,28 @@ export const normalizeInternalUrl = (
   let parsed: URL
 
   try {
-    parsed = value.startsWith('//')
-      ? new URL(`https:${value}`)
-      : new URL(value, INTERNAL_ORIGIN)
+    if (value.startsWith('//')) {
+      parsed = new URL(`https:${value}`)
+    } else if (
+      documentPath !== undefined &&
+      !/^[a-z][a-z0-9+.-]*:/i.test(value) &&
+      !value.startsWith('/')
+    ) {
+      // RFC 3986 §5.3: relative hrefs
+      // resolve against the document URL,
+      // not the site root.
+      const base =
+        new URL(
+          documentPath,
+          INTERNAL_ORIGIN,
+        )
+      parsed = new URL(value, base)
+    } else {
+      parsed = new URL(
+        value,
+        INTERNAL_ORIGIN,
+      )
+    }
   } catch {
     return null
   }
@@ -300,6 +321,7 @@ export const extractInternalReferences = (
     'href',
     'src',
   ],
+  documentPath?: string,
 ): InternalReference[] => {
   const result: InternalReference[] = []
 
@@ -309,7 +331,10 @@ export const extractInternalReferences = (
       attribute,
     )) {
       const normalizedUrl =
-        normalizeInternalUrl(rawUrl)
+        normalizeInternalUrl(
+          rawUrl,
+          documentPath,
+        )
 
       if (normalizedUrl === null) continue
 
@@ -360,6 +385,15 @@ const parseContentRows = (
           raw.post_content,
           `${label}[${index}].post_content`,
         ),
+        path: stringValue(
+          raw.post_name,
+          `${label}[${index}].post_name`,
+        ).trim()
+          ? `/${stringValue(
+              raw.post_name,
+              `${label}[${index}].post_name`,
+            ).trim()}`
+          : `/?p=${wordpressId}`,
       }
     },
   )
@@ -621,6 +655,7 @@ export const buildPathStyleReport = (
       extractInternalReferences(
         row.html,
         ['href'],
+        row.path,
       )) {
       internalHrefOccurrences += 1
 
