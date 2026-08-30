@@ -53,6 +53,38 @@ describe('buildRenderHTML', () => {
     )
   })
 
+  it('does not normalize resized suffixes in external media URLs', () => {
+    const html = '<img src="https://cdn.example.com/photo-300x200.jpg">'
+
+    const result = buildRenderHTML(html, mediaMap)
+
+    expect(result).toContain('src="https://cdn.example.com/photo-300x200.jpg"')
+    expect(result).not.toContain('/api/media/')
+  })
+
+  it('does not normalize scaled suffixes in unrelated code text', () => {
+    const html = '<code>foo-scaled.jpg</code>'
+
+    const result = buildRenderHTML(html, mediaMap)
+
+    expect(result).toContain('<code>foo-scaled.jpg</code>')
+  })
+
+  it('rewrites both GUID-derived and uploadsPath aliases to the same media asset', () => {
+    const aliasMediaMap = new Map<string, string>([
+      ['2020/05/a.jpg', '/api/media/file/7-a.jpg'],
+      ['2020/05/real-name.jpg', '/api/media/file/7-a.jpg'],
+    ])
+    const html =
+      '<img src="https://cleverblog.pl/wp-content/uploads/2020/05/a.jpg">' +
+      '<img src="https://cleverblog.pl/wp-content/uploads/2020/05/real-name.jpg">'
+
+    const result = buildRenderHTML(html, aliasMediaMap)
+
+    expect(result.match(/src="\/api\/media\/file\/7-a\.jpg"/g)).toHaveLength(2)
+    expect(result).not.toContain('wp-content')
+  })
+
   it('never produces hybrid WordPress/Payload media URLs', () => {
     const inputs = [
       'https://cleverblog.pl/wp-content/uploads/2020/05/a.jpg',
@@ -116,5 +148,22 @@ describe('collectUnrewrittenUrls', () => {
     const html = `<img src="${z}"><a href="${a}">A</a><img src="${z}">`
 
     expect(collectUnrewrittenUrls(html)).toEqual([z, a])
+  })
+
+  it('collects absolute, protocol-relative and relative WordPress media URLs', () => {
+    const absolute =
+      'https://cleverblog.pl/wp-content/uploads/2020/05/abs-missing.jpg'
+    const protocolRelative =
+      '//cleverblog.pl/wp-content/uploads/2020/05/proto-missing.jpg'
+    const relative =
+      '/wp-content/uploads/2020/05/rel-missing.jpg'
+    const html =
+      `<img src="${absolute}">` +
+      `<img src="${relative}">` +
+      `<img src="${protocolRelative}">`
+
+    expect(collectUnrewrittenUrls(html)).toEqual(
+      [absolute, protocolRelative, relative].sort(),
+    )
   })
 })

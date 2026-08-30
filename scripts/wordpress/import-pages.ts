@@ -7,6 +7,21 @@ import { getPayload } from 'payload'
 import { buildMediaRewriteMap, buildRenderHTML, collectUnrewrittenUrls } from './render-html'
 import type { NormalizedPost } from './types'
 
+type UnrewrittenMediaEntry = {
+  collection: string
+  wordpressId: number
+  urls: string[]
+}
+
+const readJsonOrEmpty = async (filePath: string): Promise<UnrewrittenMediaEntry[]> => {
+  try {
+    return JSON.parse(await readFile(filePath, 'utf8')) as UnrewrittenMediaEntry[]
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+    return []
+  }
+}
+
 const inputPath = path.join(process.cwd(), 'migration-data/normalized/pages.json')
 const MIGRATION_VERSION = process.env.WORDPRESS_MIGRATION_VERSION ?? 'wp-foundation-v1'
 
@@ -87,17 +102,10 @@ const main = async () => {
   console.log(`pages import: ${created} created, ${updated} updated (${pages.length} pages)`)
 
   const reportPath = path.join(process.cwd(), 'migration-data/reports/unrewritten-media-urls.json')
-  let prior: unknown[] = []
-  try {
-    prior = JSON.parse(await readFile(reportPath, 'utf8')) as unknown[]
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
-  }
-  const priorOthers = prior.filter(
-    (entry) => (entry as { collection?: string }).collection !== 'pages',
-  )
+  const prior = await readJsonOrEmpty(reportPath)
+  const others = prior.filter((entry) => entry.collection !== 'pages')
   await mkdir(path.dirname(reportPath), { recursive: true })
-  await writeFile(reportPath, `${JSON.stringify([...priorOthers, ...unrewritten], null, 2)}\n`)
+  await writeFile(reportPath, `${JSON.stringify([...others, ...unrewritten], null, 2)}\n`)
   console.log(
     `pages import: unrewritten WP media urls in ${unrewritten.length} pages (see migration-data/reports/unrewritten-media-urls.json)`,
   )

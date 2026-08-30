@@ -36,27 +36,40 @@ export const buildMediaRewriteMap = async (): Promise<Map<string, string>> => {
 
   for (const entry of source.media) {
     if (!entry.uploadsPath) continue
+
     const finalName = `${entry.wordpressId}-${path.basename(entry.uploadsPath)}`
+    const newUrl = `/api/media/file/${finalName}`
     const marker = '/wp-content/uploads/'
     const idx = entry.originalUrl.indexOf(marker)
-    if (idx === -1) continue
-    const rel = entry.originalUrl.slice(idx + marker.length)
-    // Key is the uploads-relative path; any absolute-origin or /blog prefix is
-    // consumed by the rewrite regex in buildRenderHTML.
-    put(rel, `/api/media/file/${finalName}`)
+
+    const rels = new Set<string>([entry.uploadsPath])
+    if (idx !== -1) {
+      rels.add(entry.originalUrl.slice(idx + marker.length))
+    }
+
+    // Both the attachment GUID path and authoritative _wp_attached_file path
+    // are valid aliases for the same imported Payload media record.
+    for (const rel of rels) {
+      put(rel, newUrl)
+    }
   }
+
   return map
 }
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-// WP post bodies reference resized variants (<stem>-WxH<ext>, <stem>-scaled<ext>)
-// that exist only as generated files, not as attachments; normalize them to the
-// attachment original before exact URL replacement.
+// WP generated variants are normalized only inside WP uploads URLs. External
+// URLs and unrelated text that happen to contain "-WxH" or "-scaled" survive.
 const normalizeVariantUrls = (html: string): string =>
-  html
-    .replace(/(-\d+x\d+)(?=\.(?:jpe?g|png|gif|webp|avif)(?:[?#"]|$))/gi, '')
-    .replace(/(-scaled)(?=\.(?:jpe?g|png|gif|webp|avif)(?:[?#"]|$))/gi, '')
+  html.replace(
+    /(?:(?:https?:)?\/\/[^\s"'<>)]*)?\/wp-content\/uploads\/[^\s"'<>)]*/gi,
+    (url) =>
+      url.replace(
+        /(?:-\d+x\d+|-scaled)(?=\.(?:jpe?g|png|gif|webp|avif)(?:[?#]|$))/i,
+        '',
+      ),
+  )
 
 /**
  * Builds the render working copy: media URLs rewritten to Payload, sanitized.
@@ -89,4 +102,10 @@ export const buildRenderHTML = (html: string, mediaMap: Map<string, string>): st
 // URLs that still point at WP after the rewrite: unlinked references or
 // unresolved attachments. Kept visible on purpose; callers report them.
 export const collectUnrewrittenUrls = (html: string): string[] =>
-  [...new Set(html.match(/https?:\/\/[^\s"'<>]*\/wp-content\/uploads\/[^\s"'<>]+/gi) ?? [])].sort()
+  [
+    ...new Set(
+      html.match(
+        /(?:https?:\/\/|\/\/)[^\s"'<>]*\/wp-content\/uploads\/[^\s"'<>]+|\/wp-content\/uploads\/[^\s"'<>]+/gi,
+      ) ?? [],
+    ),
+  ].sort()

@@ -8,6 +8,21 @@ import { buildMediaRewriteMap, buildRenderHTML, collectUnrewrittenUrls } from '.
 
 import type { NormalizedPost } from './types'
 
+type UnrewrittenMediaEntry = {
+  collection: string
+  wordpressId: number
+  urls: string[]
+}
+
+const readJsonOrEmpty = async (filePath: string): Promise<UnrewrittenMediaEntry[]> => {
+  try {
+    return JSON.parse(await readFile(filePath, 'utf8')) as UnrewrittenMediaEntry[]
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+    return []
+  }
+}
+
 const inputPath = path.join(process.cwd(), 'migration-data/normalized/posts.json')
 const MIGRATION_VERSION = process.env.WORDPRESS_MIGRATION_VERSION ?? 'wp-foundation-v1'
 
@@ -125,8 +140,10 @@ async function main() {
   }
 
   const reportPath = path.join(process.cwd(), 'migration-data/reports/unrewritten-media-urls.json')
+  const prior = await readJsonOrEmpty(reportPath)
+  const others = prior.filter((entry) => entry.collection !== 'posts')
   await mkdir(path.dirname(reportPath), { recursive: true })
-  await writeFile(reportPath, `${JSON.stringify(unrewritten, null, 2)}\n`)
+  await writeFile(reportPath, `${JSON.stringify([...others, ...unrewritten], null, 2)}\n`)
   console.log(
     `posts import: unrewritten WP media urls in ${unrewritten.length} posts (see migration-data/reports/unrewritten-media-urls.json)`,
   )
