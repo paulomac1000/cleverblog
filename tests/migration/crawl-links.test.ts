@@ -114,6 +114,37 @@ describe('crawler/archive link inventory', () => {
     ).toBeNull()
   })
 
+  it('resolves relative hrefs against the document path, not the site root', () => {
+    expect(
+      normalizeInternalUrl(
+        'image.png',
+        '/articles/linux-chmod/',
+      ),
+    ).toBe(
+      '/articles/linux-chmod/image.png',
+    )
+
+    expect(
+      normalizeInternalUrl(
+        'image.png',
+        '/kontakt',
+      ),
+    ).toBe('/image.png')
+
+    expect(
+      normalizeInternalUrl(
+        '../image.png',
+        '/articles/linux-chmod/',
+      ),
+    ).toBe('/articles/image.png')
+
+    expect(
+      normalizeInternalUrl(
+        'image.png',
+      ),
+    ).toBe('/image.png')
+  })
+
   it('extracts internal href/src references and ignores external references', () => {
     const result =
       extractInternalReferences(
@@ -194,6 +225,46 @@ describe('crawler/archive link inventory', () => {
       report.checks
         .internalHrefOccurrences,
     ).toBe(5)
+  })
+
+  it('resolves document-relative hrefs through the full report pipeline', () => {
+    const report =
+      buildPathStyleReport(
+        {
+          ...captures,
+          posts: [
+            {
+              ID: '202',
+              post_status: 'publish',
+              post_name:
+                'wlasny-serwer-openvpn-na-linux',
+              post_content:
+                '<a href="image.png">relative</a>' +
+                '<a href="../uploads.png">parent</a>',
+            },
+          ],
+        },
+        publicSource,
+        '2026-08-30T11:00:00.000Z',
+      )
+
+    expect(
+      report.legacyPaths.map(
+        (entry) => entry.url,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        '/articles/wlasny-serwer-openvpn-na-linux/image.png',
+        '/articles/uploads.png',
+      ]),
+    )
+
+    expect(report.uncovered).toEqual(
+      expect.arrayContaining([
+        '/articles/wlasny-serwer-openvpn-na-linux/image.png',
+        '/articles/uploads.png',
+      ]),
+    )
   })
 
   it('treats the committed report as stale when source/classification changes', () => {
