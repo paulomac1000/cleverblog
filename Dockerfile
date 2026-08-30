@@ -7,6 +7,7 @@ ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 
 COPY .next/standalone ./
+RUN rm -f .env .env.*
 COPY .next/static ./.next/static
 COPY media ./media
 
