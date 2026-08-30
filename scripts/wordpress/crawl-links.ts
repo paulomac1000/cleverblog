@@ -96,6 +96,7 @@ type ContentRow = {
   wordpressId: number
   status: string
   slug: string
+  slugIsFallback: boolean
   html: string
   path: string
 }
@@ -352,6 +353,7 @@ export const extractInternalReferences = (
 const parseContentRows = (
   value: unknown,
   label: string,
+  collection: 'posts' | 'pages',
 ): ContentRow[] => {
   const rows = asArray(value, label)
 
@@ -369,31 +371,39 @@ const parseContentRows = (
           `${label}[${index}].ID`,
         )
 
+      const postName = stringValue(
+        raw.post_name,
+        `${label}[${index}].post_name`,
+      ).trim()
+
+      const slugIsFallback =
+        postName === ''
+
+      const slug = slugIsFallback
+        ? `wordpress-${wordpressId}`
+        : postName
+
+      const path = slugIsFallback
+        ? collection === 'posts'
+          ? `/?p=${wordpressId}`
+          : `/?page_id=${wordpressId}`
+        : collection === 'posts'
+          ? `/articles/${slug}/`
+          : `/${slug}/`
+
       return {
         wordpressId,
         status: nonEmptyString(
           raw.post_status,
           `${label}[${index}].post_status`,
         ),
-        slug:
-          stringValue(
-            raw.post_name,
-            `${label}[${index}].post_name`,
-          ).trim() ||
-          `wordpress-${wordpressId}`,
+        slug,
+        slugIsFallback,
         html: stringValue(
           raw.post_content,
           `${label}[${index}].post_content`,
         ),
-        path: stringValue(
-          raw.post_name,
-          `${label}[${index}].post_name`,
-        ).trim()
-          ? `/${stringValue(
-              raw.post_name,
-              `${label}[${index}].post_name`,
-            ).trim()}`
-          : `/?p=${wordpressId}`,
+        path,
       }
     },
   )
@@ -614,10 +624,12 @@ export const buildPathStyleReport = (
   const posts = parseContentRows(
     captures.posts,
     'posts.json',
+    'posts',
   )
   const pages = parseContentRows(
     captures.pages,
     'pages.json',
+    'pages',
   )
   const categories = parseTermRows(
     captures.categories,

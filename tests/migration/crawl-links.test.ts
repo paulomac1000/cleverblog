@@ -227,6 +227,46 @@ describe('crawler/archive link inventory', () => {
     ).toBe(5)
   })
 
+  it('resolves document-relative hrefs through the full report pipeline', () => {
+    const report =
+      buildPathStyleReport(
+        {
+          ...captures,
+          posts: [
+            {
+              ID: '202',
+              post_status: 'publish',
+              post_name:
+                'wlasny-serwer-openvpn-na-linux',
+              post_content:
+                '<a href="image.png">relative</a>' +
+                '<a href="../uploads.png">parent</a>',
+            },
+          ],
+        },
+        publicSource,
+        '2026-08-30T11:00:00.000Z',
+      )
+
+    expect(
+      report.legacyPaths.map(
+        (entry) => entry.url,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        '/articles/wlasny-serwer-openvpn-na-linux/image.png',
+        '/articles/uploads.png',
+      ]),
+    )
+
+    expect(report.uncovered).toEqual(
+      expect.arrayContaining([
+        '/articles/wlasny-serwer-openvpn-na-linux/image.png',
+        '/articles/uploads.png',
+      ]),
+    )
+  })
+
   it('treats the committed report as stale when source/classification changes', () => {
     const left =
       buildPathStyleReport(
