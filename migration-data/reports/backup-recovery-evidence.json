@@ -1,17 +1,23 @@
 {
   "checkedAt": "2026-08-30T00:00:00+02:00",
-  "source": "/home/pablo/Downloads/backup_2026-08-17-0728_cleverblogpl_9c9f76dd3451-uploads/uploads",
+  "backupArchive": "backup_2026-08-17-0728_cleverblogpl_9c9f76dd3451-uploads.zip",
   "findings": {
-    "missingExpected": [
+    "expectedMissingFromBackup": [
       "2021/02/image.png",
       "2021/02/image-1.png"
     ],
-    "presentSimilarButDifferent": [
+    "similarlyNamedButDifferent": [
       "2021/04/image.png",
       "2021/04/image-1.png",
       "2021/04/image-18.png"
     ],
     "zipContainsExpected": false
   },
-  "conclusion": "Google Drive backup does not recover unresolved media 262/263. The similarly named 2021/04 files are different attachments per wordpress.sql.gz / wp_postmeta evidence."
+  "sqlEvidence": {
+    "wp_posts_262": "guid https://cleverblog.pl/wp-content/uploads/2021/02/image.png, post_name image-18, post_date 2021-02-12",
+    "wp_posts_263": "guid https://cleverblog.pl/wp-content/uploads/2021/02/image-1.png, post_name image-1-5, post_date 2021-02-13",
+    "wp_postmeta_813": "post_id 341 -> _wp_attached_file '2021/04/image-18.png' (different attachment)",
+    "wp_postmeta_747": "post_id 316 -> _wp_attached_file '2021/04/image-1.png' (different attachment)"
+  },
+  "conclusion": "Google Drive backup does not recover unresolved media 262/263. The similarly named 2021/04 files are different attachments per wordpress.sql.gz evidence."
 }

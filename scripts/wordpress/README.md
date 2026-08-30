@@ -1,33 +1,45 @@
 # WordPress migration tooling
 
-This directory contains reproducible WordPress -> Payload migration tooling. Raw database dumps, WXR, JSON captures and uploads are production data and stay outside git. Only intentionally sanitised source artifacts and reconciliation reports belong in the repository.
+This directory is migration code, not a one-off pastebin. Keep source capture reproducible and target imports idempotent.
 
 ## Source capture
 
-Run capture on the legacy WordPress host or a restored copy. Capture the database and WXR first:
+Run source capture on the legacy WordPress host or against a restored copy. Database dumps, WXR, raw JSON and uploads stay outside git; only intentionally sanitised migration artifacts belong in the repository.
+
+Capture the database and WXR first:
 
 ```bash
 wp db export /secure-backup/wordpress.sql
 wp export --dir=/secure-backup/wxr --max_file_size=-1
+```
 
-Capture posts and pages with the historical fields consumed by the normalizers:
+Capture posts with the historical fields consumed by the normalizer:
 
-Bash
+```bash
 wp post list --post_type=post --post_status=any \
   --fields=ID,post_title,post_name,post_status,post_date,post_date_gmt,post_modified,post_modified_gmt,post_excerpt,post_content,guid,comment_status \
   --format=json > /secure-backup/posts.json
+```
 
+Capture pages with the same content/date fields plus `post_parent`:
+
+```bash
 wp post list --post_type=page --post_status=any \
   --fields=ID,post_title,post_name,post_status,post_date,post_date_gmt,post_modified,post_modified_gmt,post_excerpt,post_content,guid,comment_status,post_parent \
   --format=json > /secure-backup/pages.json
+```
 
-Capture comments and taxonomy definitions:
+Capture comments including moderation state and parent relationships:
 
-Bash
+```bash
 wp comment list --status=all \
   --fields=comment_ID,comment_post_ID,comment_parent,comment_author,comment_author_email,comment_author_url,comment_content,comment_approved,comment_date,comment_date_gmt \
   --format=json > /secure-backup/comments.json
+```
 
+Capture taxonomy definitions:
+
+```bash
 wp term list category \
   --fields=term_id,name,slug,description,parent \
   --format=json > /secure-backup/categories.json
@@ -35,82 +47,87 @@ wp term list category \
 wp term list post_tag \
   --fields=term_id,name,slug,description \
   --format=json > /secure-backup/tags.json
+```
 
-Capture post-to-term relationships directly from the WordPress taxonomy tables. This is the exact capture used by the migration:
+Capture post-to-term relationships directly from the WordPress taxonomy tables:
 
-Bash
-wp db query "
-SELECT
-  tr.object_id AS objectId,
-  tt.term_id AS termId,
-  tt.taxonomy AS taxonomy
-FROM wp_term_relationships tr
-JOIN wp_term_taxonomy tt
-  ON tt.term_taxonomy_id = tr.term_taxonomy_id
-" --format=json > /secure-backup/term-relations.json
+```bash
+wp eval '
+$rows = $GLOBALS["wpdb"]->get_results(
+  "SELECT tr.object_id AS objectId, tt.term_id AS termId, tt.taxonomy AS taxonomy
+   FROM {$GLOBALS["wpdb"]->term_relationships} tr
+   JOIN {$GLOBALS["wpdb"]->term_taxonomy} tt ON tt.term_taxonomy_id = tr.term_taxonomy_id",
+  ARRAY_A
+);
+echo wp_json_encode(array_values($rows));
+' > /secure-backup/term-relations.json
+```
 
-Capture attachments:
+Capture attachment rows used to build the media manifest:
 
-Bash
+```bash
 wp post list --post_type=attachment --post_status=any \
   --fields=ID,post_title,post_name,post_status,post_date,post_date_gmt,guid,post_mime_type \
   --format=json > /secure-backup/media.json
+```
 
-_wp_attached_file is authoritative when present. Capture it together with _wp_attachment_image_alt using the exact command below:
+`_wp_attached_file` is the authoritative uploads-relative path when present. Capture it together with `_wp_attachment_image_alt` from `wp_postmeta`. The PHP capture emits the object keyed by attachment ID that `extract-media.ts` consumes directly, so no `jq` reshaping step is required:
 
-Bash
-wp db query "
-SELECT
-  post_id AS wordpressId,
-  MAX(CASE WHEN meta_key = '_wp_attached_file' THEN meta_value END) AS attachedFile,
-  MAX(CASE WHEN meta_key = '_wp_attachment_image_alt' THEN meta_value END) AS alt
-FROM wp_postmeta
-WHERE meta_key IN ('_wp_attached_file', '_wp_attachment_image_alt')
-GROUP BY post_id
-" --format=json \
-  | jq 'map({key: (.wordpressId | tostring), value: {attachedFile, alt}}) | from_entries' \
-  > /secure-backup/attachment-meta.json
+```bash
+wp eval '
+$sql = $GLOBALS["wpdb"]->prepare(
+  "SELECT
+     post_id AS wordpressId,
+     MAX(CASE WHEN meta_key = %s THEN meta_value END) AS attachedFile,
+     MAX(CASE WHEN meta_key = %s THEN meta_value END) AS alt
+   FROM {$GLOBALS["wpdb"]->postmeta}
+   WHERE meta_key IN (%s, %s)
+   GROUP BY post_id",
+  "_wp_attached_file",
+  "_wp_attachment_image_alt",
+  "_wp_attached_file",
+  "_wp_attachment_image_alt"
+);
+$rows = $GLOBALS["wpdb"]->get_results($sql, ARRAY_A);
 
-Capture uploads without flattening paths:
+$meta = [];
+foreach (array_values($rows) as $row) {
+  $meta[(string) $row["wordpressId"]] = [
+    "attachedFile" => $row["attachedFile"],
+    "alt" => $row["alt"],
+  ];
+}
+echo wp_json_encode((object) $meta);
+' > /secure-backup/attachment-meta.json
+```
 
-Bash
+Capture the uploads tree as a tar archive so attachment paths remain intact:
+
+```bash
 tar -C wp-content -czf /secure-backup/uploads.tar.gz uploads
+```
 
-Place captures under migration-data/raw/ and extract uploads at migration-data/raw/uploads/. Never commit raw production captures. post_date_gmt is authoritative for historical publication timestamps; a published post/page without a valid GMT timestamp is rejected.
+For a migration run, place the required captures under `migration-data/raw/` and extract the archive so files are rooted at `migration-data/raw/uploads/`. Never commit the unsanitised production captures.
 
-Prepare source artifacts
-Bash
+`post_date` is the WordPress site's local wall-clock value and must not be interpreted as UTC. The normalizers use `post_date_gmt`; a published post or page without a valid GMT timestamp is rejected instead of silently shifting its historical publication time.
+
+## Prepare normalized artifacts
+
+Preparation is deterministic and does not write target Payload documents:
+
+```bash
 pnpm wordpress:normalize
 pnpm wordpress:normalize:pages
 pnpm wordpress:extract:media
-pnpm wordpress:public-url-source
+```
 
-The normalized posts/pages preserve source HTML and deterministic source hashes. Media extraction verifies actual bytes, writes the portable migration-data/source/media-source.json and records unresolved attachments in migration-data/reports/media-issues.json.
+`wordpress:normalize` and `wordpress:normalize:pages` validate WordPress IDs, preserve the captured source HTML and compute deterministic source hashes. `wordpress:extract:media` resolves attachment paths, hashes the actual upload bytes, emits the portable `migration-data/source/media-source.json` rewrite source and records unresolved attachments in `migration-data/reports/media-issues.json`.
 
-P3 public URL source workflow
+## Run order
 
-wordpress:public-url-source reads only migration-data/raw/{posts,pages,categories,tags}.json and emits sanitised migration-data/source/public-url-source.json. It records raw source counts plus the expected public legacy URL universe: only post_status === "publish" posts/pages and all categories/tags. It emits identity and fromURL only; titles/content are not copied.
+The target import order is fixed. Do not reorder these steps:
 
-Because raw capture is gitignored, generate and commit this artifact manually:
-
-Bash
-pnpm wordpress:public-url-source
-git diff -- migration-data/source/public-url-source.json
-git add migration-data/source/public-url-source.json
-git commit
-
-The committed WordPress-derived artifact is the cutover source of truth. Never derive the expected universe from Payload; deleting wp:202 or any other target record must not remove that source item from gate expectations. Missing/malformed fields, duplicate identities and conflicting legacy URLs fail closed.
-
-Schema and import order
-
-The redirects-plugin relationship change requires the normal Payload migration and JSON snapshot:
-
-Bash
-pnpm payload migrate:create p3-taxonomy-redirects
-
-Do not replace the generated pair with hand-written SQL. Target order:
-
-Bash
+```bash
 pnpm payload migrate
 pnpm wordpress:import:taxonomy
 pnpm wordpress:import:media
@@ -118,107 +135,132 @@ pnpm wordpress:import:posts
 pnpm wordpress:import:pages
 pnpm wordpress:import:comments
 pnpm wordpress:import:redirects
+pnpm wordpress:public-url-source
 pnpm wordpress:inventory
 pnpm wordpress:cutover:gate
+```
 
-Importers are idempotent. Posts/pages skip unchanged versioned updates and retain legacy.importedAt across real updates.
+Set a migration version when required, for example:
 
-Content and media contracts
+```bash
+WORDPRESS_MIGRATION_VERSION=wp-rehearsal-001 pnpm wordpress:import:posts
+WORDPRESS_MIGRATION_VERSION=wp-rehearsal-001 pnpm wordpress:import:pages
+```
 
-legacy.originalHTML is immutable source provenance. legacy.renderHTML is the sanitised working copy; resolvable WordPress upload URLs are rewritten to Payload media URLs and supported resize/scaled variants are normalised only inside upload URLs.
+The importers are designed for idempotent re-runs. Taxonomy, media, posts, pages, comments and redirects resolve their WordPress identity or legacy URL and update the corresponding Payload record rather than creating a second migration copy.
 
-Remaining WordPress upload references are committed to migration-data/reports/unrewritten-media-urls.json. The report merges by collection so posts/pages do not erase each other's findings. Import must not guess bytes, silently delete references or treat target deletion as reconciliation.
+Posts and pages compare the source-derived target state before updating a versioned Payload document. An unchanged re-run logs `unchanged wp:<id>` and does not create another Payload version. `legacy.importedAt` is preserved across real updates, and a `migrationVersion` change by itself does not multiply document versions.
 
-Unresolved attachments are committed to migration-data/reports/media-issues.json. Relevant issues support three explicit decisions:
+For posts, `verification`, `review` and `provenance` are migration defaults applied only when the Payload document is first created. Re-runs may update source-owned fields but must not overwrite those three human-owned workflow fields on an existing document.
 
-recover: recover the original bytes and reconcile the reference.
+The current P2c1 scope ends with approved-comments import and query-style redirects. Full migration reconciliation, archive inventory, resolution of outstanding media inventory and the cutover gate are P3 work and are not claimed by this phase.
 
-retire: intentionally retire the missing asset/reference in the later reconciliation phase.
+## Migration contracts
 
-replace: use a deliberate replacement; the entry must also contain a non-empty string replacementNote explaining it.
+### Historical HTML and render HTML
 
-replace without replacementNote is a blocker. Any decision is independent of the published-content URL check: if an expected published post/page still appears in unrewritten-media-urls.json, unrewritten-media-url remains a blocker.
+`legacy.originalHTML` is the immutable historical snapshot. Migration rendering must never rewrite, sanitise or otherwise mutate it.
 
-Backup evidence may prove that bytes are absent or that similarly named files are unrelated, but it does not choose a media decision. Media 262/263 and post 202 remain explicit until human reconciliation.
+`legacy.renderHTML` is a separate working copy produced from `originalHTML`. It rewrites resolvable WordPress upload URLs to `/api/media/file/<wpId>-<basename>`, normalises supported WordPress-generated image variants only inside `/wp-content/uploads/` URLs, and then applies the migration HTML sanitiser.
 
-Comments, redirects and archives
+### Fail-visible media references
 
-Only approved comments are imported. Historical comment_date_gmt becomes createdAt; comments are parent-first with bounded depth, broken parent chains are flattened, and unresolved published-post targets stay fail-visible in comments-issues.json.
+Posts and pages run `collectUnrewrittenUrls()` after render generation. Any WordPress upload URL that remains unresolved is written to:
 
-Legacy redirect forms are:
+```text
+migration-data/reports/unrewritten-media-urls.json
+```
 
-post:     /?p=<legacyWordPressId>        -> posts
-page:     /?page_id=<legacyWordPressId>  -> pages
-category: /?cat=<legacyWordPressId>      -> categories
-tag:      /?tag=<slug>                   -> tags
+The report is merge-by-collection: a posts import replaces only `collection: "posts"` entries, and a pages import replaces only `collection: "pages"` entries. Re-running either importer must not erase unresolved-media findings produced by the other collection.
 
-Redirects are 301 records with polymorphic to.reference. src/proxy.ts resolves their public targets to /articles/<slug>, /<slug>, /categories/<slug> and /tags/<slug> respectively. Category/tag archive routes expose related published posts and canonical metadata.
+Unrewritten references stay visible in `renderHTML`; the migration must not guess a replacement or silently delete them.
 
-URL inventory and cutover gate
+### Media issues
 
-pnpm wordpress:inventory reads committed public-url-source.json and checks each expected item against live Payload. url-inventory.json contains:
+Media extraction treats `_wp_attached_file` as authoritative when it exists, verifies actual upload bytes and records unresolved attachments in:
 
-expected[]: source-derived public universe;
+```text
+migration-data/reports/media-issues.json
+```
 
-sources[]: resolved Payload targets and public status;
+The current unresolved WordPress media IDs are 262 and 263. They remain explicit migration issues; their recover/retire decisions and reconciliation against the archive inventory belong to P3 rather than P2c1.
 
-missingFromPayload[]: expected items absent from Payload;
+### Drafts and published rows
 
-notPublicInPayload[]: expected post/page targets that exist but are not public;
+WordPress publish records are imported as published Payload documents. Non-published WordPress records are imported with `draft: true`, so they are retained through Payload versions/drafts rather than becoming public main rows.
 
-redirectChecks[]: live redirect existence and exact relationship target;
+The production/main-row migration contract is therefore: only historically published posts and pages are public/published rows; draft/private/unpublished source records must not become published merely because the migration was re-run.
 
-unresolvedPublicIssues: committed media reports annotated against expected[].
+### Comments
 
-currentlyPublished for unrewritten media is derived from source expected[], not from a live published query. Media relevance is derived from unresolved upload paths belonging to those source-published entries. Consequently, removing wp:202 from Payload produces missing-from-payload and does not suppress its unrewritten-media-url blocker.
+Only WordPress comments with `comment_approved === "1"` are imported. Comments are imported topologically: roots first, then descendants, with a bounded maximum parent depth.
 
-pnpm wordpress:cutover:gate rebuilds the inventory, independently cross-checks expected[] against resolved sources/checks, writes cutover-gate.json and exits non-zero for missing/non-public targets, unresolved published media URLs, unresolved relevant media decisions, missing replacement notes, missing/mismatched redirects, incomplete coverage or gate errors.
+`comment_date_gmt` is authoritative for the Payload `createdAt` timestamp. It must have the WordPress UTC form `YYYY-MM-DD HH:MM:SS`; the importer converts it to an explicit UTC ISO timestamp and throws on an invalid value. Both creates and updates write that historical `createdAt`, so a re-run repairs comments that were previously stamped with migration time.
 
-P3 coverage contract
+A source comment whose parent is not present in the approved source set is promoted to a root instead of being dropped. Missing or skipped Payload parents are handled with the same flattening fail-safe.
 
-The report exposes coverage.implemented and coverage.pending. P3 round 2 deliberately leaves these checks pending:
+Post resolution is public-only and fail-closed: `comment_post_ID` must resolve by `legacy.wordpressId` to a Payload post whose `_status` is `published`. A comment whose post cannot be resolved is skipped rather than attached to a guessed or draft document; descendants continue through the traversal and are flattened if their parent chain was broken.
 
-full crawler/archive inventory
+Every source-parent flattening, missing Payload parent and unknown-post skip is written to:
 
-broken internal links scan
+```text
+migration-data/reports/comments-issues.json
+```
 
-comments coverage check
+That report is overwritten with the complete findings from the current comments import. Parent flattening is an intentional migration transformation and does not by itself make the import fail. Any approved comment skipped because its published Payload post cannot be resolved makes the importer log `FAIL` and exit non-zero after the report has been written.
 
-canonical/sitemap/robots/RSS checks
+Comments are upserted by `legacyWordPressId`. Re-running an unchanged 12-comment approved set therefore produces zero duplicate documents; the existing non-versioned Comments collection may be updated safely.
 
-100% source content reconciliation
+### Redirects
 
-While any item remains pending, the gate adds gate-coverage-incomplete; status is always blocked. Remove a pending constant only in the phase that actually implements and tests that check. Existing sitemap/robots/feed/canonical functionality is not equivalent to cutover verification.
+Historical WordPress query URLs are materialised from live imported Payload documents rather than from ignored normalized artifacts:
 
-Discovery baseline
+```text
+post: /?p=<wordpressId>
+page: /?page_id=<wordpressId>
+```
 
-The public app exposes /sitemap.xml, /robots.txt and /feed.xml; taxonomy archives are public routes. URLs use NEXT_PUBLIC_SERVER_URL with the existing localhost fallback.
+The migration-level redirect model calls these values `fromURL` and `toURL`. In `@payloadcms/plugin-redirects@3.88.0`, the actual collection persists them as `from` and `to.reference`, where `to.reference` is the polymorphic relationship to `posts` or `pages`; redirect type is `301`.
 
-Future work
+Redirects are upserted by their historical source URL. The importer queries published post/page documents only. Every returned published document must have a positive numeric `legacy.wordpressId` and a non-empty slug; a missing or invalid value throws instead of silently reducing the redirect inventory.
 
-Implement every pending coverage check, extend inventory with crawler/archive-derived path-style legacy URLs, reconcile approved-comment coverage, scan internal links, verify canonical/discovery outputs, perform 100% source-content reconciliation, and only then allow the gate to become ready.
+The Payload redirects plugin stores redirect configuration but does not serve redirects itself. Next.js 16 `src/proxy.ts` queries the redirects REST collection using the complete incoming `pathname + search`, requests `depth=1`, and resolves relationship targets as:
 
-### migration-data/reports/backup-recovery-evidence.json
-```json
-{
-  "checkedAt": "2026-08-30T00:00:00+02:00",
-  "backupArchive": "backup_2026-08-17-0728_cleverblogpl_9c9f76dd3451-uploads.zip",
-  "findings": {
-    "missingExpected": [
-      "2021/02/image.png",
-      "2021/02/image-1.png"
-    ],
-    "presentSimilarButDifferent": [
-      "2021/04/image.png",
-      "2021/04/image-1.png",
-      "2021/04/image-18.png"
-    ],
-    "zipContainsExpected": false
-  },
-  "sqlEvidence": {
-    "wp_postmeta 813": "post 341 -> 2021/04/image-18.png",
-    "wp_postmeta 747": "post 316 -> 2021/04/image-1.png",
-    "wp_posts 262/263 guid": "2021/02/..."
-  },
-  "conclusion": "Google Drive backup does not recover unresolved media 262/263. The similarly named 2021/04 files are different attachments per the sanitised SQL evidence above."
-}
+```text
+posts -> /articles/<slug>
+pages -> /<slug>
+```
+
+The minimal `[slug]` frontend page route is therefore part of the redirect contract: page redirects to `/kontakt`, `/o-nas`, policy pages and other static migrated pages must resolve to an actual frontend route.
+
+Redirect lookup uses the incoming request origin by default, so production does not depend on a localhost API URL. `REDIRECTS_API_ORIGIN` may optionally supply a different exact origin, for example `https://cleverblog.pl`; it must not include `/api` or another path.
+
+Proxy redirect API requests have a 2-second timeout. Successful redirect hits and misses are cached in memory for 60 seconds, with a hard maximum of 500 entries and oldest-entry eviction when the cache is full. API errors, timeouts and malformed redirect targets fall through to normal Next.js routing.
+
+The proxy matcher excludes `/api`, `/_next`, `/admin`, `/media`, the favicon and common static asset extensions. Historical `.html` and `.php` paths are deliberately not excluded, because they may themselves be legacy redirect sources.
+
+
+## P3: expected universe, coverage gate, media decisions
+
+### Expected public URL universe
+
+`pnpm wordpress:public-url-source` reads the raw WordPress captures (posts, pages, categories, tags — source of truth) and writes the sanitised, committed `migration-data/source/public-url-source.json`. It lists every expected public URL: published posts as `/?p=<id>`, published pages as `/?page_id=<id>`, categories as `/?cat=<id>`, tags as `/?tag=<slug>`.
+
+`wordpress:inventory` and `wordpress:cutover:gate` cross-check this expected universe against live Payload data. They never derive expectations from the target database: a document missing or unpublished in Payload produces a `payload-not-public` or `missing-from-payload` blocker instead of silently shrinking the inventory. Regression-proven: unpublishing wp:202 keeps the gate blocked.
+
+### Coverage contract
+
+The gate report carries `coverage: {implemented, pending}`. While any check remains pending (crawler/archive path inventory, broken internal links scan, comments coverage, canonical/sitemap/robots/RSS checks, 100% source content reconciliation), the gate always emits a `gate-coverage-incomplete` blocker and stays `blocked`. `ready` is unreachable until the pending list is empty by design.
+
+### Media decisions (human-owned)
+
+Human recover/retire/replace decisions live in the committed `migration-data/source/media-decisions.json` and survive re-extraction. `extract-media.ts` merges a decision into a generated issue only when both `wordpressId` and `uploadsPath` match exactly; a decision pointing at a missing or changed entry throws (fail-closed). `decision: "replace"` additionally requires a non-empty `replacementNote`, otherwise the gate emits `unresolved-media-replacement-note`.
+
+
+## Future work
+
+- Add HTML normalisation and `convertHTMLToLexical()` for clean structured content while retaining `legacy.originalHTML` as the immutable source snapshot and `legacy.renderHTML` as the migration working copy.
+- Add explicit warning/fallback classification for unsupported shortcodes, blocks and HTML-to-Lexical conversion failures instead of guessing or silently dropping source content.
+- P3: reconcile unresolved media IDs 262/263 and the complete archive inventory instead of treating the current imported subset as cutover-complete.
+- P3: verify materialised redirects against a crawler/archive-derived public URL inventory.
+- P3: produce a cutover-grade machine migration report covering published content, taxonomy, media, comments and redirects, and fail the cutover gate when any required published legacy item remains unaccounted for.
