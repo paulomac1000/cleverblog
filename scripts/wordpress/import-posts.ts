@@ -4,7 +4,12 @@ import path from 'node:path'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
-import { buildMediaRewriteMap, buildRenderHTML, collectUnrewrittenUrls } from './render-html'
+import {
+  buildMediaRewriteMap,
+  buildRenderHTML,
+  buildRetiredUploadsPaths,
+  collectUnrewrittenUrls,
+} from './render-html'
 
 import type { NormalizedPost } from './types'
 
@@ -27,9 +32,13 @@ type ComparablePostInput = {
   _status?: unknown
 }
 
-const readJsonOrEmpty = async (filePath: string): Promise<UnrewrittenMediaEntry[]> => {
+const readJsonOrEmpty = async (
+  filePath: string,
+): Promise<UnrewrittenMediaEntry[]> => {
   try {
-    return JSON.parse(await readFile(filePath, 'utf8')) as UnrewrittenMediaEntry[]
+    return JSON.parse(
+      await readFile(filePath, 'utf8'),
+    ) as UnrewrittenMediaEntry[]
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
     return []
@@ -85,21 +94,52 @@ const comparablePost = (value: ComparablePostInput) => ({
   _status: value._status ?? null,
 })
 
-const sameImportedPost = (existing: ComparablePostInput, target: ComparablePostInput): boolean =>
-  JSON.stringify(comparablePost(existing)) === JSON.stringify(comparablePost(target))
+const sameImportedPost = (
+  existing: ComparablePostInput,
+  target: ComparablePostInput,
+): boolean =>
+  JSON.stringify(comparablePost(existing)) ===
+  JSON.stringify(comparablePost(target))
 
-const inputPath = path.join(process.cwd(), 'migration-data/normalized/posts.json')
-const MIGRATION_VERSION = process.env.WORDPRESS_MIGRATION_VERSION ?? 'wp-foundation-v1'
+const inputPath = path.join(
+  process.cwd(),
+  'migration-data/normalized/posts.json',
+)
+const mediaIssuesPath = path.join(
+  process.cwd(),
+  'migration-data/reports/media-issues.json',
+)
+const MIGRATION_VERSION =
+  process.env.WORDPRESS_MIGRATION_VERSION ?? 'wp-foundation-v1'
 
 async function main() {
-  const posts = JSON.parse(await readFile(inputPath, 'utf8')) as NormalizedPost[]
+  const posts = JSON.parse(
+    await readFile(inputPath, 'utf8'),
+  ) as NormalizedPost[]
+
+  const mediaIssues = JSON.parse(
+    await readFile(mediaIssuesPath, 'utf8'),
+  ) as unknown
+
+  const retiredUploadsPaths = buildRetiredUploadsPaths(mediaIssues)
+
   const payload = await getPayload({ config })
   const mediaMap = await buildMediaRewriteMap()
 
   // term-relations.json: one-time capture from live WP (objectId -> termId).
   const relations = JSON.parse(
-    await readFile(path.join(process.cwd(), 'migration-data/raw/term-relations.json'), 'utf8'),
-  ) as { objectId: number; termId: number; taxonomy: string }[]
+    await readFile(
+      path.join(
+        process.cwd(),
+        'migration-data/raw/term-relations.json',
+      ),
+      'utf8',
+    ),
+  ) as {
+    objectId: number
+    termId: number
+    taxonomy: string
+  }[]
 
   const resolveTermIds = async (
     collection: 'categories' | 'tags',
@@ -113,7 +153,11 @@ async function main() {
         depth: 0,
         limit: 1,
         overrideAccess: true,
-        where: { legacyWordPressId: { equals: termId } },
+        where: {
+          legacyWordPressId: {
+            equals: termId,
+          },
+        },
       })
 
       if (!found.docs[0]) {
@@ -139,19 +183,27 @@ async function main() {
   let unchanged = 0
 
   for (const post of posts) {
-    const postRelations = relations.filter((relation) => relation.objectId === post.wordpressId)
+    const postRelations = relations.filter(
+      (relation) => relation.objectId === post.wordpressId,
+    )
 
     const categoryIds = await resolveTermIds(
       'categories',
       postRelations
-        .filter((relation) => relation.taxonomy === 'category')
+        .filter(
+          (relation) =>
+            relation.taxonomy === 'category',
+        )
         .map((relation) => relation.termId),
     )
 
     const tagIds = await resolveTermIds(
       'tags',
       postRelations
-        .filter((relation) => relation.taxonomy === 'post_tag')
+        .filter(
+          (relation) =>
+            relation.taxonomy === 'post_tag',
+        )
         .map((relation) => relation.termId),
     )
 
@@ -161,11 +213,21 @@ async function main() {
       draft: post.status !== 'publish',
       limit: 1,
       overrideAccess: true,
-      where: { 'legacy.wordpressId': { equals: post.wordpressId } },
+      where: {
+        'legacy.wordpressId': {
+          equals: post.wordpressId,
+        },
+      },
     })
 
-    const renderHTML = buildRenderHTML(post.originalHTML, mediaMap)
-    const leftoverUrls = collectUnrewrittenUrls(renderHTML)
+    const renderHTML = buildRenderHTML(
+      post.originalHTML,
+      mediaMap,
+      { retiredUploadsPaths },
+    )
+
+    const leftoverUrls =
+      collectUnrewrittenUrls(renderHTML)
 
     if (leftoverUrls.length) {
       unrewritten.push({
@@ -188,7 +250,8 @@ async function main() {
       tags: tagIds,
       legacy: {
         wordpressId: post.wordpressId,
-        wordpressGuid: post.wordpressGuid ?? undefined,
+        wordpressGuid:
+          post.wordpressGuid ?? undefined,
         originalUrl: post.originalUrl,
         originalSlug: post.slug,
         originalHTML: post.originalHTML,
@@ -197,17 +260,23 @@ async function main() {
         importedAt,
         migrationVersion: MIGRATION_VERSION,
       },
-      _status: post.status === 'publish' ? ('published' as const) : ('draft' as const),
+      _status:
+        post.status === 'publish'
+          ? ('published' as const)
+          : ('draft' as const),
     }
 
     if (existing.docs[0]) {
       if (sameImportedPost(existing.docs[0], data)) {
         unchanged += 1
-        console.log(`unchanged wp:${post.wordpressId}`)
+        console.log(
+          `unchanged wp:${post.wordpressId}`,
+        )
         continue
       }
 
-      const priorImportedAt = existing.docs[0].legacy?.importedAt
+      const priorImportedAt =
+        existing.docs[0].legacy?.importedAt
 
       await payload.update({
         collection: 'posts',
@@ -216,35 +285,50 @@ async function main() {
           ...data,
           legacy: {
             ...data.legacy,
-            importedAt: priorImportedAt ?? importedAt,
+            importedAt:
+              priorImportedAt ?? importedAt,
           },
         },
         draft: post.status !== 'publish',
-        context: { wordpressMigration: true },
+        context: {
+          wordpressMigration: true,
+        },
         overrideAccess: true,
       })
 
       updated += 1
-      console.log(`updated wp:${post.wordpressId} -> payload:${existing.docs[0].id}`)
+      console.log(
+        `updated wp:${post.wordpressId} -> payload:${existing.docs[0].id}`,
+      )
     } else {
-      const createdPost = await payload.create({
-        collection: 'posts',
-        data: {
-          ...data,
-          verification: { status: 'imported' as const },
-          review: { status: 'approved' as const },
-          provenance: {
-            origin: 'wordpress' as const,
-            sourceVisibility: 'public' as const,
+      const createdPost =
+        await payload.create({
+          collection: 'posts',
+          data: {
+            ...data,
+            verification: {
+              status: 'imported' as const,
+            },
+            review: {
+              status: 'approved' as const,
+            },
+            provenance: {
+              origin: 'wordpress' as const,
+              sourceVisibility: 'public' as const,
+            },
           },
-        },
-        draft: post.status !== 'publish',
-        context: { wordpressMigration: true },
-        overrideAccess: true,
-      })
+          draft:
+            post.status !== 'publish',
+          context: {
+            wordpressMigration: true,
+          },
+          overrideAccess: true,
+        })
 
       created += 1
-      console.log(`created wp:${post.wordpressId} -> payload:${createdPost.id}`)
+      console.log(
+        `created wp:${post.wordpressId} -> payload:${createdPost.id}`,
+      )
     }
   }
 
@@ -257,12 +341,20 @@ async function main() {
     'migration-data/reports/unrewritten-media-urls.json',
   )
   const prior = await readJsonOrEmpty(reportPath)
-  const others = prior.filter((entry) => entry.collection !== 'posts')
+  const others = prior.filter(
+    (entry) => entry.collection !== 'posts',
+  )
 
-  await mkdir(path.dirname(reportPath), { recursive: true })
+  await mkdir(path.dirname(reportPath), {
+    recursive: true,
+  })
   await writeFile(
     reportPath,
-    `${JSON.stringify([...others, ...unrewritten], null, 2)}\n`,
+    `${JSON.stringify(
+      [...others, ...unrewritten],
+      null,
+      2,
+    )}\n`,
   )
 
   console.log(

@@ -1,48 +1,160 @@
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 import { RichText } from '@payloadcms/richtext-lexical/react'
 import config from '@payload-config'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 
 export const dynamic = 'force-dynamic'
 
-type Props = { params: Promise<{ slug: string }> }
+const serverURL = (
+  process.env.NEXT_PUBLIC_SERVER_URL ??
+  'http://localhost:3000'
+).replace(/\/+$/, '')
 
-export default async function ArticlePage({ params }: Props) {
-  const { slug } = await params
-  const payload = await getPayload({ config })
+type Props = {
+  params: Promise<{
+    slug: string
+  }>
+}
+
+const findPost = async (
+  slug: string,
+) => {
+  const payload = await getPayload({
+    config,
+  })
+
   const result = await payload.find({
     collection: 'posts',
     limit: 1,
     overrideAccess: true,
-    where: { and: [{ slug: { equals: slug } }, { _status: { equals: 'published' } }] },
+    where: {
+      and: [
+        {
+          slug: {
+            equals: slug,
+          },
+        },
+        {
+          _status: {
+            equals: 'published',
+          },
+        },
+      ],
+    },
   })
-  const post = result.docs[0]
-  if (!post) notFound()
+
+  return result.docs[0] ?? null
+}
+
+export async function generateMetadata({
+  params,
+}: Props): Promise<Metadata> {
+  const { slug } = await params
+  const post = await findPost(slug)
+
+  if (!post) {
+    notFound()
+  }
+
+  return {
+    title: post.title,
+    description:
+      post.excerpt || undefined,
+    alternates: {
+      canonical:
+        `${serverURL}/articles/${post.slug}`,
+    },
+  }
+}
+
+export default async function ArticlePage({
+  params,
+}: Props) {
+  const { slug } = await params
+  const post = await findPost(slug)
+
+  if (!post) {
+    notFound()
+  }
 
   // Render working copy only: media URLs rewritten to Payload, sanitized at
   // import time. originalHTML is the immutable provenance snapshot and is
   // never rendered.
-  const renderHTML = post.legacy?.renderHTML
-  const showLegacy = post.contentFormat === 'legacy-html' && typeof renderHTML === 'string' && renderHTML.length > 0
+  const renderHTML =
+    post.legacy?.renderHTML
+
+  const showLegacy =
+    post.contentFormat ===
+      'legacy-html' &&
+    typeof renderHTML === 'string' &&
+    renderHTML.length > 0
 
   return (
     <article className="article">
       <h1>{post.title}</h1>
+
       <div className="meta">
-        {post.publishedAt ? <span>Opublikowano: {new Date(post.publishedAt).toLocaleDateString('pl-PL')}</span> : null}
-        <span>Status: {post.verification?.status ?? 'needs-review'}</span>
-        {post.verification?.verifiedAt ? <span>Zweryfikowano: {new Date(post.verification.verifiedAt).toLocaleDateString('pl-PL')}</span> : null}
+        {post.publishedAt ? (
+          <span>
+            Opublikowano:{' '}
+            {new Date(
+              post.publishedAt,
+            ).toLocaleDateString(
+              'pl-PL',
+            )}
+          </span>
+        ) : null}
+
+        <span>
+          Status:{' '}
+          {post.verification?.status ??
+            'needs-review'}
+        </span>
+
+        {post.verification
+          ?.verifiedAt ? (
+          <span>
+            Zweryfikowano:{' '}
+            {new Date(
+              post.verification
+                .verifiedAt,
+            ).toLocaleDateString(
+              'pl-PL',
+            )}
+          </span>
+        ) : null}
       </div>
-      {post.verification?.status === 'imported' ? (
-        <div className="notice">Artykuł historyczny po migracji z WordPressa; nie został jeszcze ponownie zweryfikowany.</div>
+
+      {post.verification?.status ===
+      'imported' ? (
+        <div className="notice">
+          Artykuł historyczny po
+          migracji z WordPressa; nie
+          został jeszcze ponownie
+          zweryfikowany.
+        </div>
       ) : null}
+
       {showLegacy ? (
-        <div className="legacy-content" dangerouslySetInnerHTML={{ __html: renderHTML }} />
+        <div
+          className="legacy-content"
+          dangerouslySetInnerHTML={{
+            __html: renderHTML,
+          }}
+        />
       ) : post.content ? (
-        <RichText data={post.content as SerializedEditorState} />
+        <RichText
+          data={
+            post.content as SerializedEditorState
+          }
+        />
       ) : (
-        <p>Treść nie została jeszcze zmigrowana.</p>
+        <p>
+          Treść nie została jeszcze
+          zmigrowana.
+        </p>
       )}
     </article>
   )
