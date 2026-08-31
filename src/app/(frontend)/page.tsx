@@ -5,11 +5,18 @@ import { getPayload } from 'payload'
 
 export const dynamic = 'force-dynamic'
 
-type Props = { searchParams: Promise<{ p?: string | string[] }> }
+const PAGE_SIZE = 12
+
+type Props = {
+  searchParams: Promise<{
+    p?: string | string[]
+    page?: string | string[]
+  }>
+}
 
 export default async function HomePage({ searchParams }: Props) {
   const payload = await getPayload({ config })
-  const { p } = await searchParams
+  const { p, page: pageParam } = await searchParams
   const legacyID = Array.isArray(p) ? p[0] : p
 
   if (legacyID) {
@@ -32,9 +39,17 @@ export default async function HomePage({ searchParams }: Props) {
     permanentRedirect(`/articles/${legacy.docs[0].slug}`)
   }
 
+  const requestedPage = Array.isArray(pageParam)
+    ? pageParam[0]
+    : pageParam
+  const parsedPage = Number(requestedPage)
+  const page =
+    Number.isSafeInteger(parsedPage) && parsedPage >= 1 ? parsedPage : 1
+
   const result = await payload.find({
     collection: 'posts',
-    limit: 12,
+    limit: PAGE_SIZE,
+    page,
     overrideAccess: true,
     sort: '-publishedAt',
     where: { _status: { equals: 'published' } },
@@ -63,6 +78,23 @@ export default async function HomePage({ searchParams }: Props) {
           </Link>
         ))}
       </section>
+      {result.totalPages > 1 ? (
+        <nav aria-label="Stronicowanie artykułów" className="pagination">
+          {page > 1 ? (
+            <Link className="pagination-link" href={page === 2 ? '/' : `/?page=${page - 1}`}>
+              ← Nowsze
+            </Link>
+          ) : null}
+          <span className="muted">
+            Strona {page} z {result.totalPages}
+          </span>
+          {result.hasNextPage ? (
+            <Link className="pagination-link" href={`/?page=${page + 1}`}>
+              Starsze →
+            </Link>
+          ) : null}
+        </nav>
+      ) : null}
     </>
   )
 }
