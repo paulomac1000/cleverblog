@@ -50,9 +50,16 @@ export default async function HomePage({ searchParams }: Props) {
       <section className="posts" aria-label="Najnowsze artykuły">
         {result.docs.map((post) => (
           <Link className="card" href={`/articles/${post.slug}`} key={post.id}>
+            {post.heroImage && typeof post.heroImage !== 'number' ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                alt={post.heroImage.alt}
+                className="card-image"
+                src={post.heroImage.url ?? undefined}
+              />
+            ) : null}
             <h2>{post.title}</h2>
             {post.excerpt ? <p>{post.excerpt}</p> : null}
-            <span className="muted">{post.verification?.status ?? 'needs-review'}</span>
           </Link>
         ))}
       </section>
