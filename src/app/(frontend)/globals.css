@@ -232,7 +232,7 @@ footer {
   font-size: 0.75rem;
 }
 
-.card-meta time { white-space: nowrap }
+.card-meta time { white-space: nowrap; color: #aab4bf }
 
 .card-category {
   font-size: 0.72rem;
