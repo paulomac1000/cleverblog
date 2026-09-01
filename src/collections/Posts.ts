@@ -90,6 +90,28 @@ export const Posts: CollectionConfig = {
           defaultValue: 'unknown',
           options: ['public', 'private', 'mixed', 'unknown'],
         },
+        {
+          name: 'originSourceVisibility',
+          type: 'select',
+          defaultValue: 'public',
+          options: ['public', 'private', 'mixed', 'unknown'],
+          admin: {
+            description:
+              'Visibility of the ORIGINAL inspiration. A privately-inspired article reaches the CMS only as a safe public reconstruction; this field preserves that audit distinction.',
+          },
+        },
+        {
+          name: 'materialVisibility',
+          type: 'select',
+          defaultValue: 'public',
+          options: ['public', 'private', 'mixed', 'unknown'],
+        },
+        {
+          name: 'reconstructionStatus',
+          type: 'select',
+          defaultValue: 'not_required',
+          options: ['not_required', 'completed_public_reconstruction'],
+        },
         { name: 'generatedBy', type: 'text' },
       ],
     },
