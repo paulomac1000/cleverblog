@@ -19,19 +19,19 @@ const main = async () => {
   const data = {
     title: 'Polityka prywatności',
     slug: 'polityka-prywatnosci',
-    contentFormat: 'legacy-html',
+    contentFormat: 'legacy-html' as const,
     legacy: { renderHTML: html },
-    _status: 'published',
+    _status: 'published' as const,
   }
 
-  const updated = await payload.update({
+  await payload.update({
     collection: 'pages',
     id: existing.id,
     data,
     overrideAccess: true,
     context: { wordpressMigration: true },
   })
-  console.log('published page id', updated.id, 'status', updated._status)
+  console.log('published page id', existing.id, 'status', 'published')
   process.exit(0)
 }
 
