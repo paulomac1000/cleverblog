@@ -1,0 +1,32 @@
+{
+  "allowlisted": 5,
+  "created": 0,
+  "updated": 5,
+  "imported": [
+    {
+      "wordpressId": 735,
+      "payloadId": 13,
+      "status": "updated"
+    },
+    {
+      "wordpressId": 707,
+      "payloadId": 14,
+      "status": "updated"
+    },
+    {
+      "wordpressId": 532,
+      "payloadId": 15,
+      "status": "updated"
+    },
+    {
+      "wordpressId": 525,
+      "payloadId": 16,
+      "status": "updated"
+    },
+    {
+      "wordpressId": 488,
+      "payloadId": 17,
+      "status": "updated"
+    }
+  ]
+}
