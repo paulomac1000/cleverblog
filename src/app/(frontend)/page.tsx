@@ -1,42 +1,34 @@
-import Link from 'next/link'
 import config from '@payload-config'
-import { notFound, permanentRedirect } from 'next/navigation'
+import Link from 'next/link'
+import {
+  notFound,
+  permanentRedirect,
+  redirect,
+} from 'next/navigation'
 import { getPayload } from 'payload'
+
+import { PostList, toPostListItems } from '@/components/posts/PostList'
+import { getCategories } from '@/lib/posts/getCategories'
 
 export const dynamic = 'force-dynamic'
 
 const PAGE_SIZE = 12
 
-const SECTION_ORDER = [
-  { key: 'linux', label: 'Linux & CLI' },
-  { key: 'domoticz', label: 'Domotyka' },
-  { key: 'home-assistant', label: 'Domotyka' },
-  { key: 'raspberry', label: 'Raspberry & sprzęt' },
-  { key: 'python', label: 'Raspberry & sprzęt' },
-  { key: 'mikr-us', label: 'Sieć & VPS' },
-] as const
-
-type SectionedPost = {
-  id: number
-  title: string
-  slug: string
-  excerpt?: string | null
-  heroAlt?: string | null
-  heroUrl?: string | null
-  section: string
-  publishedAt?: string | null
-}
-
 type Props = {
   searchParams: Promise<{
     p?: string | string[]
     page?: string | string[]
+    category?: string | string[]
   }>
 }
 
 export default async function HomePage({ searchParams }: Props) {
   const payload = await getPayload({ config })
-  const { p, page: pageParam } = await searchParams
+  const {
+    p,
+    page: pageParam,
+    category: categoryParam,
+  } = await searchParams
   const legacyID = Array.isArray(p) ? p[0] : p
 
   if (legacyID) {
@@ -59,6 +51,14 @@ export default async function HomePage({ searchParams }: Props) {
     permanentRedirect(`/articles/${legacy.docs[0].slug}`)
   }
 
+  const selectedCategory = Array.isArray(categoryParam)
+    ? categoryParam[0]
+    : categoryParam
+
+  if (selectedCategory) {
+    redirect(`/category/${encodeURIComponent(selectedCategory)}`)
+  }
+
   const requestedPage = Array.isArray(pageParam)
     ? pageParam[0]
     : pageParam
@@ -66,56 +66,20 @@ export default async function HomePage({ searchParams }: Props) {
   const page =
     Number.isSafeInteger(parsedPage) && parsedPage >= 1 ? parsedPage : 1
 
-  const result = await payload.find({
-    collection: 'posts',
-    limit: PAGE_SIZE,
-    page,
-    overrideAccess: true,
-    sort: '-publishedAt',
-    where: { _status: { equals: 'published' } },
-    depth: 1,
-  })
+  const [result, categories] = await Promise.all([
+    payload.find({
+      collection: 'posts',
+      limit: PAGE_SIZE,
+      page,
+      overrideAccess: true,
+      sort: '-publishedAt',
+      where: { _status: { equals: 'published' } },
+      depth: 1,
+    }),
+    getCategories(),
+  ])
 
-  const sectioned: SectionedPost[] = result.docs.map((post) => {
-    const categories = Array.isArray(post.categories)
-      ? post.categories
-      : []
-
-    const categorySlugs = categories
-      .map((c) => (typeof c === 'object' && c !== null ? c.slug : null))
-      .filter((s): s is string => typeof s === 'string')
-
-    let section = 'Inne'
-    for (const rule of SECTION_ORDER) {
-      if (categorySlugs.includes(rule.key)) {
-        section = rule.label
-        break
-      }
-    }
-
-    const hero =
-      post.heroImage && typeof post.heroImage !== 'number'
-        ? post.heroImage
-        : null
-
-    return {
-      id: post.id,
-      title: post.title,
-      slug: post.slug,
-      excerpt: post.excerpt,
-      heroAlt: hero?.alt ?? null,
-      heroUrl: hero?.url ?? null,
-      section,
-      publishedAt: post.publishedAt,
-    }
-  })
-
-  const sections = new Map<string, SectionedPost[]>()
-  for (const post of sectioned) {
-    const list = sections.get(post.section) ?? []
-    list.push(post)
-    sections.set(post.section, list)
-  }
+  const posts = toPostListItems(result.docs)
 
   return (
     <>
@@ -124,37 +88,35 @@ export default async function HomePage({ searchParams }: Props) {
         <h1>Praktyczne notatki z prawdziwej pracy inżynierskiej.</h1>
         <p>Linux, Raspberry Pi i automatyka domowa — sprawdzone na produkcji.</p>
       </section>
-      {result.docs.length === 0 ? (
-        <p className="muted">Brak artykułów na tej stronie.</p>
-      ) : null}
-      {[...sections.entries()].map(([label, posts]) => (
-        <section aria-label={label} key={label}>
-          <h2 className="section-heading">{label}</h2>
-          <div className="posts">
-            {posts.map((post) => (
-              <Link
-                className="card"
-                href={`/articles/${post.slug}`}
-                key={post.id}
-              >
-                {post.heroUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    alt={post.heroAlt ?? ''}
-                    className="card-image"
-                    src={post.heroUrl}
-                  />
-                ) : null}
-                <div className="card-body">
-                  <h3>{post.title}</h3>
-                  {post.excerpt ? <p>{post.excerpt}</p> : null}
-                  <span className="card-category">{label}</span>
-                </div>
-              </Link>
+
+      <form action="/" className="category-filter" method="get">
+        <label className="category-filter-label" htmlFor="category">
+          Filtruj artykuły po kategorii
+        </label>
+        <div className="category-filter-controls">
+          <select defaultValue="" id="category" name="category">
+            <option value="">Wszystkie kategorie</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.slug}>
+                {category.name}
+              </option>
             ))}
-          </div>
-        </section>
-      ))}
+          </select>
+          <button type="submit">Pokaż</button>
+        </div>
+      </form>
+
+      <section aria-labelledby="latest-posts">
+        <h2 className="section-heading" id="latest-posts">
+          Najnowsze artykuły
+        </h2>
+        {posts.length > 0 ? (
+          <PostList headingLevel={3} posts={posts} />
+        ) : (
+          <p className="muted">Brak artykułów na tej stronie.</p>
+        )}
+      </section>
+
       {result.totalPages > 1 ? (
         <nav aria-label="Stronicowanie artykułów" className="pagination">
           {page > 1 ? (
