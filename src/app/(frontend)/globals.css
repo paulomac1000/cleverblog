@@ -75,7 +75,7 @@ footer {
 
 .footer-note { margin: 0; font-size: 0.85rem }
 
-.hero { padding: 24px 0 40px }
+.hero { padding: 24px 0 32px }
 
 .hero h1 {
   font-size: clamp(2rem, 5.5vw, 3.75rem);
@@ -86,6 +86,56 @@ footer {
 }
 
 .hero p { color: var(--text-muted); margin: 0 }
+
+.category-filter {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  margin-bottom: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.category-filter-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.category-filter-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.category-filter select,
+.category-filter button {
+  min-height: 44px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.category-filter select {
+  flex: 1;
+  min-width: 0;
+  padding: 0 12px;
+}
+
+.category-filter button {
+  padding: 0 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.category-filter button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
 
 .section-heading {
   display: flex;
@@ -105,6 +155,21 @@ footer {
   height: 1px;
   background: var(--border);
 }
+
+.archive-header {
+  padding: 12px 0 32px;
+}
+
+.archive-header h1 {
+  margin: 4px 0 10px;
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+
+.archive-header p { margin: 0; color: var(--text-muted) }
+.archive-header a { text-decoration: none }
+.archive-header a:hover { color: var(--accent) }
 
 .posts { display: grid; gap: 20px }
 
@@ -127,6 +192,7 @@ footer {
   transform: translateY(-2px);
 }
 
+.card h2,
 .card h3 {
   margin: 0 0 6px;
   font-size: 1.15rem;
@@ -156,9 +222,19 @@ footer {
   border: 1px solid var(--border);
 }
 
+.card-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.card-meta time { white-space: nowrap; color: #aab4bf }
+
 .card-category {
-  display: inline-block;
-  margin-top: 10px;
   font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -169,6 +245,8 @@ footer {
 @media (max-width: 640px) {
   .card { grid-template-columns: 1fr; gap: 14px }
   .card-image { aspect-ratio: 1200 / 500 }
+  .category-filter-controls { flex-direction: column }
+  .category-filter button { width: 100% }
 }
 
 .pagination {

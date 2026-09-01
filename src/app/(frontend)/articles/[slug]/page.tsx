@@ -6,6 +6,10 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 
 import { CodeHighlight } from '@/components/CodeHighlight'
+import { CommentForm } from '@/components/comments/CommentForm'
+import { CommentList } from '@/components/comments/CommentList'
+import { getCommentConfig } from '@/lib/comments/config'
+import { createFormToken } from '@/lib/comments/formToken'
 
 export const dynamic = 'force-dynamic'
 
@@ -93,6 +97,8 @@ export default async function ArticlePage({
     typeof renderHTML === 'string' &&
     renderHTML.length > 0
 
+  const commentConfig = getCommentConfig()
+
   return (
     <article className="article">
       <h1>{post.title}</h1>
@@ -130,6 +136,16 @@ export default async function ArticlePage({
           zmigrowana.
         </p>
       )}
+
+      <CommentList postId={post.id} />
+
+      {post.commentsEnabled && commentConfig ? (
+        <CommentForm
+          formToken={createFormToken(post.id, commentConfig.securitySecret)}
+          postId={post.id}
+          siteKey={commentConfig.turnstileSiteKey}
+        />
+      ) : null}
     </article>
   )
 }
