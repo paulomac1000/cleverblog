@@ -52,37 +52,81 @@ const ICONS: Record<string, string> = {
 type ThumbSpec = {
   wp: number
   icon: keyof typeof ICONS
-  accent: keyof typeof ACCENTS
   alt: string
 }
 
+// Accent per CATEGORY (not per post) — visual system consistency:
+// linux=yellow, raspberry=red, domoticz/home-assistant=blue, network=green, system=purple
+const CATEGORY_ACCENTS: Record<string, keyof typeof ACCENTS> = {
+  linux: 'linux',
+  raspberry: 'raspberry',
+  domoticz: 'domoticz',
+  'home-assistant': 'domoticz',
+  python: 'raspberry',
+  'mikr-us': 'network',
+}
+
+const POST_CATEGORIES: Record<number, string[]> = {
+  34: ['raspberry', 'python'],
+  41: ['linux', 'raspberry', 'mikr-us'],
+  79: ['linux', 'raspberry'],
+  101: ['raspberry'],
+  148: ['raspberry'],
+  158: ['linux'],
+  172: ['linux'],
+  174: ['linux', 'raspberry'],
+  202: ['linux', 'raspberry', 'mikr-us'],
+  204: ['domoticz'],
+  206: ['raspberry', 'python'],
+  208: ['domoticz'],
+  256: ['linux'],
+  267: ['home-assistant', 'raspberry'],
+  313: ['linux'],
+  391: ['raspberry'],
+  421: ['linux'],
+  477: ['linux'],
+  484: ['linux'],
+  487: ['linux'],
+  495: ['linux'],
+  509: ['linux', 'home-assistant'],
+}
+
+const resolveAccent = (wp: number): keyof typeof ACCENTS => {
+  const categories = POST_CATEGORIES[wp] ?? []
+  for (const slug of categories) {
+    const accent = CATEGORY_ACCENTS[slug]
+    if (accent) return accent
+  }
+  return 'system'
+}
+
 const SPECS: ThumbSpec[] = [
-  { wp: 34, icon: 'terminal', accent: 'raspberry', alt: 'Jupyter Notebook — ikona terminala' },
-  { wp: 41, icon: 'cloud', accent: 'network', alt: 'Montowanie dysków WebDAV — ikona chmury' },
-  { wp: 79, icon: 'database', accent: 'network', alt: 'Dostęp do MySQL/MariaDB — ikona bazy danych' },
-  { wp: 101, icon: 'monitor', accent: 'raspberry', alt: 'Serwer multimedialny MiniDLNA — ikona ekranu' },
-  { wp: 148, icon: 'cpu', accent: 'raspberry', alt: '.NET na Raspberry Pi — ikona procesora' },
-  { wp: 158, icon: 'search', accent: 'linux', alt: 'Wyszukiwanie plików — ikona lupy' },
-  { wp: 172, icon: 'hardDrive', accent: 'linux', alt: 'Sprawdzenie systemu plików — ikona dysku' },
-  { wp: 174, icon: 'database', accent: 'raspberry', alt: 'Serwer MySQL/MariaDB — ikona bazy danych' },
-  { wp: 202, icon: 'shield', accent: 'network', alt: 'Serwer OpenVPN — ikona tarczy' },
-  { wp: 204, icon: 'thermometer', accent: 'domoticz', alt: 'Integracja z czujnikiem temperatury — ikona termometru' },
-  { wp: 206, icon: 'activity', accent: 'network', alt: 'Internet watchdog — ikona pulsacji' },
-  { wp: 208, icon: 'printer', accent: 'domoticz', alt: 'Integracja z drukarką — ikona drukarki' },
-  { wp: 256, icon: 'key', accent: 'linux', alt: 'Hasła użytkowników — ikona klucza' },
-  { wp: 267, icon: 'home', accent: 'domoticz', alt: 'Home Assistant — ikona domu' },
-  { wp: 313, icon: 'users', accent: 'linux', alt: 'Użytkownicy i grupy — ikona użytkowników' },
-  { wp: 391, icon: 'radio', accent: 'system', alt: 'Flashowanie CC2531 — ikona radia' },
-  { wp: 421, icon: 'arrowRightLeft', accent: 'linux', alt: 'Kopiowanie plików przez SSH — ikona transferu' },
-  { wp: 477, icon: 'fileText', accent: 'linux', alt: 'Wyświetlanie logów — ikona dokumentu' },
-  { wp: 484, icon: 'settings', accent: 'linux', alt: 'Dodawanie usługi systemd — ikona koła zębatego' },
-  { wp: 487, icon: 'settings', accent: 'linux', alt: 'Zarządzanie usługami systemd — ikona koła zębatego' },
-  { wp: 495, icon: 'lock', accent: 'linux', alt: 'Uprawnienia chmod — ikona kłódki' },
-  { wp: 509, icon: 'zap', accent: 'system', alt: 'Flashowanie CC2652P — ikona błyskawicy' },
+  { wp: 34, icon: 'terminal', alt: 'Jupyter Notebook — ikona terminala' },
+  { wp: 41, icon: 'cloud', alt: 'Montowanie dysków WebDAV — ikona chmury' },
+  { wp: 79, icon: 'database', alt: 'Dostęp do MySQL/MariaDB — ikona bazy danych' },
+  { wp: 101, icon: 'monitor', alt: 'Serwer multimedialny MiniDLNA — ikona ekranu' },
+  { wp: 148, icon: 'cpu', alt: '.NET na Raspberry Pi — ikona procesora' },
+  { wp: 158, icon: 'search', alt: 'Wyszukiwanie plików — ikona lupy' },
+  { wp: 172, icon: 'hardDrive', alt: 'Sprawdzenie systemu plików — ikona dysku' },
+  { wp: 174, icon: 'database', alt: 'Serwer MySQL/MariaDB — ikona bazy danych' },
+  { wp: 202, icon: 'shield', alt: 'Serwer OpenVPN — ikona tarczy' },
+  { wp: 204, icon: 'thermometer', alt: 'Integracja z czujnikiem temperatury — ikona termometru' },
+  { wp: 206, icon: 'activity', alt: 'Internet watchdog — ikona pulsacji' },
+  { wp: 208, icon: 'printer', alt: 'Integracja z drukarką — ikona drukarki' },
+  { wp: 256, icon: 'key', alt: 'Hasła użytkowników — ikona klucza' },
+  { wp: 267, icon: 'home', alt: 'Home Assistant — ikona domu' },
+  { wp: 313, icon: 'users', alt: 'Użytkownicy i grupy — ikona użytkowników' },
+  { wp: 391, icon: 'radio', alt: 'Flashowanie CC2531 — ikona radia' },
+  { wp: 421, icon: 'arrowRightLeft', alt: 'Kopiowanie plików przez SSH — ikona transferu' },
+  { wp: 477, icon: 'fileText', alt: 'Wyświetlanie logów — ikona dokumentu' },
+  { wp: 484, icon: 'settings', alt: 'Dodawanie usługi systemd — ikona koła zębatego' },
+  { wp: 487, icon: 'settings', alt: 'Zarządzanie usługami systemd — ikona koła zębatego' },
+  { wp: 495, icon: 'lock', alt: 'Uprawnienia chmod — ikona kłódki' },
+  { wp: 509, icon: 'zap', alt: 'Flashowanie CC2652P — ikona błyskawicy' },
 ]
 
 const buildSvg = (spec: ThumbSpec): string => {
-  const accent = ACCENTS[spec.accent]
+  const accent = ACCENTS[resolveAccent(spec.wp)]
   const icon = ICONS[spec.icon]
 
   return `<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">

@@ -5,6 +5,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 
+import { CodeHighlight } from '@/components/CodeHighlight'
+
 export const dynamic = 'force-dynamic'
 
 const serverURL = (
@@ -107,12 +109,15 @@ export default async function ArticlePage({
       ) : null}
 
       {showLegacy ? (
-        <div
-          className="legacy-content"
-          dangerouslySetInnerHTML={{
-            __html: renderHTML,
-          }}
-        />
+        <>
+          <div
+            className="legacy-content"
+            dangerouslySetInnerHTML={{
+              __html: renderHTML,
+            }}
+          />
+          <CodeHighlight />
+        </>
       ) : post.content ? (
         <RichText
           data={

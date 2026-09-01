@@ -7,6 +7,26 @@ export const dynamic = 'force-dynamic'
 
 const PAGE_SIZE = 12
 
+const SECTION_ORDER = [
+  { key: 'linux', label: 'Linux & CLI' },
+  { key: 'domoticz', label: 'Domotyka' },
+  { key: 'home-assistant', label: 'Domotyka' },
+  { key: 'raspberry', label: 'Raspberry & sprzęt' },
+  { key: 'python', label: 'Raspberry & sprzęt' },
+  { key: 'mikr-us', label: 'Sieć & VPS' },
+] as const
+
+type SectionedPost = {
+  id: number
+  title: string
+  slug: string
+  excerpt?: string | null
+  heroAlt?: string | null
+  heroUrl?: string | null
+  section: string
+  publishedAt?: string | null
+}
+
 type Props = {
   searchParams: Promise<{
     p?: string | string[]
@@ -53,35 +73,95 @@ export default async function HomePage({ searchParams }: Props) {
     overrideAccess: true,
     sort: '-publishedAt',
     where: { _status: { equals: 'published' } },
+    depth: 1,
   })
+
+  const sectioned: SectionedPost[] = result.docs.map((post) => {
+    const categories = Array.isArray(post.categories)
+      ? post.categories
+      : []
+
+    const categorySlugs = categories
+      .map((c) => (typeof c === 'object' && c !== null ? c.slug : null))
+      .filter((s): s is string => typeof s === 'string')
+
+    let section = 'Inne'
+    for (const rule of SECTION_ORDER) {
+      if (categorySlugs.includes(rule.key)) {
+        section = rule.label
+        break
+      }
+    }
+
+    const hero =
+      post.heroImage && typeof post.heroImage !== 'number'
+        ? post.heroImage
+        : null
+
+    return {
+      id: post.id,
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.excerpt,
+      heroAlt: hero?.alt ?? null,
+      heroUrl: hero?.url ?? null,
+      section,
+      publishedAt: post.publishedAt,
+    }
+  })
+
+  const sections = new Map<string, SectionedPost[]>()
+  for (const post of sectioned) {
+    const list = sections.get(post.section) ?? []
+    list.push(post)
+    sections.set(post.section, list)
+  }
 
   return (
     <>
       <section className="hero">
         <p className="muted">cleverblog.pl</p>
         <h1>Praktyczne notatki z prawdziwej pracy inżynierskiej.</h1>
-        <p>Artykuły zachowują datę publikacji i osobny status ostatniej weryfikacji.</p>
+        <p>Linux, Raspberry Pi i automatyka domowa — sprawdzone na produkcji.</p>
       </section>
-      <section className="posts" aria-label="Najnowsze artykuły">
-        {result.docs.map((post) => (
-          <Link className="card" href={`/articles/${post.slug}`} key={post.id}>
-            {post.heroImage && typeof post.heroImage !== 'number' ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                alt={post.heroImage.alt}
-                className="card-image"
-                src={post.heroImage.url ?? undefined}
-              />
-            ) : null}
-            <h2>{post.title}</h2>
-            {post.excerpt ? <p>{post.excerpt}</p> : null}
-          </Link>
-        ))}
-      </section>
+      {result.docs.length === 0 ? (
+        <p className="muted">Brak artykułów na tej stronie.</p>
+      ) : null}
+      {[...sections.entries()].map(([label, posts]) => (
+        <section aria-label={label} key={label}>
+          <h2 className="section-heading">{label}</h2>
+          <div className="posts">
+            {posts.map((post) => (
+              <Link
+                className="card"
+                href={`/articles/${post.slug}`}
+                key={post.id}
+              >
+                {post.heroUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    alt={post.heroAlt ?? ''}
+                    className="card-image"
+                    src={post.heroUrl}
+                  />
+                ) : null}
+                <div className="card-body">
+                  <h3>{post.title}</h3>
+                  {post.excerpt ? <p>{post.excerpt}</p> : null}
+                  <span className="card-category">{label}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ))}
       {result.totalPages > 1 ? (
         <nav aria-label="Stronicowanie artykułów" className="pagination">
           {page > 1 ? (
-            <Link className="pagination-link" href={page === 2 ? '/' : `/?page=${page - 1}`}>
+            <Link
+              className="pagination-link"
+              href={page === 2 ? '/' : `/?page=${page - 1}`}
+            >
               ← Nowsze
             </Link>
           ) : null}
