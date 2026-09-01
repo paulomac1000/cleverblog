@@ -12,6 +12,12 @@ services:
       NEXT_PUBLIC_SERVER_URL: https://cleverblog.pl
       PAYLOAD_SECRET: ${CLEVERBLOG_PAYLOAD_SECRET}
       NODE_OPTIONS: --max-old-space-size=384
+      # Public comment submissions. All four must be set to enable the form;
+      # missing any value fails closed (approved comments stay visible).
+      COMMENTS_ENABLED: ${CLEVERBLOG_COMMENTS_ENABLED:-false}
+      TURNSTILE_SITE_KEY: ${CLEVERBLOG_TURNSTILE_SITE_KEY:-}
+      TURNSTILE_SECRET_KEY: ${CLEVERBLOG_TURNSTILE_SECRET_KEY:-}
+      COMMENT_SECURITY_SECRET: ${CLEVERBLOG_COMMENT_SECURITY_SECRET:-}
     mem_limit: 480m
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]

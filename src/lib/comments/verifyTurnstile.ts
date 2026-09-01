@@ -1,14 +1,20 @@
 type TurnstileVerification = {
+  action?: string
+  hostname?: string
   success?: boolean
 }
 
 type VerifyTurnstileArgs = {
+  expectedAction: string
+  expectedHostname: string
   remoteIP?: string
   secret: string
   token: string
 }
 
 export const verifyTurnstile = async ({
+  expectedAction,
+  expectedHostname,
   remoteIP,
   secret,
   token,
@@ -33,7 +39,11 @@ export const verifyTurnstile = async ({
     if (!response.ok) return false
 
     const result = (await response.json()) as TurnstileVerification
-    return result.success === true
+    return (
+      result.success === true &&
+      result.action === expectedAction &&
+      result.hostname === expectedHostname
+    )
   } catch {
     return false
   }

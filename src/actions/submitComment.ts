@@ -54,6 +54,9 @@ const createSubmissionHash = (
 const isValidEmail = (value: string): boolean =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 
+const isValidClientIP = (value: string): boolean =>
+  /^(?:\d{1,3}\.){3}\d{1,3}$/.test(value) || value.includes(':')
+
 export async function submitComment(
   _previousState: CommentFormState,
   formData: FormData,
@@ -81,7 +84,8 @@ export async function submitComment(
   }
 
   const requestHeaders = await headers()
-  const rawClientIP = requestHeaders.get('cf-connecting-ip')?.trim().slice(0, 128) || 'unknown'
+  const headerIP = requestHeaders.get('cf-connecting-ip')?.trim() ?? ''
+  const rawClientIP = isValidClientIP(headerIP) ? headerIP : 'unknown'
   const rateLimit = consumeCommentRateLimit(rawClientIP, commentConfig.securitySecret)
 
   if (!rateLimit.allowed) {
@@ -90,6 +94,8 @@ export async function submitComment(
 
   const turnstileToken = getString(formData, 'cf-turnstile-response')
   const turnstileValid = await verifyTurnstile({
+    expectedAction: 'comment-submit',
+    expectedHostname: requestHeaders.get('host') ?? 'cleverblog.pl',
     remoteIP: rawClientIP === 'unknown' ? undefined : rawClientIP,
     secret: commentConfig.turnstileSecretKey,
     token: turnstileToken,
@@ -178,7 +184,8 @@ export async function submitComment(
       },
       overrideAccess: true,
     })
-  } catch {
+  } catch (error) {
+    console.error('comment submission failed', error)
     const concurrentDuplicate = await payload.find({
       collection: 'comments',
       depth: 0,

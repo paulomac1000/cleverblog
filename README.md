@@ -23,14 +23,17 @@ Implemented:
 - Migration contract tests for normalization and redirect generation.
 - CI for lint, tests, generated types and build.
 
+Implemented:
+
+- WordPress migration (posts, pages, media, taxonomy, approved comments) with idempotent upserts keyed by `legacy.wordpressId`.
+- Moderated public comment submissions: Cloudflare Turnstile (Managed, action + hostname verified server-side), signed form-age tokens, in-memory per-IP rate limiting (HMAC'd keys, no raw IP storage), honeypot, duplicate suppression via `submissionHash`, deterministic spam scoring. Everything lands as `pending` or `spam` — never auto-approved. Fail-closed: the form requires `COMMENTS_ENABLED=true` plus Turnstile keys and `COMMENT_SECURITY_SECRET`; approved comments stay visible regardless.
+- Chronological homepage with a zero-JS category filter and `/category/[slug]` archives (legacy WordPress category URLs preserved).
+- Production deployment (Docker, cleverblog.pl) with legacy `/?p=` and category redirects.
+
 Not implemented yet:
 
-- Production WordPress dump / uploads capture.
-- Media importer and HTML-to-Lexical conversion.
-- Comment importer / comment submission endpoint.
-- Turnstile, rate limiting and automated comment moderation.
-- R2/S3 production storage adapter.
-- Production deployment, DNS cutover, Search Console verification or rollback exercise.
+- HTML-to-Lexical conversion for migrated posts (legacy sanitized HTML renders as-is).
+- R2/S3 production storage adapter (local filesystem media in production).
 - Domain-specific MCP tools such as `propose_topic` and `submit_for_review` (generic Payload MCP is available first).
 
 ## Local development

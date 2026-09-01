@@ -123,6 +123,7 @@ export function CommentForm({ formToken, postId, siteKey }: Props) {
 
         <Turnstile
           options={{
+            action: 'comment-submit',
             appearance: 'interaction-only',
             language: 'pl',
             responseField: true,

@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { allowRoles, hasRole } from '@/access/roles'
+import { enforceCommentApprovalGate } from '@/hooks/enforceCommentApprovalGate'
 
 export const Comments: CollectionConfig = {
   slug: 'comments',
@@ -15,6 +16,7 @@ export const Comments: CollectionConfig = {
   },
   admin: { defaultColumns: ['post', 'authorName', 'status', 'createdAt'] },
   defaultSort: '-createdAt',
+  hooks: { beforeChange: [enforceCommentApprovalGate] },
   indexes: [{ fields: ['post', 'submissionHash'], unique: true }],
   fields: [
     { name: 'post', type: 'relationship', relationTo: 'posts', required: true, index: true },

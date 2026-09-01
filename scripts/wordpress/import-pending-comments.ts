@@ -16,10 +16,18 @@ const reportPath = path.join(
   'migration-data/reports/pending-comments-import.json',
 )
 
-const parsePositiveInteger = (value: string, field: string): number => {
+const parseNonNegativeInteger = (value: string, field: string): number => {
   const parsed = Number(value)
-  if (!Number.isSafeInteger(parsed) || parsed <= 0) {
+  if (!Number.isSafeInteger(parsed) || parsed < 0) {
     throw new Error(`Invalid WordPress comment ${field}: ${JSON.stringify(value)}`)
+  }
+  return parsed
+}
+
+const parsePositiveInteger = (value: string, field: string): number => {
+  const parsed = parseNonNegativeInteger(value, field)
+  if (parsed === 0) {
+    throw new Error(`Invalid WordPress comment ${field}: expected a positive integer`)
   }
   return parsed
 }
@@ -73,12 +81,13 @@ const main = async () => {
   const payload = await getPayload({ config })
 
   let created = 0
-  let updated = 0
+  let unchanged = 0
   const imported: Array<{ wordpressId: number; payloadId: number; status: string }> = []
 
   for (const comment of selected) {
     const wordpressId = parsePositiveInteger(comment.comment_ID, 'comment_ID')
     const postWordPressId = parsePositiveInteger(comment.comment_post_ID, 'comment_post_ID')
+    const sourceParentId = parseNonNegativeInteger(comment.comment_parent, 'comment_parent')
     const createdAt = parseCommentDateGMT(comment.comment_date_gmt, wordpressId)
 
     const found = await payload.find({
@@ -105,40 +114,44 @@ const main = async () => {
       where: { legacyWordPressId: { equals: wordpressId } },
     })
 
-    const data = {
-      post: post.id,
-      parent: null,
-      authorName: comment.comment_author,
-      authorEmail: comment.comment_author_email || undefined,
-      authorUrl: comment.comment_author_url || undefined,
-      content: comment.comment_content,
-      status: 'pending' as const,
-      legacyWordPressId: wordpressId,
-      createdAt,
+    if (existing.docs[0]) {
+      unchanged += 1
+      imported.push({ wordpressId, payloadId: existing.docs[0].id, status: 'unchanged' })
+      console.log(`unchanged comment wp:${wordpressId} -> payload:${existing.docs[0].id} (moderation state preserved)`)
+      continue
     }
 
-    if (existing.docs[0]) {
-      await payload.update({
+    let parentPayloadId: number | null = null
+    if (sourceParentId !== 0) {
+      const parent = await payload.find({
         collection: 'comments',
-        id: existing.docs[0].id,
-        data,
-        context: { wordpressMigration: true },
+        depth: 0,
+        limit: 1,
         overrideAccess: true,
+        where: { legacyWordPressId: { equals: sourceParentId } },
       })
-      updated += 1
-      imported.push({ wordpressId, payloadId: existing.docs[0].id, status: 'updated' })
-      console.log(`updated pending comment wp:${wordpressId} -> payload:${existing.docs[0].id}`)
-    } else {
-      const createdComment = await payload.create({
-        collection: 'comments',
-        data,
-        context: { wordpressMigration: true },
-        overrideAccess: true,
-      })
-      created += 1
-      imported.push({ wordpressId, payloadId: createdComment.id, status: 'created' })
-      console.log(`created pending comment wp:${wordpressId} -> payload:${createdComment.id}`)
+      parentPayloadId = parent.docs[0]?.id ?? null
     }
+
+    const createdComment = await payload.create({
+      collection: 'comments',
+      data: {
+        post: post.id,
+        parent: parentPayloadId,
+        authorName: comment.comment_author,
+        authorEmail: comment.comment_author_email || undefined,
+        authorUrl: comment.comment_author_url || undefined,
+        content: comment.comment_content,
+        status: 'pending' as const,
+        legacyWordPressId: wordpressId,
+        createdAt,
+      },
+      context: { wordpressMigration: true },
+      overrideAccess: true,
+    })
+    created += 1
+    imported.push({ wordpressId, payloadId: createdComment.id, status: 'created' })
+    console.log(`created pending comment wp:${wordpressId} -> payload:${createdComment.id}`)
   }
 
   await writeFile(
@@ -147,7 +160,7 @@ const main = async () => {
       {
         allowlisted: allowlistIds.size,
         created,
-        updated,
+        unchanged,
         imported,
       },
       null,
@@ -155,7 +168,7 @@ const main = async () => {
     )}\n`,
   )
 
-  console.log(`pending comments import complete: ${created} created, ${updated} updated`)
+  console.log(`pending comments import complete: ${created} created, ${unchanged} unchanged`)
   process.exit(0)
 }
 
