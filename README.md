@@ -6,24 +6,21 @@ This branch establishes the replatforming foundation: Payload CMS 3.88 + Next.js
 
 ## Status
 
-The repository is intentionally at **foundation** stage. It does not cut over production and it does not claim that WordPress content has already been migrated.
+Production is live at https://cleverblog.pl (Docker, PostgreSQL). WordPress content has been migrated and the legacy runtime retired.
 
 Implemented:
 
 - Payload 3.88.0 pinned (stable line; Payload 4 remains canary at the time of this bootstrap).
-- Next.js App Router with Payload admin/API routes and a minimal public blog frontend.
+- Next.js App Router with Payload admin/API routes and a public blog frontend.
 - PostgreSQL adapter and local Docker Compose database.
 - Collections for posts, pages, media, categories, tags, comments, topic candidates, evidence, and users.
 - Drafts, versions, scheduled publishing and a backend publication gate.
 - Official SEO, search, redirects and MCP plugins.
 - Agent roles and collection access controls.
 - MCP delete disabled; user CRUD/schema discovery disabled through MCP.
-- WordPress normalization/import skeleton with idempotent post upsert by `legacy.wordpressId`.
 - Legacy HTML is preserved and rendered only after server-side sanitization.
 - Migration contract tests for normalization and redirect generation.
 - CI for lint, tests, generated types and build.
-
-Implemented:
 
 - WordPress migration (posts, pages, media, taxonomy, approved comments) with idempotent upserts keyed by `legacy.wordpressId`.
 - Moderated public comment submissions: Cloudflare Turnstile (Managed, action + hostname verified server-side), signed form-age tokens, in-memory per-IP rate limiting (HMAC'd keys, no raw IP storage), honeypot, duplicate suppression via `submissionHash`, deterministic spam scoring. Everything lands as `pending` or `spam` — never auto-approved. Fail-closed: the form requires `COMMENTS_ENABLED=true` plus Turnstile keys and `COMMENT_SECURITY_SECRET`; approved comments stay visible regardless.

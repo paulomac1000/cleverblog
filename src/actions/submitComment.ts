@@ -57,6 +57,10 @@ const isValidEmail = (value: string): boolean =>
 const isValidClientIP = (value: string): boolean =>
   /^(?:\d{1,3}\.){3}\d{1,3}$/.test(value) || value.includes(':')
 
+const serverURL = (
+  process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000'
+).replace(/\/+$/, '')
+
 export async function submitComment(
   _previousState: CommentFormState,
   formData: FormData,
@@ -95,7 +99,7 @@ export async function submitComment(
   const turnstileToken = getString(formData, 'cf-turnstile-response')
   const turnstileValid = await verifyTurnstile({
     expectedAction: 'comment-submit',
-    expectedHostname: requestHeaders.get('host') ?? 'cleverblog.pl',
+    expectedHostname: new URL(serverURL).hostname,
     remoteIP: rawClientIP === 'unknown' ? undefined : rawClientIP,
     secret: commentConfig.turnstileSecretKey,
     token: turnstileToken,

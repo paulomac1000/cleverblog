@@ -79,7 +79,7 @@ export default async function HomePage({ searchParams }: Props) {
     getCategories(),
   ])
 
-  if (page > result.totalPages) notFound()
+  if (page > 1 && page > result.totalPages) notFound()
 
   const posts = toPostListItems(result.docs)
 
