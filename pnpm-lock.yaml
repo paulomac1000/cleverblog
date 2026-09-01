@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@marsidev/react-turnstile':
+        specifier: ^1.6.1
+        version: 1.6.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@payloadcms/db-postgres':
         specifier: 3.88.0
         version: 3.88.0(payload@3.88.0(graphql@16.14.2)(typescript@6.0.3))
@@ -1205,6 +1208,12 @@ packages:
     resolution: {integrity: sha512-PaKTxSbVC4fpqUjQ7vUL9RkNF1PjL8TFl5jRe03PqoPYpE33buf3VXX6+cOUEfv9+uknSqLCPHoBS/4jN3a97w==}
     peerDependencies:
       yjs: '>=13.5.22'
+
+  '@marsidev/react-turnstile@1.6.1':
+    resolution: {integrity: sha512-ojI9NLYv821IRKi7KraTkxTto6KC/m58hNNyKxvYxm/cQBu5MI5eMkaiJs2JSQBFiXE3LPQI3seJVjv/2lgALA==}
+    peerDependencies:
+      react: ^17.0.2 || ^18.0.0 || ^19.0
+      react-dom: ^17.0.2 || ^18.0.0 || ^19.0
 
   '@modelcontextprotocol/sdk@1.30.0':
     resolution: {integrity: sha512-xKd8OIzlqNzcqcNumGAa6g+PW2kjD5vrpcKOnfldAUPP3j7lnqMPwlTXQm8gF+UwH72z0lqaRbjr9hqGz0eITA==}
@@ -5394,6 +5403,11 @@ snapshots:
       lexical: 0.41.0
       yjs: 13.6.32
 
+  '@marsidev/react-turnstile@1.6.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+    dependencies:
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
+
   '@modelcontextprotocol/sdk@1.30.0(zod@3.25.76)':
     dependencies:
       '@hono/node-server': 2.1.1(hono@4.13.5)
@@ -5613,7 +5627,7 @@ snapshots:
       '@modelcontextprotocol/sdk': 1.30.0(zod@3.25.76)
       '@types/json-schema': 7.0.15
       json-schema-to-zod: 2.6.1
-      mcp-handler: 1.1.0(@modelcontextprotocol/sdk@1.30.0(zod@4.5.1))(next@16.3.3(@babel/core@7.29.7)(@types/node@24.12.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.77.4))
+      mcp-handler: 1.1.0(@modelcontextprotocol/sdk@1.30.0(zod@3.25.76))(next@16.3.3(@babel/core@7.29.7)(@types/node@24.12.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.77.4))
       payload: 3.88.0(graphql@16.14.2)(typescript@6.0.3)
       zod: 3.25.76
     transitivePeerDependencies:
@@ -7690,7 +7704,7 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
-  mcp-handler@1.1.0(@modelcontextprotocol/sdk@1.30.0(zod@4.5.1))(next@16.3.3(@babel/core@7.29.7)(@types/node@24.12.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.77.4)):
+  mcp-handler@1.1.0(@modelcontextprotocol/sdk@1.30.0(zod@3.25.76))(next@16.3.3(@babel/core@7.29.7)(@types/node@24.12.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.77.4)):
     dependencies:
       '@modelcontextprotocol/sdk': 1.30.0(zod@3.25.76)
       chalk: 5.6.2
