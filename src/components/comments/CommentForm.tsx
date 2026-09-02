@@ -9,9 +9,9 @@ import { submitComment } from '@/actions/submitComment'
 import type { CommentFormState } from '@/actions/submitComment'
 
 type Props = {
-  formToken: string
+  formToken?: string
   postId: number
-  siteKey: string
+  siteKey?: string
 }
 
 const initialState: CommentFormState = {
@@ -43,6 +43,23 @@ export function CommentForm({ formToken, postId, siteKey }: Props) {
       formRef.current?.reset()
     }
   }, [state])
+
+  if (!formToken || !siteKey) {
+    return (
+      <section
+        aria-label="Dodawanie komentarzy"
+        style={{
+          borderTop: '1px solid var(--border)',
+          marginTop: 32,
+          paddingTop: 24,
+        }}
+      >
+        <p className="muted" style={{ margin: 0 }}>
+          Komentarze są chwilowo wyłączone. Wrócą wkrótce.
+        </p>
+      </section>
+    )
+  }
 
   return (
     <section

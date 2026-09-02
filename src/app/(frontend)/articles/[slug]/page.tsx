@@ -98,6 +98,13 @@ export default async function ArticlePage({
     renderHTML.length > 0
 
   const commentConfig = getCommentConfig()
+  let commentFormToken: string | undefined
+  let turnstileSiteKey: string | undefined
+
+  if (post.commentsEnabled && commentConfig) {
+    commentFormToken = createFormToken(post.id, commentConfig.securitySecret)
+    turnstileSiteKey = commentConfig.turnstileSiteKey
+  }
 
   return (
     <article className="article">
@@ -138,14 +145,11 @@ export default async function ArticlePage({
       )}
 
       <CommentList postId={post.id} />
-
-      {post.commentsEnabled && commentConfig ? (
-        <CommentForm
-          formToken={createFormToken(post.id, commentConfig.securitySecret)}
-          postId={post.id}
-          siteKey={commentConfig.turnstileSiteKey}
-        />
-      ) : null}
+      <CommentForm
+        formToken={commentFormToken}
+        postId={post.id}
+        siteKey={turnstileSiteKey}
+      />
     </article>
   )
 }

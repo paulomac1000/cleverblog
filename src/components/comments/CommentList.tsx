@@ -47,7 +47,88 @@ export async function CommentList({ postId }: Props) {
     },
   })
 
+  const commentById = new Map(result.docs.map((comment) => [comment.id, comment]))
   const authorById = new Map(result.docs.map((comment) => [comment.id, comment.authorName]))
+  const rootComments: typeof result.docs = []
+  const repliesByRoot = new Map<number, typeof result.docs>()
+
+  for (const comment of result.docs) {
+    const directParentId = getRelationshipId(comment.parent)
+    if (!directParentId || !commentById.has(directParentId)) {
+      rootComments.push(comment)
+      continue
+    }
+
+    let rootId = directParentId
+    const visited = new Set<number>([comment.id])
+
+    while (!visited.has(rootId)) {
+      visited.add(rootId)
+      const ancestor = commentById.get(rootId)
+      if (!ancestor) break
+
+      const parentId = getRelationshipId(ancestor.parent)
+      if (!parentId || !commentById.has(parentId)) break
+      rootId = parentId
+    }
+
+    if (rootId === comment.id) {
+      rootComments.push(comment)
+      continue
+    }
+
+    const replies = repliesByRoot.get(rootId) ?? []
+    replies.push(comment)
+    repliesByRoot.set(rootId, replies)
+  }
+
+  const renderComment = (comment: (typeof result.docs)[number], nested = false) => {
+    const parentId = getRelationshipId(comment.parent)
+    const parentAuthor = parentId ? authorById.get(parentId) : null
+    const authorUrl = getSafeAuthorUrl(comment.authorUrl)
+
+    return (
+      <div
+        style={{
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderLeft: nested ? '3px solid var(--accent)' : '1px solid var(--border)',
+          borderRadius: 'var(--radius)',
+          padding: nested ? '14px 16px' : 18,
+        }}
+      >
+        <div
+          style={{
+            alignItems: 'baseline',
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '6px 12px',
+          }}
+        >
+          <strong>
+            {authorUrl ? (
+              <a href={authorUrl} rel="ugc nofollow external">
+                {comment.authorName}
+              </a>
+            ) : (
+              comment.authorName
+            )}
+          </strong>
+          <time className="muted" dateTime={comment.createdAt} style={{ fontSize: '0.85rem' }}>
+            {new Date(comment.createdAt).toLocaleDateString('pl-PL')}
+          </time>
+        </div>
+
+        {parentAuthor ? (
+          <div className="muted" style={{ fontSize: '0.85rem', marginTop: 8 }}>
+            Odpowiedź do: {parentAuthor}
+          </div>
+        ) : null}
+
+        <p style={{ margin: '12px 0 0', whiteSpace: 'pre-wrap' }}>{comment.content}</p>
+      </div>
+    )
+  }
 
   return (
     <section
@@ -64,50 +145,27 @@ export async function CommentList({ postId }: Props) {
         <p className="muted">Brak komentarzy.</p>
       ) : (
         <ol style={{ display: 'grid', gap: 16, listStyle: 'none', margin: 0, padding: 0 }}>
-          {result.docs.map((comment) => {
-            const parentId = getRelationshipId(comment.parent)
-            const parentAuthor = parentId ? authorById.get(parentId) : null
-            const authorUrl = getSafeAuthorUrl(comment.authorUrl)
+          {rootComments.map((comment) => {
+            const replies = repliesByRoot.get(comment.id) ?? []
 
             return (
-              <li
-                key={comment.id}
-                style={{
-                  background: 'var(--surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius)',
-                  padding: 18,
-                }}
-              >
-                <div
-                  style={{
-                    alignItems: 'baseline',
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '6px 12px',
-                  }}
-                >
-                  <strong>
-                    {authorUrl ? (
-                      <a href={authorUrl} rel="ugc nofollow external">
-                        {comment.authorName}
-                      </a>
-                    ) : (
-                      comment.authorName
-                    )}
-                  </strong>
-                  <time className="muted" dateTime={comment.createdAt} style={{ fontSize: '0.85rem' }}>
-                    {new Date(comment.createdAt).toLocaleDateString('pl-PL')}
-                  </time>
-                </div>
-
-                {parentAuthor ? (
-                  <div className="muted" style={{ fontSize: '0.85rem', marginTop: 8 }}>
-                    Odpowiedź do: {parentAuthor}
-                  </div>
+              <li key={comment.id}>
+                {renderComment(comment)}
+                {replies.length > 0 ? (
+                  <ol
+                    style={{
+                      display: 'grid',
+                      gap: 10,
+                      listStyle: 'none',
+                      margin: '12px 0 0 24px',
+                      padding: 0,
+                    }}
+                  >
+                    {replies.map((reply) => (
+                      <li key={reply.id}>{renderComment(reply, true)}</li>
+                    ))}
+                  </ol>
                 ) : null}
-
-                <p style={{ margin: '12px 0 0', whiteSpace: 'pre-wrap' }}>{comment.content}</p>
               </li>
             )
           })}
