@@ -54,6 +54,14 @@ type AllowlistFile = {
   wordpressIds: number[]
 }
 
+type ImportedComment = {
+  currentParentId: number | null
+  payloadId: number
+  sourceParentId: number
+  status: 'created' | 'repaired' | 'unchanged'
+  wordpressId: number
+}
+
 const main = async () => {
   const raw = JSON.parse(await readFile(inputPath, 'utf8')) as WpCommentItem[]
   const allowlist = JSON.parse(await readFile(allowlistPath, 'utf8')) as AllowlistFile
@@ -79,10 +87,7 @@ const main = async () => {
   }
 
   const payload = await getPayload({ config })
-
-  let created = 0
-  let unchanged = 0
-  const imported: Array<{ wordpressId: number; payloadId: number; status: string }> = []
+  const imported: ImportedComment[] = []
 
   for (const comment of selected) {
     const wordpressId = parsePositiveInteger(comment.comment_ID, 'comment_ID')
@@ -114,30 +119,25 @@ const main = async () => {
       where: { legacyWordPressId: { equals: wordpressId } },
     })
 
-    if (existing.docs[0]) {
-      unchanged += 1
-      imported.push({ wordpressId, payloadId: existing.docs[0].id, status: 'unchanged' })
-      console.log(`unchanged comment wp:${wordpressId} -> payload:${existing.docs[0].id} (moderation state preserved)`)
-      continue
-    }
-
-    let parentPayloadId: number | null = null
-    if (sourceParentId !== 0) {
-      const parent = await payload.find({
-        collection: 'comments',
-        depth: 0,
-        limit: 1,
-        overrideAccess: true,
-        where: { legacyWordPressId: { equals: sourceParentId } },
+    const existingComment = existing.docs[0]
+    if (existingComment) {
+      imported.push({
+        currentParentId: typeof existingComment.parent === 'number' ? existingComment.parent : null,
+        payloadId: existingComment.id,
+        sourceParentId,
+        status: 'unchanged',
+        wordpressId,
       })
-      parentPayloadId = parent.docs[0]?.id ?? null
+      console.log(
+        `unchanged comment wp:${wordpressId} -> payload:${existingComment.id} (moderation state preserved)`,
+      )
+      continue
     }
 
     const createdComment = await payload.create({
       collection: 'comments',
       data: {
         post: post.id,
-        parent: parentPayloadId,
         authorName: comment.comment_author,
         authorEmail: comment.comment_author_email || undefined,
         authorUrl: comment.comment_author_url || undefined,
@@ -149,10 +149,64 @@ const main = async () => {
       context: { wordpressMigration: true },
       overrideAccess: true,
     })
-    created += 1
-    imported.push({ wordpressId, payloadId: createdComment.id, status: 'created' })
+
+    imported.push({
+      currentParentId: null,
+      payloadId: createdComment.id,
+      sourceParentId,
+      status: 'created',
+      wordpressId,
+    })
     console.log(`created pending comment wp:${wordpressId} -> payload:${createdComment.id}`)
   }
+
+  const payloadIdByWordPressId = new Map(
+    imported.map((comment) => [comment.wordpressId, comment.payloadId]),
+  )
+
+  for (const comment of imported) {
+    if (comment.sourceParentId === 0) continue
+
+    let parentPayloadId = payloadIdByWordPressId.get(comment.sourceParentId)
+    if (!parentPayloadId) {
+      const parent = await payload.find({
+        collection: 'comments',
+        depth: 0,
+        limit: 1,
+        overrideAccess: true,
+        where: { legacyWordPressId: { equals: comment.sourceParentId } },
+      })
+      parentPayloadId = parent.docs[0]?.id
+    }
+
+    if (!parentPayloadId) {
+      throw new Error(
+        `Allowlisted comment wp:${comment.wordpressId} targets missing parent wp:${comment.sourceParentId}`,
+      )
+    }
+
+    if (comment.currentParentId === parentPayloadId) continue
+
+    await payload.update({
+      collection: 'comments',
+      id: comment.payloadId,
+      data: { parent: parentPayloadId },
+      context: { wordpressMigration: true },
+      overrideAccess: true,
+    })
+
+    comment.currentParentId = parentPayloadId
+    if (comment.status === 'unchanged') {
+      comment.status = 'repaired'
+    }
+    console.log(
+      `linked comment wp:${comment.wordpressId} -> parent wp:${comment.sourceParentId} (moderation state preserved)`,
+    )
+  }
+
+  const created = imported.filter((comment) => comment.status === 'created').length
+  const repaired = imported.filter((comment) => comment.status === 'repaired').length
+  const unchanged = imported.filter((comment) => comment.status === 'unchanged').length
 
   await writeFile(
     reportPath,
@@ -160,15 +214,22 @@ const main = async () => {
       {
         allowlisted: allowlistIds.size,
         created,
+        repaired,
         unchanged,
-        imported,
+        imported: imported.map(({ wordpressId, payloadId, status }) => ({
+          wordpressId,
+          payloadId,
+          status,
+        })),
       },
       null,
       2,
     )}\n`,
   )
 
-  console.log(`pending comments import complete: ${created} created, ${unchanged} unchanged`)
+  console.log(
+    `pending comments import complete: ${created} created, ${repaired} repaired, ${unchanged} unchanged`,
+  )
   process.exit(0)
 }
 

@@ -52,4 +52,18 @@ describe('comment rate limit', () => {
     }
     expect(consumeCommentRateLimit('b', SECRET, now).allowed).toBe(true)
   })
+
+  it('does not evict a blocked live client when the bucket store saturates', () => {
+    const target = 'saturation-target'
+    for (let i = 0; i < 5; i += 1) {
+      consumeCommentRateLimit(target, SECRET, now)
+    }
+    expect(consumeCommentRateLimit(target, SECRET, now).allowed).toBe(false)
+
+    for (let i = 0; i < 2_500; i += 1) {
+      consumeCommentRateLimit(`rotating-${i}`, SECRET, now)
+    }
+
+    expect(consumeCommentRateLimit(target, SECRET, now).allowed).toBe(false)
+  })
 })

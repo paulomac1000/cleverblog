@@ -1,32 +1,33 @@
 {
   "allowlisted": 5,
   "created": 0,
-  "updated": 5,
+  "repaired": 0,
+  "unchanged": 5,
   "imported": [
     {
       "wordpressId": 735,
       "payloadId": 13,
-      "status": "updated"
+      "status": "unchanged"
     },
     {
       "wordpressId": 707,
       "payloadId": 14,
-      "status": "updated"
+      "status": "unchanged"
     },
     {
       "wordpressId": 532,
       "payloadId": 15,
-      "status": "updated"
+      "status": "unchanged"
     },
     {
       "wordpressId": 525,
       "payloadId": 16,
-      "status": "updated"
+      "status": "unchanged"
     },
     {
       "wordpressId": 488,
       "payloadId": 17,
-      "status": "updated"
+      "status": "unchanged"
     }
   ]
 }

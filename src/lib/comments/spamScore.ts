@@ -8,7 +8,7 @@ export type SpamScoreResult = {
   score: number
 }
 
-const URL_PATTERN = /(?:https?:\/\/|www\.)/gi
+const URL_PATTERN = /\b(?:https?:\/\/|www\.)[^\s<]+|\b(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}(?:\/[^\s<]*)?/gi
 
 const SPAM_PATTERNS = [
   /\b(?:viagra|cialis|casino|payday loan|escort)\b/i,

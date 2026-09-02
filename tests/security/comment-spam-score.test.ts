@@ -20,6 +20,13 @@ describe('comment spam scoring', () => {
     expect(result.reason).toContain('many-links')
   })
 
+  it('counts bare domains as links', () => {
+    const content = Array.from({ length: 7 }, (_, i) => `spam-${i}.example`).join(' ')
+    const result = scoreCommentSpam({ authorName: 'x', content })
+    expect(result.score).toBeGreaterThanOrEqual(80)
+    expect(result.reason).toContain('many-links')
+  })
+
   it('scores a link plus very short content below the spam threshold', () => {
     const result = scoreCommentSpam({
       authorName: 'x',

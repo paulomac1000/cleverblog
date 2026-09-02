@@ -19,16 +19,45 @@ export const Comments: CollectionConfig = {
   hooks: { beforeChange: [enforceCommentApprovalGate] },
   indexes: [{ fields: ['post', 'submissionHash'], unique: true }],
   fields: [
-    { name: 'post', type: 'relationship', relationTo: 'posts', required: true, index: true },
-    { name: 'parent', type: 'relationship', relationTo: 'comments' },
-    { name: 'authorName', type: 'text', required: true },
+    {
+      name: 'post',
+      type: 'relationship',
+      relationTo: 'posts',
+      required: true,
+      index: true,
+      access: { update: ({ req }) => hasRole(req.user, ['admin', 'editor']) },
+    },
+    {
+      name: 'parent',
+      type: 'relationship',
+      relationTo: 'comments',
+      access: { update: ({ req }) => hasRole(req.user, ['admin', 'editor']) },
+    },
+    {
+      name: 'authorName',
+      type: 'text',
+      required: true,
+      access: { update: ({ req }) => hasRole(req.user, ['admin', 'editor']) },
+    },
     {
       name: 'authorEmail',
       type: 'email',
-      access: { read: ({ req }) => hasRole(req.user, ['admin', 'editor']) },
+      access: {
+        read: ({ req }) => hasRole(req.user, ['admin', 'editor']),
+        update: ({ req }) => hasRole(req.user, ['admin', 'editor']),
+      },
     },
-    { name: 'authorUrl', type: 'text' },
-    { name: 'content', type: 'textarea', required: true },
+    {
+      name: 'authorUrl',
+      type: 'text',
+      access: { update: ({ req }) => hasRole(req.user, ['admin', 'editor']) },
+    },
+    {
+      name: 'content',
+      type: 'textarea',
+      required: true,
+      access: { update: ({ req }) => hasRole(req.user, ['admin', 'editor']) },
+    },
     {
       name: 'status',
       type: 'select',
@@ -51,9 +80,16 @@ export const Comments: CollectionConfig = {
       type: 'text',
       access: {
         read: ({ req }) => hasRole(req.user, ['admin', 'editor', 'agent-moderator']),
+        update: ({ req }) => hasRole(req.user, ['admin', 'editor']),
       },
       admin: { hidden: true },
     },
-    { name: 'legacyWordPressId', type: 'number', unique: true, index: true },
+    {
+      name: 'legacyWordPressId',
+      type: 'number',
+      unique: true,
+      index: true,
+      access: { update: ({ req }) => hasRole(req.user, ['admin', 'editor']) },
+    },
   ],
 }

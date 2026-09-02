@@ -14,8 +14,8 @@ const buckets = new Map<string, RateLimitBucket>()
 const hashClient = (client: string, secret: string): string =>
   createHmac('sha256', secret).update(`rate:${client}`).digest('base64url')
 
-const makeRoom = (now: number): void => {
-  if (buckets.size < MAX_BUCKETS) return
+const makeRoom = (now: number): number | null => {
+  if (buckets.size < MAX_BUCKETS) return null
 
   for (const [key, bucket] of buckets) {
     if (bucket.resetAt <= now) {
@@ -23,10 +23,14 @@ const makeRoom = (now: number): void => {
     }
   }
 
-  if (buckets.size < MAX_BUCKETS) return
+  if (buckets.size < MAX_BUCKETS) return null
 
-  const oldestKey = buckets.keys().next().value
-  if (oldestKey) buckets.delete(oldestKey)
+  let earliestResetAt = Number.POSITIVE_INFINITY
+  for (const bucket of buckets.values()) {
+    earliestResetAt = Math.min(earliestResetAt, bucket.resetAt)
+  }
+
+  return Math.max(1, Math.ceil((earliestResetAt - now) / 1_000))
 }
 
 export const consumeCommentRateLimit = (
@@ -38,7 +42,11 @@ export const consumeCommentRateLimit = (
   const current = buckets.get(key)
 
   if (!current || current.resetAt <= now) {
-    makeRoom(now)
+    const retryAfterSeconds = makeRoom(now)
+    if (retryAfterSeconds !== null) {
+      return { allowed: false, retryAfterSeconds }
+    }
+
     buckets.set(key, { count: 1, resetAt: now + WINDOW_MS })
     return { allowed: true, retryAfterSeconds: 0 }
   }
