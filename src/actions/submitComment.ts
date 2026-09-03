@@ -1,6 +1,7 @@
 'use server'
 
 import { createHmac } from 'node:crypto'
+import { isIP } from 'node:net'
 
 import config from '@payload-config'
 import { headers } from 'next/headers'
@@ -54,8 +55,7 @@ const createSubmissionHash = (
 const isValidEmail = (value: string): boolean =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 
-const isValidClientIP = (value: string): boolean =>
-  /^(?:\d{1,3}\.){3}\d{1,3}$/.test(value) || value.includes(':')
+const isValidClientIP = (value: string): boolean => isIP(value) !== 0
 
 const serverURL = (
   process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000'

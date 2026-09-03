@@ -19,7 +19,7 @@ export const verifyTurnstile = async ({
   secret,
   token,
 }: VerifyTurnstileArgs): Promise<boolean> => {
-  if (!token || token.length > 4_096) return false
+  if (!token || token.length > 2_048) return false
 
   const body = new URLSearchParams({
     response: token,
