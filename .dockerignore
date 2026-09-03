@@ -2,7 +2,6 @@ node_modules
 .next/cache
 .git
 .github
-migration-data
 tests
 docs
 *.md
