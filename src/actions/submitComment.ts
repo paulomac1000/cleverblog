@@ -87,8 +87,12 @@ export async function submitComment(
     )
   }
 
+  // Trusted-proxy model: only the ingress (deploy/nginx-ingress.conf) sets this
+  // header, computed from the real TCP peer + CF-Connecting-IP. Direct origin
+  // hits get their actual peer IP, so a spoofed CF-Connecting-IP can no longer
+  // poison the rate-limit key.
   const requestHeaders = await headers()
-  const headerIP = requestHeaders.get('cf-connecting-ip')?.trim() ?? ''
+  const headerIP = requestHeaders.get('x-verified-client-ip')?.trim() ?? ''
   const rawClientIP = isValidClientIP(headerIP) ? headerIP : 'unknown'
   const rateLimit = consumeCommentRateLimit(rawClientIP, commentConfig.securitySecret)
 
