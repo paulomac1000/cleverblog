@@ -24,8 +24,8 @@ Polish tech blog (https://cleverblog.pl) — Payload CMS 3.88.0 + Next.js 16 (Ap
 
 ## Verification commands
 
-- `pnpm lint`, `pnpm test`, `pnpm generate:types`, `pnpm build` (build needs the dev Postgres from `docker-compose.yml`).
-- `pnpm exec tsc --noEmit`: known baseline is 7 pre-existing errors on `main` (typing debt in frontend routes and `CommentList.tsx`); it must not grow, and new code must not add errors. Resolved by the incoming i18n refactor branch.
+- Run `pnpm generate:types` first — `src/payload-types.ts` is gitignored and fresh checkouts have no types until this runs (running tsc without it produces bogus type errors).
+- `pnpm lint`, `pnpm test`, `pnpm exec tsc --noEmit` (must be clean), `pnpm build` (build needs the dev Postgres from `docker-compose.yml`).
 
 ## Deployment
 
