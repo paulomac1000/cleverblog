@@ -296,7 +296,7 @@ footer {
 
 .legacy-content { font-size: 1.02rem }
 
-.legacy-content h2 {
+.legacy-content h2, .payload-richtext h2 {
   font-size: 1.6rem;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -305,13 +305,13 @@ footer {
   border-top: 1px solid var(--border);
 }
 
-.legacy-content h3 {
+.legacy-content h3, .payload-richtext h3 {
   font-size: 1.22rem;
   font-weight: 700;
   margin: 36px 0 12px;
 }
 
-.legacy-content h4 {
+.legacy-content h4, .payload-richtext h4 {
   font-size: 1.05rem;
   font-weight: 700;
   margin: 26px 0 8px;
@@ -319,7 +319,7 @@ footer {
 
 .legacy-content p { margin: 0 0 18px }
 
-.legacy-content img {
+.legacy-content img, .payload-richtext img {
   max-width: 100%;
   height: auto;
   border-radius: var(--radius-sm);
@@ -327,7 +327,7 @@ footer {
   margin: 8px 0;
 }
 
-.legacy-content pre {
+.legacy-content pre, .payload-richtext pre {
   overflow-x: auto;
   padding: 18px 20px;
   background: #0a0d14;
@@ -339,7 +339,7 @@ footer {
   line-height: 1.6;
 }
 
-.legacy-content code {
+.legacy-content code, .payload-richtext code {
   font-family: var(--font-mono);
   font-size: 0.88em;
   background: var(--surface-raised);
@@ -348,21 +348,21 @@ footer {
   padding: 2px 6px;
 }
 
-.legacy-content pre code {
+.legacy-content pre code, .payload-richtext pre code {
   background: none;
   border: none;
   padding: 0;
   font-size: inherit;
 }
 
-.legacy-content blockquote {
+.legacy-content blockquote, .payload-richtext blockquote {
   margin: 22px 0;
   padding: 4px 0 4px 20px;
   border-left: 3px solid var(--accent);
   color: var(--text-muted);
 }
 
-.legacy-content ul, .legacy-content ol {
+.legacy-content ul, .payload-richtext ul, .legacy-content ol, .payload-richtext ol {
   padding-left: 26px;
   margin: 0 0 18px;
 }
@@ -373,7 +373,7 @@ footer {
 
 .legacy-content a:hover { text-decoration: underline }
 
-.legacy-content a:focus-visible {
+.legacy-content a:focus-visible, .payload-richtext a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 4px;

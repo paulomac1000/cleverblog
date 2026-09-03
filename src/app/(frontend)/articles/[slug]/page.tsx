@@ -8,6 +8,7 @@ import { getPayload } from 'payload'
 import { CodeHighlight } from '@/components/CodeHighlight'
 import { CommentForm } from '@/components/comments/CommentForm'
 import { CommentList } from '@/components/comments/CommentList'
+import { CodeJSXConverter } from '@/components/richtext/codeConverter'
 import { getCommentConfig } from '@/lib/comments/config'
 import { createFormToken } from '@/lib/comments/formToken'
 
@@ -133,6 +134,12 @@ export default async function ArticlePage({
         </>
       ) : post.content ? (
         <RichText
+          converters={({
+            defaultConverters,
+          }) => ({
+            ...defaultConverters,
+            ...CodeJSXConverter,
+          })}
           data={
             post.content as SerializedEditorState
           }

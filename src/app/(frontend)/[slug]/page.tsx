@@ -5,6 +5,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 
+import { CodeJSXConverter } from '@/components/richtext/codeConverter'
+
 export const dynamic = 'force-dynamic'
 
 const serverURL = (
@@ -116,6 +118,12 @@ export default async function StaticPage({
         />
       ) : page.content ? (
         <RichText
+          converters={({
+            defaultConverters,
+          }) => ({
+            ...defaultConverters,
+            ...CodeJSXConverter,
+          })}
           data={
             page.content as SerializedEditorState
           }
