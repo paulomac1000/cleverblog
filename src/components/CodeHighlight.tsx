@@ -128,6 +128,12 @@ export function CodeHighlight() {
         border-color: var(--accent);
       }
 
+      .code-copy-button:active {
+        border-color: var(--accent);
+        background: var(--surface-raised);
+        transform: translateY(1px);
+      }
+
       .code-copy-button:focus-visible {
         outline: 2px solid var(--accent);
         outline-offset: 2px;
