@@ -39,7 +39,7 @@ export const mcpCollectionCapabilities = required({
     enabled: { find: true, create: true, update: false, delete: false },
   },
   comments: {
-    description: 'Reader comments. Creation remains disabled until abuse protection exists.',
+    description: 'Reader comments. Creation is server-action-only and is never exposed through MCP.',
     enabled: { find: true, create: false, update: true, delete: false },
   },
   'topic-candidates': {

@@ -5,7 +5,6 @@ import { getUserRole } from '@/access/roles'
 type AnyRecord = Record<string, unknown>
 
 type PublicationGateInput = {
-  context?: AnyRecord
   data: unknown
   originalDoc?: unknown
   user?: unknown
@@ -15,7 +14,6 @@ const objectValue = (value: unknown): AnyRecord =>
   value && typeof value === 'object' ? (value as AnyRecord) : {}
 
 export const assertPostPublicationAllowed = ({
-  context = {},
   data,
   originalDoc,
   user,
@@ -25,7 +23,6 @@ export const assertPostPublicationAllowed = ({
   const status = next._status ?? previous._status
 
   if (status !== 'published') return
-  if (context.wordpressMigration === true) return
 
   const role = getUserRole(user)
   if (role?.startsWith('agent-')) {
@@ -48,11 +45,10 @@ export const assertPostPublicationAllowed = ({
 }
 
 export const enforcePostPublicationGate: CollectionBeforeChangeHook = ({
-  context,
   data,
   originalDoc,
   req,
 }) => {
-  assertPostPublicationAllowed({ context, data, originalDoc, user: req.user })
+  assertPostPublicationAllowed({ data, originalDoc, user: req.user })
   return data
 }

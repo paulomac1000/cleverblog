@@ -2,7 +2,6 @@ node_modules
 .next/cache
 .git
 .github
-migration-data
 tests
 docs
 *.md
@@ -12,3 +11,4 @@ docs
 src
 scripts
 .vscode
+migration-data
