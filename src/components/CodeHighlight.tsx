@@ -37,7 +37,7 @@ export function CodeHighlight() {
       '.article .legacy-content pre code, .article .payload-richtext pre code',
     )
 
-    nodes.forEach((node, index) => {
+    nodes.forEach((node) => {
       if (node.dataset.highlighted !== 'yes') {
         hljs.highlightElement(node)
         node.dataset.highlighted = 'yes'
@@ -47,10 +47,6 @@ export function CodeHighlight() {
       if (!pre || pre.dataset.copyEnhanced === 'yes') return
 
       pre.dataset.copyEnhanced = 'yes'
-      const previousPosition = pre.style.position
-      const previousPaddingTop = pre.style.paddingTop
-      pre.style.position = 'relative'
-      pre.style.paddingTop = '3.25rem'
 
       const button = document.createElement('button')
       button.type = 'button'
@@ -60,10 +56,9 @@ export function CodeHighlight() {
 
       const status = document.createElement('span')
       status.className = 'code-copy-status'
-      status.id = `code-copy-status-${index}`
-      status.setAttribute('aria-live', 'polite')
       status.setAttribute('role', 'status')
-      button.setAttribute('aria-describedby', status.id)
+      status.setAttribute('aria-live', 'polite')
+      status.setAttribute('aria-atomic', 'true')
 
       let resetTimer: number | undefined
       const resetLabel = () => {
@@ -74,12 +69,15 @@ export function CodeHighlight() {
 
       const onClick = async () => {
         const copied = await copyText(node.textContent ?? '')
-        const label = copied ? 'Skopiowano' : 'Nie udało się skopiować'
-        button.textContent = label
-        button.setAttribute('aria-label', label)
-        status.textContent = copied
+
+        const buttonLabel = copied ? 'Skopiowano' : 'Błąd'
+        const statusMessage = copied
           ? 'Kod skopiowano do schowka.'
           : 'Nie udało się skopiować kodu.'
+
+        button.textContent = buttonLabel
+        button.setAttribute('aria-label', statusMessage)
+        status.textContent = statusMessage
 
         if (resetTimer) window.clearTimeout(resetTimer)
         resetTimer = window.setTimeout(resetLabel, 2_000)
@@ -94,8 +92,6 @@ export function CodeHighlight() {
         button.remove()
         status.remove()
         delete pre.dataset.copyEnhanced
-        pre.style.position = previousPosition
-        pre.style.paddingTop = previousPaddingTop
       })
     })
 
@@ -104,60 +100,5 @@ export function CodeHighlight() {
     }
   }, [])
 
-  return (
-    <style>{`
-      .code-copy-button {
-        position: absolute;
-        top: 0.65rem;
-        right: 0.65rem;
-        z-index: 2;
-        min-height: 2rem;
-        padding: 0.35rem 0.65rem;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        background: var(--surface);
-        color: var(--text);
-        font: inherit;
-        font-size: 0.8rem;
-        font-weight: 700;
-        line-height: 1.2;
-        cursor: pointer;
-      }
-
-      .code-copy-button:hover {
-        border-color: var(--accent);
-      }
-
-      .code-copy-button:active {
-        border-color: var(--accent);
-        background: var(--surface-raised);
-        transform: translateY(1px);
-      }
-
-      .code-copy-button:focus-visible {
-        outline: 2px solid var(--accent);
-        outline-offset: 2px;
-      }
-
-      .code-copy-status {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
-      }
-
-      @media (max-width: 640px) {
-        .code-copy-button {
-          top: 0.5rem;
-          right: 0.5rem;
-          min-height: 2.25rem;
-        }
-      }
-    `}</style>
-  )
+  return null
 }

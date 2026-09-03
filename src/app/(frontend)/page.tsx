@@ -8,6 +8,7 @@ import {
 import { getPayload } from 'payload'
 
 import { PostList, toPostListItems } from '@/components/posts/PostList'
+import { CategorySelect } from '@/components/posts/CategorySelect'
 import { getCategories } from '@/lib/posts/getCategories'
 
 export const dynamic = 'force-dynamic'
@@ -89,24 +90,30 @@ export default async function HomePage({ searchParams }: Props) {
         <p className="muted">cleverblog.pl</p>
         <h1>Praktyczne notatki z prawdziwej pracy inżynierskiej.</h1>
         <p>Linux, Raspberry Pi i automatyka domowa — sprawdzone na produkcji.</p>
-      </section>
 
-      <form action="/" className="category-filter" method="get">
-        <label className="category-filter-label" htmlFor="category">
-          Filtruj artykuły po kategorii
-        </label>
-        <div className="category-filter-controls">
-          <select defaultValue="" id="category" name="category">
-            <option value="">Wszystkie kategorie</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.slug}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-          <button type="submit">Pokaż</button>
-        </div>
-      </form>
+        <form action="/" className="category-filter" method="get">
+          <label className="sr-only" htmlFor="category">
+            Filtruj artykuły po kategorii
+          </label>
+
+          <span className="sr-only" id="category-filter-hint">
+            Zmiana kategorii automatycznie otwiera wybraną kategorię.
+          </span>
+
+          <CategorySelect
+            options={categories.map((category) => ({
+              label: category.name,
+              value: category.slug,
+            }))}
+          />
+
+          <noscript>
+            <button className="category-filter-fallback" type="submit">
+              Pokaż
+            </button>
+          </noscript>
+        </form>
+      </section>
 
       <section aria-labelledby="latest-posts">
         <h2 className="section-heading" id="latest-posts">
