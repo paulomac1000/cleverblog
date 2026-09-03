@@ -123,15 +123,12 @@ export default async function ArticlePage({
       ) : null}
 
       {showLegacy ? (
-        <>
-          <div
-            className="legacy-content"
-            dangerouslySetInnerHTML={{
-              __html: renderHTML,
-            }}
-          />
-          <CodeHighlight />
-        </>
+        <div
+          className="legacy-content"
+          dangerouslySetInnerHTML={{
+            __html: renderHTML,
+          }}
+        />
       ) : post.content ? (
         <RichText
           converters={({
@@ -150,6 +147,8 @@ export default async function ArticlePage({
           zmigrowana.
         </p>
       )}
+
+      <CodeHighlight />
 
       <CommentList postId={post.id} />
       <CommentForm

@@ -281,6 +281,9 @@ footer {
   letter-spacing: -0.025em;
   font-weight: 800;
   margin: 0 0 12px;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  hyphens: none;
 }
 
 .meta {
@@ -294,15 +297,15 @@ footer {
   border-bottom: 1px solid var(--border);
 }
 
-.legacy-content { font-size: 1.02rem }
+.legacy-content, .payload-richtext { font-size: 1.02rem }
 
 .legacy-content h2, .payload-richtext h2 {
   font-size: 1.6rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   margin: 48px 0 16px;
-  padding-top: 10px;
-  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  border-top: 1px solid var(--border-strong);
 }
 
 .legacy-content h3, .payload-richtext h3 {
@@ -331,7 +334,7 @@ footer {
   overflow-x: auto;
   padding: 18px 20px;
   background: #0a0d14;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   margin: 22px 0;
   font-family: var(--font-mono);
@@ -346,6 +349,24 @@ footer {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 2px 6px;
+}
+
+.payload-richtext pre[data-language] {
+  position: relative;
+  padding-top: 3.25rem;
+}
+
+.payload-richtext pre[data-language]::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 0.8rem;
+  left: 1rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .legacy-content pre code, .payload-richtext pre code {

@@ -33,12 +33,13 @@ const copyText = async (text: string): Promise<boolean> => {
 export function CodeHighlight() {
   useEffect(() => {
     const cleanups: Array<() => void> = []
-    const nodes = document.querySelectorAll<HTMLElement>('.legacy-content pre code')
+    const nodes = document.querySelectorAll<HTMLElement>(
+      '.article .legacy-content pre code, .article .payload-richtext pre code',
+    )
 
     nodes.forEach((node, index) => {
       if (node.dataset.highlighted !== 'yes') {
-        const result = hljs.highlightAuto(node.textContent ?? '')
-        node.innerHTML = result.value
+        hljs.highlightElement(node)
         node.dataset.highlighted = 'yes'
       }
 

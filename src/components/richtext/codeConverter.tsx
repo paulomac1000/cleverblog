@@ -20,12 +20,15 @@ export const CodeJSXConverter: JSXConverters = {
       nodes: node.children,
     })
 
+    const language =
+      node.language?.trim() || undefined
+
     return (
-      <pre>
+      <pre data-language={language}>
         <code
           className={
-            node.language
-              ? `language-${node.language}`
+            language
+              ? `language-${language}`
               : undefined
           }
         >
