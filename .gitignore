@@ -10,3 +10,4 @@ src/payload-types.ts
 src/payload-generated-schema.ts
 
 tsconfig.tsbuildinfo
+migration-data/

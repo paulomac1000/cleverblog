@@ -21,12 +21,12 @@ Polish tech blog (https://cleverblog.pl) — Payload CMS 3.88.0 + Next.js 16 (Ap
 - Local filesystem media (`./media` volume) in production.
 - Legacy HTML fallback is intentional: keep fidelity for `contentFormat: legacy-html` posts.
 - Official Payload MCP plugin (`@payloadcms/plugin-mcp`) is the transport baseline; do not invent a second MCP server.
-- URL contract: unprefixed paths are Polish and frozen; `/en/...` is English. A locale URL is never populated by fallback content.
 
 ## Verification commands
 
-- `pnpm lint`, `pnpm test`, `pnpm exec tsc --noEmit`, `pnpm generate:types`, `pnpm build` (build needs the dev Postgres from `docker-compose.yml`).
+- `pnpm lint`, `pnpm test`, `pnpm generate:types`, `pnpm build` (build needs the dev Postgres from `docker-compose.yml`).
+- `pnpm exec tsc --noEmit`: known baseline is 7 pre-existing errors on `main` (typing debt in frontend routes and `CommentList.tsx`); it must not grow, and new code must not add errors. Resolved by the incoming i18n refactor branch.
 
 ## Deployment
 
-Prod runs on the VPS via `docker-compose.prod.yml` (app + postgres + nginx ingress sidecar). Database is external (psql01.mikr.us). Before schema migrations: backup via `pg_dump -Fc`, test on a restored clone first.
+Prod runs on the VPS via `docker-compose.prod.yml`, which contains two services: `cleverblog` (app) and `ingress` (nginx sidecar). PostgreSQL is external and managed (psql01.mikr.us), supplied via `CLEVERBLOG_DATABASE_URL`. Before schema migrations: backup via `pg_dump -Fc`, test on a restored clone first.
