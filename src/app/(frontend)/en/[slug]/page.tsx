@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { StaticPageBody } from '@/components/content/ArticleBody'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { findPublishedPageBySlug, getPageCounterpart } from '@/lib/content/pages'
 import { pageUrl } from '@/i18n/urls'
 import { buildLocalizedMetadata } from '@/lib/seo/metadata'
@@ -58,11 +57,6 @@ export default async function EnStaticPage({
 
   return (
     <>
-      <LanguageSwitcher
-        counterpartUrl={counterpartUrl}
-        currentPath={pageUrl(locale, slug)}
-        locale={locale}
-      />
       <StaticPageBody locale={locale} page={page} />
     </>
   )

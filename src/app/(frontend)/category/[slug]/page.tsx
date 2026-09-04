@@ -13,7 +13,6 @@ import {
 import { categoryUrl, homeUrl } from '@/i18n/urls'
 import { t, tf } from '@/i18n/messages'
 import { buildLocalizedMetadata, serverURL } from '@/lib/seo/metadata'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import type { Locale } from '@/i18n/config'
 
 export const dynamic = 'force-dynamic'
@@ -116,12 +115,6 @@ export default async function CategoryArchivePage({
       ) : (
         <p className="muted">{t(locale, 'archive.empty.category')}</p>
       )}
-
-      <LanguageSwitcher
-        counterpartUrl={switcherUrl}
-        currentPath={categoryUrl(locale, category.slug)}
-        locale={locale}
-      />
 
       {result.totalPages > 1 ? (
         <nav

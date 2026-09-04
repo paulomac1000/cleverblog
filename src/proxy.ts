@@ -181,6 +181,7 @@ export default async function proxy(request: NextRequest) {
   // layouts cannot see the pathname, so the proxy annotates the request.
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-cb-locale', isEn ? 'en' : 'pl')
+  requestHeaders.set('x-cb-path', pathname)
 
   if (isEn) {
     return NextResponse.next({ request: { headers: requestHeaders } })

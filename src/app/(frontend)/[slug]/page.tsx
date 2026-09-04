@@ -8,7 +8,6 @@ import {
 } from '@/lib/content/pages'
 import { pageUrl } from '@/i18n/urls'
 import { buildLocalizedMetadata, serverURL } from '@/lib/seo/metadata'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import type { Locale } from '@/i18n/config'
 
 export const dynamic = 'force-dynamic'
@@ -61,11 +60,6 @@ export default async function StaticPage({
 
   return (
     <>
-      <LanguageSwitcher
-        counterpartUrl={counterpartUrl}
-        currentPath={pageUrl(locale, slug)}
-        locale={locale}
-      />
       <StaticPageBody locale={locale} page={page} />
     </>
   )

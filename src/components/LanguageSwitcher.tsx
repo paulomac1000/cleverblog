@@ -1,32 +1,42 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname, useSearchParams } from 'next/navigation'
-import { useEffect, useMemo } from 'react'
 
 import { t } from '@/i18n/messages'
-import { counterpartPath } from '@/i18n/urls'
-import { DEFAULT_LOCALE, type Locale } from '@/i18n/config'
+import type { Locale } from '@/i18n/config'
 
 type Props = {
-  /**
-   * Locale the current page is being rendered in. Drives the displayed
-   * label: on PL pages we render "EN" (the switch target) and vice versa.
-   */
+  /** Locale of the CURRENT page. */
   locale: Locale
   /**
-   * Absolute path of the equivalent page in the OTHER locale, or null when
-   * no counterpart exists. Pass null when an article or page has no EN
-   * translation so we render a disabled state with a tooltip.
+   * URL of the same page in the other locale, or null when no counterpart
+   * exists (per-document routes with a missing translation). The other
+   * segment then renders disabled with a tooltip.
    */
   counterpartUrl: string | null
-  /**
-   * The path of the CURRENT page (locale-prefixed). Provided by the server
-   * page so the switcher can compute the counterpart URL on the client
-   * without re-querying the locale.
-   */
-  currentPath: string
 }
+
+const PolandFlag = () => (
+  <svg aria-hidden="true" className="lang-flag" viewBox="0 0 16 16">
+    <rect width="16" height="8" fill="#f5f5f5" />
+    <rect y="8" width="16" height="8" fill="#dc143c" />
+  </svg>
+)
+
+const UKFlag = () => (
+  <svg aria-hidden="true" className="lang-flag" viewBox="0 0 60 30">
+    <clipPath id="lang-switch-uk">
+      <rect width="60" height="30" rx="3" />
+    </clipPath>
+    <g clipPath="url(#lang-switch-uk)">
+      <rect width="60" height="30" fill="#012169" />
+      <path d="M0,0 60,30M60,0 0,30" stroke="#ffffff" strokeWidth="6" />
+      <path d="M0,0 60,30M60,0 0,30" stroke="#C8102E" strokeWidth="4" />
+      <path d="M30,0 v30 M0,15 h60" stroke="#ffffff" strokeWidth="10" />
+      <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6" />
+    </g>
+  </svg>
+)
 
 const COOKIE_NAME = 'PL_LOCALE'
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365
@@ -40,58 +50,67 @@ const setPreferenceCookie = (value: Locale) => {
 export function LanguageSwitcher({
   locale,
   counterpartUrl,
-  currentPath,
 }: Props) {
-  const pathname = usePathname()
-  const search = useSearchParams()
-
   const target: Locale = locale === 'pl' ? 'en' : 'pl'
-  const label = t(locale, locale === 'pl' ? 'switcher.toEnglish' : 'switcher.toPolish')
   const ariaLabel = t(locale, 'switcher.aria')
 
-  // Compute the counterpart URL on the client when the server didn't have one
-  // (e.g. for routes whose counterpart always exists — listings, categories,
-  // tags). For per-document routes where the counterpart may not exist
-  // (articles, pages), the server pre-computed it and passed it in.
-  const href = useMemo(() => {
-    if (counterpartUrl) return counterpartUrl
-    if (target === DEFAULT_LOCALE) return currentPath // PL is unprefixed; same URL.
-    return counterpartPath(locale, target, currentPath)
-  }, [counterpartUrl, currentPath, locale, target])
-
-  useEffect(() => {
-    if (!pathname) return
-    // Reflect the current path in the currentPath prop. The server path
-    // doesn't include search params, but the switcher itself does not need
-    // to forward search params; preserving them would make some listings
-    // behave oddly across locales (e.g. category filter on /en). Future
-    // enhancement: pass search through if both locales share the filter.
-    void search
-  }, [pathname, search])
-
-  if (!counterpartUrl) {
-    // No translation; render disabled link so screen readers still announce
-    // the language toggle exists.
-    return (
-      <span
-        aria-disabled="true"
-        aria-label={ariaLabel}
-        className="lang-switcher is-disabled"
-        title={t(locale, 'switcher.noTranslation.title')}
-      >
-        {label}
-      </span>
-    )
-  }
+  const segments: Array<{
+    key: Locale
+    flag: React.ReactNode
+    label: string
+    active: boolean
+  }> = [
+    { key: 'pl', flag: <PolandFlag />, label: 'Polski', active: locale === 'pl' },
+    { key: 'en', flag: <UKFlag />, label: 'English', active: locale === 'en' },
+  ]
 
   return (
-    <Link
-      aria-label={ariaLabel}
-      className="lang-switcher"
-      href={href}
-      onClick={() => setPreferenceCookie(target)}
-    >
-      {label}
-    </Link>
+    <nav className="lang-switcher" role="group" aria-label={ariaLabel}>
+      {segments.map((segment) => {
+        const isTarget = segment.key === target
+        const disabled = isTarget && !counterpartUrl
+
+        if (segment.active) {
+          return (
+            <span
+              key={segment.key}
+              aria-current="true"
+              className="lang-segment is-active"
+              title={segment.label}
+            >
+              {segment.flag}
+            </span>
+          )
+        }
+
+        if (disabled) {
+          return (
+            <span
+              key={segment.key}
+              aria-disabled="true"
+              className="lang-segment is-disabled"
+              title={t(locale, 'switcher.noTranslation.title')}
+            >
+              {segment.flag}
+            </span>
+          )
+        }
+
+        return (
+          <Link
+            key={segment.key}
+            aria-label={`${ariaLabel}: ${segment.label}`}
+            className="lang-segment"
+            href={counterpartUrl ?? '/'}
+            onClick={() => setPreferenceCookie(target)}
+            title={`${ariaLabel}: ${segment.label}`}
+          >
+            {segment.flag}
+          </Link>
+        )
+      })}
+    </nav>
   )
 }
+
+export default LanguageSwitcher

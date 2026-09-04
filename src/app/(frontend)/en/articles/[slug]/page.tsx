@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { ArticleBody } from '@/components/content/ArticleBody'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import {
   findPublishedPostBySlug,
   getArticleCounterpart,
@@ -69,11 +68,6 @@ export default async function EnArticlePage({
 
   return (
     <>
-      <LanguageSwitcher
-        counterpartUrl={counterpartUrl}
-        currentPath={articleUrl(locale, slug)}
-        locale={locale}
-      />
       <ArticleBody locale={locale} post={post} />
     </>
   )

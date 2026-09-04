@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { PostList, toPostListItems } from '@/components/posts/PostList'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { findCategoryBySlug } from '@/lib/content/taxonomy'
 import { listPublishedPosts } from '@/lib/content/posts'
 import { categoryUrl, homeUrl } from '@/i18n/urls'
@@ -116,12 +115,6 @@ export default async function EnCategoryArchivePage({
           ) : null}
         </nav>
       ) : null}
-
-      <LanguageSwitcher
-        counterpartUrl={categoryUrl('pl', category.slug)}
-        currentPath={categoryUrl(locale, category.slug)}
-        locale={locale}
-      />
     </>
   )
 }

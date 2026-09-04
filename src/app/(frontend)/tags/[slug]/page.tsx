@@ -6,7 +6,6 @@ import { findTagBySlug, getTagCounterpart } from '@/lib/content/taxonomy'
 import { tagUrl } from '@/i18n/urls'
 import { t, tf } from '@/i18n/messages'
 import { buildLocalizedMetadata, serverURL } from '@/lib/seo/metadata'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import type { Locale } from '@/i18n/config'
@@ -67,11 +66,6 @@ export default async function TagArchivePage({ params }: Props) {
   return (
     <section>
       <h1>{tag.name}</h1>
-      <LanguageSwitcher
-        counterpartUrl={tagCounterpart.enExists ? tagUrl('en', tagCounterpart.enSlug ?? tag.slug) : null}
-        currentPath={tagUrl(locale, tag.slug)}
-        locale={locale}
-      />
       <ul>
         {posts.docs.map((post) => (
           <li key={post.id}>

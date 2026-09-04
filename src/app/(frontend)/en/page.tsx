@@ -4,7 +4,6 @@ import { notFound, redirect } from 'next/navigation'
 
 import { PostList, toPostListItems } from '@/components/posts/PostList'
 import { CategorySelect } from '@/components/posts/CategorySelect'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { listPublishedPosts } from '@/lib/content/posts'
 import { listCategories } from '@/lib/content/taxonomy'
 import { homeUrl, localePath } from '@/i18n/urls'
@@ -99,12 +98,6 @@ export default async function EnHomePage({ searchParams }: Props) {
         <h2 className="section-heading" id="latest-posts">
           {t(locale, 'home.latest.heading')}
         </h2>
-
-        <LanguageSwitcher
-          counterpartUrl={homeUrl('pl')}
-          currentPath={homeUrl(locale)}
-          locale={locale}
-        />
 
         {isEmpty ? (
           <div className="locale-empty">

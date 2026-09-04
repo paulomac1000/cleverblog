@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { findTagBySlug } from '@/lib/content/taxonomy'
 import { listPublishedPosts } from '@/lib/content/posts'
 import { articleUrl, homeUrl, tagUrl } from '@/i18n/urls'
@@ -62,12 +61,6 @@ export default async function EnTagArchivePage({ params }: Props) {
       ) : (
         <p className="muted">{t(locale, 'archive.empty.tag')}</p>
       )}
-
-      <LanguageSwitcher
-        counterpartUrl={tagUrl('pl', tag.slug)}
-        currentPath={tagUrl(locale, tag.slug)}
-        locale={locale}
-      />
     </section>
   )
 }
