@@ -1,18 +1,13 @@
 'use client'
 
-import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 import { t } from '@/i18n/messages'
 import type { Locale } from '@/i18n/config'
 
 type Props = {
-  /** Locale of the CURRENT page. */
   locale: Locale
-  /**
-   * URL of the same page in the other locale, or null when no counterpart
-   * exists (per-document routes with a missing translation). The other
-   * segment then renders disabled with a tooltip.
-   */
+  ssrPath: string
   counterpartUrl: string | null
 }
 
@@ -47,11 +42,38 @@ const setPreferenceCookie = (value: Locale) => {
   document.cookie = `${COOKIE_NAME}=${v}; Path=/; Max-Age=${COOKIE_MAX_AGE}; SameSite=Lax`
 }
 
+const stripEnPrefix = (path: string): string =>
+  path === '/en' ? '/' : path.startsWith('/en/') ? path.slice(3) : path
+
+const swapLocalePrefix = (locale: Locale, path: string): string =>
+  locale === 'en' ? stripEnPrefix(path) : `/en${path}`
+
 export function LanguageSwitcher({
   locale,
+  ssrPath,
   counterpartUrl,
 }: Props) {
-  const target: Locale = locale === 'pl' ? 'en' : 'pl'
+  const pathname = usePathname() || '/'
+  const currentLocale: Locale =
+    pathname === '/en' || pathname.startsWith('/en/') ? 'en' : 'pl'
+  const target: Locale = currentLocale === 'pl' ? 'en' : 'pl'
+
+  const onSsrPath = pathname === ssrPath
+  const resolvedCounterpart = onSsrPath
+    ? counterpartUrl
+    : swapLocalePrefix(currentLocale, pathname)
+  const disabled = onSsrPath && counterpartUrl === null
+
+  const handleSwitch = (
+    event: React.MouseEvent,
+    nextLocale: Locale,
+    href: string,
+  ) => {
+    event.preventDefault()
+    setPreferenceCookie(nextLocale)
+    window.location.assign(href)
+  }
+
   const ariaLabel = t(locale, 'switcher.aria')
 
   const segments: Array<{
@@ -60,15 +82,14 @@ export function LanguageSwitcher({
     label: string
     active: boolean
   }> = [
-    { key: 'pl', flag: <PolandFlag />, label: 'Polski', active: locale === 'pl' },
-    { key: 'en', flag: <UKFlag />, label: 'English', active: locale === 'en' },
+    { key: 'pl', flag: <PolandFlag />, label: 'Polski', active: currentLocale === 'pl' },
+    { key: 'en', flag: <UKFlag />, label: 'English', active: currentLocale === 'en' },
   ]
 
   return (
     <nav className="lang-switcher" role="group" aria-label={ariaLabel}>
       {segments.map((segment) => {
         const isTarget = segment.key === target
-        const disabled = isTarget && !counterpartUrl
 
         if (segment.active) {
           return (
@@ -83,7 +104,7 @@ export function LanguageSwitcher({
           )
         }
 
-        if (disabled) {
+        if (isTarget && disabled) {
           return (
             <span
               key={segment.key}
@@ -97,16 +118,18 @@ export function LanguageSwitcher({
         }
 
         return (
-          <Link
+          <a
             key={segment.key}
             aria-label={`${ariaLabel}: ${segment.label}`}
             className="lang-segment"
-            href={counterpartUrl ?? '/'}
-            onClick={() => setPreferenceCookie(target)}
+            href={resolvedCounterpart ?? '/'}
+            onClick={(event) =>
+              handleSwitch(event, segment.key, resolvedCounterpart ?? '/')
+            }
             title={`${ariaLabel}: ${segment.label}`}
           >
             {segment.flag}
-          </Link>
+          </a>
         )
       })}
     </nav>

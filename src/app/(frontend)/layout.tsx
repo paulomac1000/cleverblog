@@ -55,7 +55,7 @@ export default async function FrontendLayout({
             CleverBlog
           </Link>
           <span className="tagline">{t(locale, 'site.tagline')}</span>
-          <LanguageSwitcher counterpartUrl={counterpartUrl} locale={locale} />
+          <LanguageSwitcher counterpartUrl={counterpartUrl} locale={locale} ssrPath={path} />
         </header>
         <main>{children}</main>
         <footer>

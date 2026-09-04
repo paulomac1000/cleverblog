@@ -61,5 +61,8 @@ export const getPageCounterpart = async (
   if (!doc || typeof doc.slug !== 'string' || doc.slug.length === 0) {
     return { enExists: false, enSlug: null }
   }
-  return { enExists: other === 'en', enSlug: doc.slug }
+  // enExists means "the counterpart document exists" and must be true in
+  // BOTH directions; keying it on `other === 'en'` silently disabled the
+  // PL flag and hreflang on every EN page.
+  return { enExists: true, enSlug: doc.slug }
 }
