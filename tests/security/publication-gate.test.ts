@@ -31,18 +31,17 @@ describe('post publication gate', () => {
     ).toThrow(/sourceVisibility=public/)
   })
 
-  it('permits the explicit local migration context for historical imports', () => {
-    expect(() =>
-      assertPostPublicationAllowed({
-        context: { wordpressMigration: true },
-        data: {
-          _status: 'published',
-          provenance: { sourceVisibility: 'public' },
-          verification: { status: 'imported' },
-          review: { status: 'approved' },
-        },
-        user: undefined,
-      }),
-    ).not.toThrow()
+  it('rejects publication even when the retired migration context flag is supplied', () => {
+    const input = {
+      context: { wordpressMigration: true },
+      data: {
+        _status: 'published',
+        provenance: { sourceVisibility: 'public' },
+        verification: { status: 'imported' },
+        review: { status: 'approved' },
+      },
+      user: undefined,
+    } as unknown as Parameters<typeof assertPostPublicationAllowed>[0]
+    expect(() => assertPostPublicationAllowed(input)).toThrow(/verification\.status=verified/)
   })
 })
