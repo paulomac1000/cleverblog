@@ -41,8 +41,12 @@ export type RenderablePage = {
 
 const resolveRenderHTML = (
   doc: RenderablePost | RenderablePage,
+  locale: Locale,
 ): string | null => {
   const renderHTML = doc.legacy?.renderHTML
+  // legacy.renderHTML is the POLISH body and is not localized — rendering it
+  // on an EN route would violate the no-fallback invariant.
+  if (locale === 'en') return null
   if (
     doc.contentFormat === 'legacy-html' &&
     typeof renderHTML === 'string' &&
@@ -60,7 +64,7 @@ export function ArticleBody({
   post: RenderablePost
   locale: Locale
 }) {
-  const renderHTML = resolveRenderHTML(post)
+  const renderHTML = resolveRenderHTML(post, locale)
   const commentConfig = getCommentConfig()
   let commentFormToken: string | undefined
   let turnstileSiteKey: string | undefined
@@ -117,7 +121,7 @@ export function StaticPageBody({
   page: RenderablePage
   locale: Locale
 }) {
-  const renderHTML = resolveRenderHTML(page)
+  const renderHTML = resolveRenderHTML(page, locale)
 
   return (
     <article className="article">

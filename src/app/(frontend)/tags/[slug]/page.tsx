@@ -2,10 +2,11 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-import { findTagBySlug } from '@/lib/content/taxonomy'
+import { findTagBySlug, getTagCounterpart } from '@/lib/content/taxonomy'
 import { tagUrl } from '@/i18n/urls'
 import { t, tf } from '@/i18n/messages'
 import { buildLocalizedMetadata, serverURL } from '@/lib/seo/metadata'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import type { Locale } from '@/i18n/config'
@@ -25,13 +26,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!tag) {
     notFound()
   }
+  const tagCounterpart = await getTagCounterpart(locale, slug)
+
+  const tagCounterpartMeta = await getTagCounterpart(locale, slug)
+  const enUrl =
+    tagCounterpartMeta.enExists && tagCounterpartMeta.enSlug
+      ? `${serverURL}${tagUrl('en', tagCounterpartMeta.enSlug)}`
+      : null
 
   return buildLocalizedMetadata({
     locale,
     canonicalPath: tagUrl(locale, slug),
     title: tag.name,
     description: tf(locale, 'tag.heading')(tag.name),
-    counterpartUrl: `${serverURL}${tagUrl('en', slug)}`,
+    counterpartUrl: enUrl,
   })
 }
 
@@ -41,6 +49,7 @@ export default async function TagArchivePage({ params }: Props) {
   if (!tag) {
     notFound()
   }
+  const tagCounterpart = await getTagCounterpart(locale, slug)
 
   const payload = await getPayload({ config })
   const posts = await payload.find({
@@ -58,6 +67,11 @@ export default async function TagArchivePage({ params }: Props) {
   return (
     <section>
       <h1>{tag.name}</h1>
+      <LanguageSwitcher
+        counterpartUrl={tagCounterpart.enExists ? tagUrl('en', tagCounterpart.enSlug ?? tag.slug) : null}
+        currentPath={tagUrl(locale, tag.slug)}
+        locale={locale}
+      />
       <ul>
         {posts.docs.map((post) => (
           <li key={post.id}>

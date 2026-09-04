@@ -71,15 +71,15 @@ export const CommentRow = ({
           title={canApprove ? undefined : APPROVAL_TOOLTIP}
           onClick={() => onStatus(comment.id, 'approved')}
         >
-          Zatwierdź
+          ✓ Zatwierdź
         </button>
         <button
           type="button"
-          className="cb-btn"
+          className="cb-btn cb-btn--danger"
           disabled={busy || comment.status === 'spam'}
           onClick={() => onStatus(comment.id, 'spam')}
         >
-          Spam
+          ✕ Spam
         </button>
       </div>
     </div>

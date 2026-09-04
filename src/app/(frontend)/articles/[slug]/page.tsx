@@ -7,6 +7,7 @@ import {
   getArticleCounterpart,
 } from '@/lib/content/posts'
 import { articleUrl } from '@/i18n/urls'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { buildLocalizedMetadata, serverURL } from '@/lib/seo/metadata'
 import type { Locale } from '@/i18n/config'
 
@@ -53,7 +54,21 @@ export default async function ArticlePage({
     notFound()
   }
 
+  const counterpart = await getArticleCounterpart(locale, slug)
+  const counterpartUrl = counterpart.enExists
+    ? articleUrl('en', counterpart.enSlug ?? slug)
+    : null
+
   // renderHTML is the sanitized migration working copy. originalHTML remains
   // immutable migration provenance and is never rendered.
-  return <ArticleBody locale={locale} post={post} />
+  return (
+    <>
+      <LanguageSwitcher
+        counterpartUrl={counterpartUrl}
+        currentPath={articleUrl(locale, post.slug)}
+        locale={locale}
+      />
+      <ArticleBody locale={locale} post={post} />
+    </>
+  )
 }

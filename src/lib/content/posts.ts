@@ -16,6 +16,16 @@ const buildLocaleArgs = (locale: Locale) =>
     ? { locale: 'pl' as const }
     : { locale: 'en' as const, fallbackLocale: false as const }
 
+/**
+ * EN `_status=published` is document-level and does NOT prove an EN
+ * translation exists (a PL-published post with empty localized fields still
+ * satisfies the status predicate). Requiring the localized `title` in the
+ * same where-clause makes the database filter to docs that actually have EN
+ * locale rows, keeping lists/pagination honest under fallbackLocale:false.
+ */
+const translationExists = (locale: Locale): Where | undefined =>
+  locale === 'en' ? { title: { not_equals: null } } : undefined
+
 export type PublishedPost = NonNullable<
   Awaited<ReturnType<typeof findPublishedPostBySlug>>
 >
@@ -35,7 +45,8 @@ export const findPublishedPostBySlug = async (
       and: [
         { slug: { equals: slug } },
         { _status: { equals: 'published' } },
-      ],
+        translationExists(locale),
+      ].filter(Boolean) as Where[],
     },
   })
   return result.docs[0] ?? null
@@ -56,7 +67,26 @@ export const getArticleCounterpart = async (
   const other: Locale = locale === 'pl' ? 'en' : 'pl'
 
   const payload = await getPayload({ config })
-  const result = await payload.find({
+  // Resolve the CURRENT document by slug in the CURRENT locale first, then
+  // read the SAME document id in the other locale. Matching by the other
+  // locale's slug would break when translations use different slugs.
+  const own = await payload.find({
+    collection: 'posts',
+    limit: 1,
+    depth: 0,
+    overrideAccess: true,
+    ...buildLocaleArgs(locale),
+    where: {
+      and: [
+        { slug: { equals: slug } },
+        { _status: { equals: 'published' } },
+      ],
+    },
+  })
+  const ownDoc = own.docs[0]
+  if (!ownDoc) return { enExists: false, enSlug: null }
+
+  const otherResult = await payload.find({
     collection: 'posts',
     limit: 1,
     depth: 0,
@@ -65,14 +95,16 @@ export const getArticleCounterpart = async (
     fallbackLocale: false,
     where: {
       and: [
-        { slug: { equals: slug } },
+        { id: { equals: ownDoc.id } },
         { _status: { equals: 'published' } },
       ],
     },
   })
-  const doc = result.docs[0]
-  if (!doc) return { enExists: false, enSlug: null }
-  return { enExists: true, enSlug: typeof doc.slug === 'string' ? doc.slug : null }
+  const doc = otherResult.docs[0]
+  if (!doc || typeof doc.slug !== 'string' || doc.slug.length === 0) {
+    return { enExists: false, enSlug: null }
+  }
+  return { enExists: other === 'en', enSlug: doc.slug }
 }
 
 export const listPublishedPosts = async (
@@ -88,10 +120,13 @@ export const listPublishedPosts = async (
   const page = args.page ?? 1
 
   const where: Where = {
-    _status: { equals: 'published' },
+    and: [
+      { _status: { equals: 'published' } },
+      translationExists(locale),
+    ].filter(Boolean) as Where[],
   }
   if (args.categoryId !== undefined) {
-    where.categories = { equals: args.categoryId }
+    where.and?.push({ categories: { equals: args.categoryId } } as never)
   }
 
   return payload.find({

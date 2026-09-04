@@ -29,18 +29,37 @@ export const parsePreferredLocale = (
     return null
   }
 
+  let best: Locale | null = null
+  let bestWeight = 0
+
   for (const partRaw of acceptLanguageHeader.split(',')) {
     const part = partRaw.trim()
     if (!part) continue
 
-    const tagPart = part.split(';', 1)[0]?.trim() ?? ''
-    if (!tagPart) continue
+    const [tagPartRaw, ...paramParts] = part.split(';')
+    const tagPart = tagPartRaw?.trim().toLowerCase() ?? ''
+    if (!tagPart || tagPart === '*') continue
 
     const primary = tagPart.split('-', 1)[0]?.toLowerCase() ?? ''
-    if (primary === 'en') {
-      return 'en'
+    if (primary !== 'en' && primary !== 'pl') continue
+
+    let weight = 1
+    for (const param of paramParts) {
+      const [key, value] = param.split('=', 2).map((piece) => piece?.trim())
+      if (key === 'q') {
+        const parsed = Number(value)
+        weight = Number.isFinite(parsed) && parsed >= 0 && parsed <= 1 ? parsed : 0
+      }
+    }
+    if (weight === 0) continue
+
+    const candidate: Locale | null = primary === 'en' ? 'en' : 'pl'
+    if (candidate && weight > bestWeight) {
+      best = candidate
+      bestWeight = weight
     }
   }
 
-  return null
+  // EN is the only locale we ever auto-redirect to; a PL winner means stay.
+  return best === 'en' ? 'en' : null
 }

@@ -175,8 +175,15 @@ export default async function proxy(request: NextRequest) {
 
   // Explicit English routes are never redirected anywhere.
   const { pathname } = request.nextUrl
-  if (pathname === '/en' || pathname.startsWith('/en/')) {
-    return NextResponse.next()
+  const isEn = pathname === '/en' || pathname.startsWith('/en/')
+
+  // Server-side locale signal consumed by the root layout for <html lang>:
+  // layouts cannot see the pathname, so the proxy annotates the request.
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-cb-locale', isEn ? 'en' : 'pl')
+
+  if (isEn) {
+    return NextResponse.next({ request: { headers: requestHeaders } })
   }
 
   // Language detection is intentionally limited to the homepage: unprefixed
@@ -185,12 +192,21 @@ export default async function proxy(request: NextRequest) {
   // Googlebot sends no Accept-Language header at all, so crawlers always
   // receive the Polish canonical pages directly.
   if (pathname !== '/') {
-    return NextResponse.next()
+    return NextResponse.next({ request: { headers: requestHeaders } })
   }
 
+  // An explicit visitor choice wins over Accept-Language in BOTH directions:
+  // PL_LOCALE=pl keeps the visitor on Polish, PL_LOCALE=en routes to /en.
   const cookieLocale = request.cookies.get('PL_LOCALE')?.value
-  if (cookieLocale !== undefined) {
-    return NextResponse.next()
+
+  if (cookieLocale === 'en') {
+    const response = NextResponse.redirect(new URL('/en', request.url), 302)
+    response.headers.set('Cache-Control', 'private, no-store')
+    return response
+  }
+
+  if (cookieLocale === 'pl') {
+    return NextResponse.next({ request: { headers: requestHeaders } })
   }
 
   if (parsePreferredLocale(request.headers.get('accept-language')) === 'en') {
@@ -204,7 +220,7 @@ export default async function proxy(request: NextRequest) {
     return response
   }
 
-  return NextResponse.next()
+  return NextResponse.next({ request: { headers: requestHeaders } })
 }
 
 export const config = {

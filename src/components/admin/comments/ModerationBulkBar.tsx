@@ -23,8 +23,13 @@ export const ModerationBulkBar = ({ count, canApprove, busy, onApprove, onSpam }
       >
         Zatwierdź zaznaczone
       </button>
-      <button type="button" className="cb-btn" disabled={busy} onClick={onSpam}>
-        Oznacz jako spam
+      <button
+        type="button"
+        className="cb-btn cb-btn--danger"
+        disabled={busy}
+        onClick={onSpam}
+      >
+        ✕ Oznacz jako spam
       </button>
     </div>
   )

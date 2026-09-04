@@ -50,18 +50,16 @@ export async function GET(): Promise<Response> {
     .filter((post) => Boolean(post.slug) && Boolean(post.title))
     .map((post) => {
       const link = `${serverURL}/en/articles/${post.slug}`
-      const renderHTML = post.legacy?.renderHTML
-      const contentEncoded =
-        typeof renderHTML === 'string' && renderHTML.length > 0
-          ? `\n      <content:encoded>${cdata(renderHTML)}</content:encoded>`
-          : ''
-
+      // legacy.renderHTML is NOT localized — serializing it here would leak
+      // the Polish body into the EN feed, violating the no-fallback
+      // invariant. EN items carry title/link/excerpt only until EN bodies
+      // are authored in Lexical (post.content can be serialized then).
       return `    <item>
       <title>${cdata(post.title)}</title>
       <link>${escapeXml(link)}</link>
       <guid isPermaLink="true">${escapeXml(link)}</guid>
       <pubDate>${escapeXml(rssDate(post.publishedAt, post.id))}</pubDate>
-      <description>${cdata(post.excerpt ?? '')}</description>${contentEncoded}
+      <description>${cdata(post.excerpt ?? '')}</description>
     </item>`
     })
     .join('\n')

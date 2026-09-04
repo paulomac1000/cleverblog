@@ -10,9 +10,13 @@ import { useLocale } from '@payloadcms/ui'
 export const LocaleCell = () => {
   const locale = useLocale()
   const code = typeof locale === 'string' ? locale : (locale?.code ?? 'pl')
-  const label = code.toLowerCase() === 'en' ? 'EN' : 'PL'
+  const isEn = code.toLowerCase() === 'en'
 
-  return <span className="cb-chip cb-chip--locale">{label}</span>
+  return (
+    <span className={isEn ? 'cb-chip cb-chip--locale cb-chip--locale-en' : 'cb-chip cb-chip--locale'}>
+      {isEn ? 'EN' : 'PL'}
+    </span>
+  )
 }
 
 export default LocaleCell

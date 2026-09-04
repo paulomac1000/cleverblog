@@ -44,7 +44,7 @@ const enEntry = (
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const payload = await getPayload({ config })
 
-  const [postsPl, postsEn, pagesPl, pagesEn, categories, tags] = await Promise.all([
+  const [postsPl, postsEn, pagesPl, pagesEn, categoriesPl, categoriesEn, tagsPl, tagsEn] = await Promise.all([
     payload.find({
       collection: 'posts',
       locale: 'pl',
@@ -81,6 +81,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
     payload.find({
       collection: 'categories',
+      locale: 'pl',
+      depth: 0,
+      pagination: false,
+      overrideAccess: true,
+      sort: 'slug',
+    }),
+    payload.find({
+      collection: 'categories',
+      locale: 'en',
+      fallbackLocale: false,
+      depth: 0,
+      pagination: false,
+      overrideAccess: true,
+    }),
+    payload.find({
+      collection: 'tags',
+      locale: 'pl',
       depth: 0,
       pagination: false,
       overrideAccess: true,
@@ -88,10 +105,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
     payload.find({
       collection: 'tags',
+      locale: 'en',
+      fallbackLocale: false,
       depth: 0,
       pagination: false,
       overrideAccess: true,
-      sort: 'slug',
     }),
   ])
 
@@ -99,10 +117,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // localized fields empty when no EN content was written, so a non-empty
   // slug marks a real translation.
   const enPostSlugs = new Map(
-    postsEn.docs.filter((post) => Boolean(post.slug)).map((post) => [post.id, post.slug]),
+    postsEn.docs
+      .filter((post) => Boolean(post.slug) && Boolean(post.title))
+      .map((post) => [post.id, post.slug]),
   )
   const enPageSlugs = new Map(
-    pagesEn.docs.filter((page) => Boolean(page.slug)).map((page) => [page.id, page.slug]),
+    pagesEn.docs
+      .filter((page) => Boolean(page.slug) && Boolean(page.title))
+      .map((page) => [page.id, page.slug]),
   )
 
   const entries: MetadataRoute.Sitemap = [
@@ -142,18 +164,38 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  for (const category of categories.docs) {
+  // Taxonomy EN counterpart exists only when the EN locale row exists
+  // (name/slug are localized + required, so untranslated taxonomy has no EN
+  // row under fallbackLocale:false).
+  const enCategories = new Map(
+    categoriesEn.docs
+      .filter((category) => Boolean(category.slug) && Boolean(category.name))
+      .map((category) => [category.id, category.slug]),
+  )
+  const enTags = new Map(
+    tagsEn.docs
+      .filter((tag) => Boolean(tag.slug) && Boolean(tag.name))
+      .map((tag) => [tag.id, tag.slug]),
+  )
+
+  for (const category of categoriesPl.docs) {
     const plUrl = `${serverURL}/category/${category.slug}`
-    const enUrl = `${serverURL}/en/category/${category.slug}`
+    const enSlug = enCategories.get(category.id)
+    const enUrl = enSlug ? `${serverURL}/en/category/${enSlug}` : null
     entries.push(pairEntry(plUrl, enUrl, category.updatedAt, 'weekly', 0.5))
-    entries.push(enEntry(enUrl, category.updatedAt, 'weekly', 0.4))
+    if (enUrl) {
+      entries.push(enEntry(enUrl, category.updatedAt, 'weekly', 0.4))
+    }
   }
 
-  for (const tag of tags.docs) {
+  for (const tag of tagsPl.docs) {
     const plUrl = `${serverURL}/tags/${tag.slug}`
-    const enUrl = `${serverURL}/en/tags/${tag.slug}`
+    const enSlug = enTags.get(tag.id)
+    const enUrl = enSlug ? `${serverURL}/en/tags/${enSlug}` : null
     entries.push(pairEntry(plUrl, enUrl, tag.updatedAt, 'weekly', 0.4))
-    entries.push(enEntry(enUrl, tag.updatedAt, 'weekly', 0.3))
+    if (enUrl) {
+      entries.push(enEntry(enUrl, tag.updatedAt, 'weekly', 0.3))
+    }
   }
 
   return entries

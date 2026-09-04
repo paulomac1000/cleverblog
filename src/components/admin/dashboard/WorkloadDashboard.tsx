@@ -74,6 +74,7 @@ export const WorkloadDashboard = async () => {
               <a
                 className="cb-workload-card__link"
                 href={`/admin/collections/posts/${post.id}`}
+                title={post.title ?? post.slug}
               >
                 {post.title ?? post.slug}
               </a>

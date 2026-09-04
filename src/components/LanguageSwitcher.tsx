@@ -69,7 +69,7 @@ export function LanguageSwitcher({
     void search
   }, [pathname, search])
 
-  if (!counterpartUrl && target !== DEFAULT_LOCALE) {
+  if (!counterpartUrl) {
     // No translation; render disabled link so screen readers still announce
     // the language toggle exists.
     return (

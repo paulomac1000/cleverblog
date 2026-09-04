@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import Link from 'next/link'
+import { headers } from 'next/headers'
 
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { homeUrl, pageUrl } from '@/i18n/urls'
 import { t } from '@/i18n/messages'
 import type { Locale } from '@/i18n/config'
@@ -17,26 +17,23 @@ export const metadata: Metadata = {
   description: 'Practical engineering notes, verified on real systems.',
 }
 
-const locale: Locale = 'pl'
-
-export default function FrontendLayout({
+export default async function FrontendLayout({
   children,
 }: {
   children: ReactNode
 }) {
+  // Locale arrives via the x-cb-locale request header set in proxy.ts.
+  const requestHeaders = await headers()
+  const locale: Locale = requestHeaders.get('x-cb-locale') === 'en' ? 'en' : 'pl'
+
   return (
-    <html lang="pl">
+    <html lang={locale}>
       <body>
         <header className="site-header">
           <Link href={homeUrl(locale)} className="brand">
             CleverBlog
           </Link>
           <span className="tagline">{t(locale, 'site.tagline')}</span>
-          <LanguageSwitcher
-            counterpartUrl={homeUrl('en')}
-            currentPath={homeUrl(locale)}
-            locale={locale}
-          />
         </header>
         <main>{children}</main>
         <footer>

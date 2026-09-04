@@ -112,8 +112,17 @@ const messagesByLocale: Record<Locale, Messages> = { pl, en }
  * safety net for incomplete translations, not a normal code path.
  */
 export const t = (locale: Locale, key: string): string => {
-  const value = messagesByLocale[locale]?.[key] ?? messagesByLocale.pl[key]
-  return typeof value === 'string' ? value : key
+  const localised = messagesByLocale[locale]?.[key]
+  if (localised !== undefined) return typeof localised === 'string' ? localised : key
+
+  const fallback = messagesByLocale.pl[key]
+  if (typeof fallback === 'string') {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(`[i18n] missing EN message key: ${key} (falling back to PL)`)
+    }
+    return fallback
+  }
+  return key
 }
 
 /**

@@ -3,17 +3,12 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { PostList, toPostListItems } from '@/components/posts/PostList'
-import {
-  findCategoryBySlug,
-  getCategoryCounterpart,
-} from '@/lib/content/taxonomy'
-import {
-  listPublishedPosts,
-} from '@/lib/content/posts'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { findCategoryBySlug } from '@/lib/content/taxonomy'
+import { listPublishedPosts } from '@/lib/content/posts'
 import { categoryUrl, homeUrl } from '@/i18n/urls'
 import { t, tf } from '@/i18n/messages'
-import { buildLocalizedMetadata, serverURL } from '@/lib/seo/metadata'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { buildLocalizedMetadata } from '@/lib/seo/metadata'
 import type { Locale } from '@/i18n/config'
 
 export const dynamic = 'force-dynamic'
@@ -22,17 +17,14 @@ const PAGE_SIZE = 12
 
 type Props = {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{
-    page?: string | string[]
-  }>
+  searchParams: Promise<{ page?: string | string[] }>
 }
 
-const locale: Locale = 'pl'
+const locale: Locale = 'en'
 
 const parsePage = (value?: string | string[]) => {
   const raw = Array.isArray(value) ? value[0] : value
   const parsed = Number(raw)
-
   return Number.isSafeInteger(parsed) && parsed >= 1 ? parsed : 1
 }
 
@@ -40,46 +32,30 @@ export async function generateMetadata({
   params,
   searchParams,
 }: Props): Promise<Metadata> {
-  const [{ slug }, { page: pageParam }] = await Promise.all([
-    params,
-    searchParams,
-  ])
+  const [{ slug }, { page: pageParam }] = await Promise.all([params, searchParams])
   const category = await findCategoryBySlug(locale, slug)
-
   if (!category) {
     notFound()
   }
 
   const page = parsePage(pageParam)
-  const description =
-    category.description?.trim() || `Artykuły w kategorii ${category.name}.`
-
-  const categoryCounterpart = await getCategoryCounterpart(locale, slug)
-  const enUrl =
-    categoryCounterpart.enExists && categoryCounterpart.enSlug
-      ? `${serverURL}${categoryUrl('en', categoryCounterpart.enSlug, page)}`
-      : null
 
   return buildLocalizedMetadata({
     locale,
     canonicalPath: categoryUrl(locale, slug, page),
     title: category.name,
-    description,
-    counterpartUrl: enUrl,
+    description: category.description?.trim() || `Articles in ${category.name}.`,
+    counterpartUrl: `${categoryUrl('pl', slug, page)}`,
   })
 }
 
-export default async function CategoryArchivePage({
+export default async function EnCategoryArchivePage({
   params,
   searchParams,
 }: Props) {
-  const [{ slug }, { page: pageParam }] = await Promise.all([
-    params,
-    searchParams,
-  ])
+  const [{ slug }, { page: pageParam }] = await Promise.all([params, searchParams])
   const page = parsePage(pageParam)
   const category = await findCategoryBySlug(locale, slug)
-
   if (!category) {
     notFound()
   }
@@ -95,9 +71,6 @@ export default async function CategoryArchivePage({
 
   const posts = toPostListItems(result.docs)
 
-  const categoryCounterpart = await getCategoryCounterpart(locale, category.slug)
-  const switcherUrl = categoryCounterpart.enExists ? categoryUrl('en', categoryCounterpart.enSlug ?? category.slug) : null
-
   return (
     <>
       <header className="archive-header">
@@ -112,20 +85,14 @@ export default async function CategoryArchivePage({
       </header>
 
       {posts.length > 0 ? (
-        <PostList locale={locale} posts={posts} />
+        <PostList headingLevel={3} locale={locale} posts={posts} />
       ) : (
         <p className="muted">{t(locale, 'archive.empty.category')}</p>
       )}
 
-      <LanguageSwitcher
-        counterpartUrl={switcherUrl}
-        currentPath={categoryUrl(locale, category.slug)}
-        locale={locale}
-      />
-
       {result.totalPages > 1 ? (
         <nav
-          aria-label={tf(locale, 'pagination.aria.category')(category.name)}
+          aria-label={tf(locale, 'pagination.aria.en.category')(category.name)}
           className="pagination"
         >
           {page > 1 ? (
@@ -149,6 +116,12 @@ export default async function CategoryArchivePage({
           ) : null}
         </nav>
       ) : null}
+
+      <LanguageSwitcher
+        counterpartUrl={categoryUrl('pl', category.slug)}
+        currentPath={categoryUrl(locale, category.slug)}
+        locale={locale}
+      />
     </>
   )
 }

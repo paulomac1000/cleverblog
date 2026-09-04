@@ -15,6 +15,7 @@ import {
 import { listCategories } from '@/lib/content/taxonomy'
 import { articleUrl, homeUrl, localePath } from '@/i18n/urls'
 import { t, tf } from '@/i18n/messages'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { buildLocalizedMetadata, serverURL } from '@/lib/seo/metadata'
 import type { Locale } from '@/i18n/config'
 
@@ -98,6 +99,11 @@ export default async function HomePage({ searchParams }: Props) {
           <span className="sr-only" id="category-filter-hint">
             {t(locale, 'home.hero.categoryFilter.hint')}
           </span>
+          <LanguageSwitcher
+            counterpartUrl={`${serverURL}${homeUrl('en')}`}
+            currentPath={homeUrl(locale)}
+            locale={locale}
+          />
 
           <CategorySelect
             options={categories.map((category) => ({

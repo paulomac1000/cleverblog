@@ -36,9 +36,13 @@ export const getPageCounterpart = async (
   locale: Locale,
   slug: string,
 ): Promise<{ enExists: boolean; enSlug: string | null }> => {
-  const other: Locale = locale === 'pl' ? 'en' : 'pl'
-
   const payload = await getPayload({ config })
+  // Resolve the current document in its own locale first (slugs may differ
+  // per locale), then read the same document id under the other locale.
+  const own = await findPublishedPageBySlug(locale, slug)
+  if (!own) return { enExists: false, enSlug: null }
+
+  const other: Locale = locale === 'pl' ? 'en' : 'pl'
   const result = await payload.find({
     collection: 'pages',
     limit: 1,
@@ -48,12 +52,14 @@ export const getPageCounterpart = async (
     fallbackLocale: false,
     where: {
       and: [
-        { slug: { equals: slug } },
+        { id: { equals: own.id } },
         { _status: { equals: 'published' } },
       ],
     },
   })
   const doc = result.docs[0]
-  if (!doc) return { enExists: false, enSlug: null }
-  return { enExists: true, enSlug: typeof doc.slug === 'string' ? doc.slug : null }
+  if (!doc || typeof doc.slug !== 'string' || doc.slug.length === 0) {
+    return { enExists: false, enSlug: null }
+  }
+  return { enExists: other === 'en', enSlug: doc.slug }
 }
