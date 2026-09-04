@@ -7,6 +7,7 @@ import * as migration_20260901_011939_add_blog_steward_provenance_fields from '.
 import * as migration_20260901_211500_add_comment_submission_hash from './20260901_211500_add_comment_submission_hash';
 import * as migration_20260904_005148_add_localization from './20260904_005148_add_localization';
 import * as migration_20260904_161018_add_related_links from './20260904_161018_add_related_links';
+import * as migration_20260904_233235_add_comment_translations_and_submitted_locale from './20260904_233235_add_comment_translations_and_submitted_locale';
 
 export const migrations = [
   {
@@ -52,6 +53,11 @@ export const migrations = [
   {
     up: migration_20260904_161018_add_related_links.up,
     down: migration_20260904_161018_add_related_links.down,
-    name: '20260904_161018_add_related_links'
+    name: '20260904_161018_add_related_links',
+  },
+  {
+    up: migration_20260904_233235_add_comment_translations_and_submitted_locale.up,
+    down: migration_20260904_233235_add_comment_translations_and_submitted_locale.down,
+    name: '20260904_233235_add_comment_translations_and_submitted_locale'
   },
 ];

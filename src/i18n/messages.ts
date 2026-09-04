@@ -62,6 +62,13 @@ const pl: Messages = {
   'switcher.toPolish': 'PL',
   'switcher.noTranslation.title': 'Brak tłumaczenia',
 
+  'comments.heading': (count: number): string => `Komentarze (${count})`,
+  'comments.empty': 'Brak komentarzy.',
+  'comments.replyTo': (name: string): string => `Odpowiedź do: ${name}`,
+  'comments.machineTranslated': 'Tłumaczenie maszynowe',
+  'comments.showOriginal': 'Pokaż oryginał',
+  'comments.showTranslation': 'Pokaż tłumaczenie',
+
   'article.publishedLabel': 'Opublikowano: ',
   'article.legacyFallback': 'Treść nie została jeszcze zmigrowana.',
 
@@ -119,6 +126,13 @@ const en: Messages = {
   'switcher.toEnglish': 'EN',
   'switcher.toPolish': 'PL',
   'switcher.noTranslation.title': 'Translation unavailable',
+
+  'comments.heading': (count: number): string => `Comments (${count})`,
+  'comments.empty': 'No comments yet.',
+  'comments.replyTo': (name: string): string => `Reply to: ${name}`,
+  'comments.machineTranslated': 'Machine translated',
+  'comments.showOriginal': 'Show original',
+  'comments.showTranslation': 'Show translation',
 
   'article.publishedLabel': 'Published: ',
   'article.legacyFallback': 'Content has not been migrated yet.',

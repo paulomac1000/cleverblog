@@ -104,9 +104,10 @@ export function ArticleBody({
 
       <CodeHighlight />
 
-      <CommentList postId={post.id} />
+      <CommentList locale={locale} postId={post.id} />
       <CommentForm
         formToken={commentFormToken}
+        locale={locale}
         postId={post.id}
         siteKey={turnstileSiteKey}
       />

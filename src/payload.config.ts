@@ -11,6 +11,7 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 
 import { Categories } from '@/collections/Categories'
+import { CommentTranslations } from '@/collections/CommentTranslations'
 import { Comments } from '@/collections/Comments'
 import { Evidence } from '@/collections/Evidence'
 import { Media } from '@/collections/Media'
@@ -50,6 +51,7 @@ export default buildConfig({
     Categories,
     Tags,
     Comments,
+    CommentTranslations,
     Users,
     TopicCandidates,
     Evidence,

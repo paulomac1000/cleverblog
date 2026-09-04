@@ -11,6 +11,7 @@ import type { CommentFormState } from '@/actions/submitComment'
 type Props = {
   formToken?: string
   postId: number
+  locale: 'pl' | 'en'
   siteKey?: string
 }
 
@@ -29,7 +30,7 @@ const inputStyle: CSSProperties = {
   width: '100%',
 }
 
-export function CommentForm({ formToken, postId, siteKey }: Props) {
+export function CommentForm({ formToken, locale, postId, siteKey }: Props) {
   const [state, formAction, isPending] = useActionState(submitComment, initialState)
   const formRef = useRef<HTMLFormElement>(null)
   const turnstileRef = useRef<TurnstileInstance | null>(null)
@@ -81,6 +82,7 @@ export function CommentForm({ formToken, postId, siteKey }: Props) {
         style={{ display: 'grid', gap: 16, marginTop: 20 }}
       >
         <input defaultValue={postId} name="postId" type="hidden" />
+        <input defaultValue={locale} name="submittedLocale" type="hidden" />
         <input defaultValue={formToken} name="formToken" type="hidden" />
 
         <div

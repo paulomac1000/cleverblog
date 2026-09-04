@@ -77,6 +77,13 @@ export const Comments: CollectionConfig = {
       index: true,
     },
     {
+      name: 'submittedLocale',
+      type: 'select',
+      defaultValue: 'pl',
+      options: ['pl', 'en'],
+      admin: { hidden: true },
+    },
+    {
       name: 'moderation',
       type: 'group',
       fields: [

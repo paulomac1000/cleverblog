@@ -136,6 +136,8 @@ export async function submitComment(
   const authorName = getString(formData, 'authorName').trim()
   const authorEmail = getString(formData, 'authorEmail').trim().toLowerCase()
   const content = getString(formData, 'content').replace(/\r\n/g, '\n').trim()
+  const submittedLocaleRaw = getString(formData, 'submittedLocale')
+  const submittedLocale = submittedLocaleRaw === 'en' ? 'en' : 'pl'
 
   if (authorName.length < 2 || authorName.length > 80) {
     return errorState('Imię lub pseudonim musi mieć od 2 do 80 znaków.')
@@ -188,6 +190,7 @@ export async function submitComment(
         },
         post: post.id,
         status: spam.score >= 80 ? 'spam' : 'pending',
+        submittedLocale,
         submissionHash,
       },
       overrideAccess: true,
