@@ -12,7 +12,8 @@ export const TopicCandidates: CollectionConfig = {
     update: topicRoles,
     delete: allowRoles('admin'),
   },
-  admin: { defaultColumns: ['title', 'status', 'sourceVisibility', 'updatedAt'], useAsTitle: 'title' },
+  labels: { singular: 'Kandydat tematu', plural: 'Kandydaci tematów' },
+  admin: { group: 'System', defaultColumns: ['title', 'status', 'sourceVisibility', 'updatedAt'], useAsTitle: 'title' },
   fields: [
     { name: 'title', type: 'text', required: true },
     { name: 'summary', type: 'textarea', required: true },

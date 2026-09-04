@@ -1,0 +1,39 @@
+schema_version: 1
+repository: paulomac1000/ai-skills
+revision: 435061ad67ee36d77e01a993bc4f9e4379a29666
+skills:
+  afds-doc-writer:
+    version: 1.4.0
+    revision: 435061ad67ee36d77e01a993bc4f9e4379a29666
+    normative_entrypoint: skills/afds-doc-writer/STANDARD.md
+    content_digest: sha256:c5cc01486dadcbdef7b57d32ecb92c49f736f74513587af03e0dd909bf1a4532
+  agents-md-architect:
+    version: 1.4.0
+    revision: 435061ad67ee36d77e01a993bc4f9e4379a29666
+    normative_entrypoint: skills/agents-md-architect/STANDARD.md
+    content_digest: sha256:7d512495b7a32cc2d31232f84504a670757e20f345357e15b2a37cced173adda
+  changelog-release-architect:
+    version: 1.4.0
+    revision: 435061ad67ee36d77e01a993bc4f9e4379a29666
+    normative_entrypoint: skills/changelog-release-architect/STANDARD.md
+    content_digest: sha256:4f171612f1026d81c61cc4162f2af6236fac02e1a5f79afd6c00bbffcc3d48d2
+  ci-cd-architect:
+    version: 1.4.0
+    revision: 435061ad67ee36d77e01a993bc4f9e4379a29666
+    normative_entrypoint: skills/ci-cd-architect/STANDARD.md
+    content_digest: sha256:b3bd8600a7b074a7f9e8c342ac9207f6b8b166f1d8da5a6c2c8f6f52027de087
+  mcp-server-architect:
+    version: 1.4.0
+    revision: 435061ad67ee36d77e01a993bc4f9e4379a29666
+    normative_entrypoint: skills/mcp-server-architect/STANDARD.md
+    content_digest: sha256:5b8b3eb574b1f3228d22bb218b3afc82af969e152fe4fa6c6a2abf242b78236d
+  mcp-server-consumer:
+    version: 1.4.0
+    revision: 435061ad67ee36d77e01a993bc4f9e4379a29666
+    normative_entrypoint: skills/mcp-server-consumer/STANDARD.md
+    content_digest: sha256:a2960c8caad24823815d4504ed1f0f1f131c54791cd674885aa1828c84e2f76b
+  readme-architect:
+    version: 1.4.0
+    revision: 435061ad67ee36d77e01a993bc4f9e4379a29666
+    normative_entrypoint: skills/readme-architect/STANDARD.md
+    content_digest: sha256:f0619796686fb5396d154e3408114a061944438605638e8f8d91bf82a6937e3c

@@ -10,10 +10,11 @@ export const Tags: CollectionConfig = {
     update: allowRoles('admin', 'editor'),
     delete: allowRoles('admin'),
   },
-  admin: { useAsTitle: 'name' },
+  labels: { singular: 'Tag', plural: 'Tagi' },
+  admin: { group: 'Treść', useAsTitle: 'name' },
   fields: [
-    { name: 'name', type: 'text', required: true },
-    { name: 'slug', type: 'text', required: true, unique: true, index: true },
+    { name: 'name', type: 'text', required: true, localized: true },
+    { name: 'slug', type: 'text', required: true, unique: true, index: true, localized: true },
     { name: 'legacyWordPressId', type: 'number', unique: true, index: true },
   ],
 }

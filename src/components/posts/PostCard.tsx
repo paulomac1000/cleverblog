@@ -1,5 +1,8 @@
 import Link from 'next/link'
 
+import type { Locale } from '@/i18n/config'
+import { localePath } from '@/i18n/urls'
+
 export type PostCardData = {
   id: number
   title: string
@@ -14,27 +17,36 @@ export type PostCardData = {
 type Props = {
   post: PostCardData
   headingLevel?: 2 | 3
+  locale?: Locale
 }
 
-const dateFormatter = new Intl.DateTimeFormat('pl-PL', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-})
+const dateFormatters: Record<Locale, Intl.DateTimeFormat> = {
+  pl: new Intl.DateTimeFormat('pl-PL', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }),
+  en: new Intl.DateTimeFormat('en-US', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }),
+}
 
-export function PostCard({ post, headingLevel = 2 }: Props) {
+export function PostCard({ post, headingLevel = 2, locale = 'pl' }: Props) {
   const Heading = headingLevel === 3 ? 'h3' : 'h2'
   const publishedDate = post.publishedAt
     ? new Date(post.publishedAt)
     : null
   const publishedLabel =
     publishedDate && !Number.isNaN(publishedDate.getTime())
-      ? dateFormatter.format(publishedDate)
+      ? dateFormatters[locale].format(publishedDate)
       : null
   const categories = post.categoryNames?.join(' · ')
+  const articleHref = localePath(locale, `/articles/${post.slug}`)
 
   return (
-    <Link className="card" href={`/articles/${post.slug}`}>
+    <Link className="card" href={articleHref}>
       {post.heroUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img

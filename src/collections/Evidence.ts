@@ -12,7 +12,8 @@ export const Evidence: CollectionConfig = {
     update: writerRoles,
     delete: allowRoles('admin'),
   },
-  admin: { useAsTitle: 'title' },
+  labels: { singular: 'Materiał źródłowy', plural: 'Materiały źródłowe' },
+  admin: { group: 'System', useAsTitle: 'title' },
   fields: [
     { name: 'title', type: 'text', required: true },
     { name: 'url', type: 'text' },

@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
+import { parsePreferredLocale } from '@/i18n/config'
+
 const CACHE_TTL_MS = 60_000
 const CACHE_MAX_ENTRIES = 500
 const LOOKUP_TIMEOUT_MS = 2_000
@@ -161,11 +163,48 @@ export default async function proxy(request: NextRequest) {
   const sourceURL = `${request.nextUrl.pathname}${request.nextUrl.search}`
   const redirect = await lookupRedirect(request, sourceURL)
 
-  if (!redirect) {
+  if (redirect) {
+    return NextResponse.redirect(new URL(redirect.target, request.url), redirect.status)
+  }
+
+  // Legacy WordPress permalinks (?p=ID) resolve through the redirects table
+  // above; language detection must never intercept them.
+  if (request.nextUrl.searchParams.has('p')) {
     return NextResponse.next()
   }
 
-  return NextResponse.redirect(new URL(redirect.target, request.url), redirect.status)
+  // Explicit English routes are never redirected anywhere.
+  const { pathname } = request.nextUrl
+  if (pathname === '/en' || pathname.startsWith('/en/')) {
+    return NextResponse.next()
+  }
+
+  // Language detection is intentionally limited to the homepage: unprefixed
+  // URLs are permanently Polish, so deep links are never auto-redirected.
+  // Google advises against automatic redirection based on language, and
+  // Googlebot sends no Accept-Language header at all, so crawlers always
+  // receive the Polish canonical pages directly.
+  if (pathname !== '/') {
+    return NextResponse.next()
+  }
+
+  const cookieLocale = request.cookies.get('PL_LOCALE')?.value
+  if (cookieLocale !== undefined) {
+    return NextResponse.next()
+  }
+
+  if (parsePreferredLocale(request.headers.get('accept-language')) === 'en') {
+    const response = NextResponse.redirect(new URL('/en', request.url), 302)
+    response.cookies.set('PL_LOCALE', 'en', {
+      path: '/',
+      maxAge: 31536000,
+      sameSite: 'lax',
+    })
+    response.headers.set('Cache-Control', 'private, no-store')
+    return response
+  }
+
+  return NextResponse.next()
 }
 
 export const config = {

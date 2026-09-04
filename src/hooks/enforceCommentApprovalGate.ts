@@ -1,6 +1,6 @@
 import type { CollectionBeforeChangeHook } from 'payload'
 
-import { getUserRole } from '@/access/roles'
+import { canApproveComments } from '@/lib/auth/commentModeration'
 
 type AnyRecord = Record<string, unknown>
 
@@ -22,10 +22,9 @@ export const assertCommentApprovalAllowed = ({
 
   if (status !== 'approved') return
 
-  const role = getUserRole(user)
-  if (role?.startsWith('agent-')) {
+  if (!canApproveComments(user)) {
     throw new Error(
-      'Agent identities are not allowed to approve comments. Set spam/hidden or leave pending; approval belongs to admin/editor.',
+      'Rola agenta nie może zatwierdzać komentarzy. Zatwierdzenie wymaga redaktora lub administratora.',
     )
   }
 }

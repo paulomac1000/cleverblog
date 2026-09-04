@@ -1,5 +1,7 @@
 import { PostCard, type PostCardData } from './PostCard'
 
+import type { Locale } from '@/i18n/config'
+
 type RelatedCategory = {
   name?: string | null
 }
@@ -22,10 +24,12 @@ export type PostListSource = {
 type Props = {
   posts: PostCardData[]
   headingLevel?: 2 | 3
+  locale?: Locale
 }
 
 export const toPostListItems = (
   posts: PostListSource[],
+  locale?: Locale,
 ): PostCardData[] =>
   posts.map((post) => {
     const hero =
@@ -52,13 +56,14 @@ export const toPostListItems = (
     }
   })
 
-export function PostList({ posts, headingLevel = 2 }: Props) {
+export function PostList({ posts, headingLevel = 2, locale = 'pl' }: Props) {
   return (
     <div className="posts">
       {posts.map((post) => (
         <PostCard
           headingLevel={headingLevel}
           key={post.id}
+          locale={locale}
           post={post}
         />
       ))}

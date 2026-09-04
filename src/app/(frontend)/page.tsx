@@ -1,15 +1,22 @@
-import config from '@payload-config'
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import {
   notFound,
   permanentRedirect,
   redirect,
 } from 'next/navigation'
-import { getPayload } from 'payload'
 
 import { PostList, toPostListItems } from '@/components/posts/PostList'
 import { CategorySelect } from '@/components/posts/CategorySelect'
-import { getCategories } from '@/lib/posts/getCategories'
+import {
+  findPostByLegacyWordpressId,
+  listPublishedPosts,
+} from '@/lib/content/posts'
+import { listCategories } from '@/lib/content/taxonomy'
+import { articleUrl, homeUrl, localePath } from '@/i18n/urls'
+import { t, tf } from '@/i18n/messages'
+import { buildLocalizedMetadata, serverURL } from '@/lib/seo/metadata'
+import type { Locale } from '@/i18n/config'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,8 +30,19 @@ type Props = {
   }>
 }
 
+const locale: Locale = 'pl'
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildLocalizedMetadata({
+    locale,
+    canonicalPath: homeUrl(locale),
+    title: 'CleverBlog',
+    description: 'Practical engineering notes, verified on real systems.',
+    counterpartUrl: `${serverURL}${homeUrl('en')}`,
+  })
+}
+
 export default async function HomePage({ searchParams }: Props) {
-  const payload = await getPayload({ config })
   const {
     p,
     page: pageParam,
@@ -36,20 +54,9 @@ export default async function HomePage({ searchParams }: Props) {
     const wordpressId = Number(legacyID)
     if (!Number.isSafeInteger(wordpressId) || wordpressId <= 0) notFound()
 
-    const legacy = await payload.find({
-      collection: 'posts',
-      limit: 1,
-      overrideAccess: true,
-      where: {
-        and: [
-          { 'legacy.wordpressId': { equals: wordpressId } },
-          { _status: { equals: 'published' } },
-        ],
-      },
-    })
-
-    if (!legacy.docs[0]) notFound()
-    permanentRedirect(`/articles/${legacy.docs[0].slug}`)
+    const legacy = await findPostByLegacyWordpressId(locale, wordpressId)
+    if (!legacy) notFound()
+    permanentRedirect(articleUrl(locale, legacy.slug))
   }
 
   const selectedCategory = Array.isArray(categoryParam)
@@ -57,7 +64,7 @@ export default async function HomePage({ searchParams }: Props) {
     : categoryParam
 
   if (selectedCategory) {
-    redirect(`/category/${encodeURIComponent(selectedCategory)}`)
+    redirect(localePath(locale, `/category/${encodeURIComponent(selectedCategory)}`))
   }
 
   const requestedPage = Array.isArray(pageParam)
@@ -68,16 +75,8 @@ export default async function HomePage({ searchParams }: Props) {
     Number.isSafeInteger(parsedPage) && parsedPage >= 1 ? parsedPage : 1
 
   const [result, categories] = await Promise.all([
-    payload.find({
-      collection: 'posts',
-      limit: PAGE_SIZE,
-      page,
-      overrideAccess: true,
-      sort: '-publishedAt',
-      where: { _status: { equals: 'published' } },
-      depth: 1,
-    }),
-    getCategories(),
+    listPublishedPosts(locale, { page }),
+    listCategories(locale),
   ])
 
   if (page > 1 && page > result.totalPages) notFound()
@@ -87,17 +86,17 @@ export default async function HomePage({ searchParams }: Props) {
   return (
     <>
       <section className="hero">
-        <p className="muted">cleverblog.pl</p>
-        <h1>Praktyczne notatki z prawdziwej pracy inżynierskiej.</h1>
-        <p>Linux, Raspberry Pi i automatyka domowa — sprawdzone na produkcji.</p>
+        <p className="muted">{t(locale, 'home.hero.tagline')}</p>
+        <h1>{t(locale, 'home.hero.heading')}</h1>
+        <p>{t(locale, 'home.hero.lead')}</p>
 
-        <form action="/" className="category-filter" method="get">
+        <form action={homeUrl(locale)} className="category-filter" method="get">
           <label className="sr-only" htmlFor="category">
-            Filtruj artykuły po kategorii
+            {t(locale, 'home.hero.categoryFilter.label')}
           </label>
 
           <span className="sr-only" id="category-filter-hint">
-            Zmiana kategorii automatycznie otwiera wybraną kategorię.
+            {t(locale, 'home.hero.categoryFilter.hint')}
           </span>
 
           <CategorySelect
@@ -109,7 +108,7 @@ export default async function HomePage({ searchParams }: Props) {
 
           <noscript>
             <button className="category-filter-fallback" type="submit">
-              Pokaż
+              {t(locale, 'home.hero.categoryFilter.submit')}
             </button>
           </noscript>
         </form>
@@ -117,31 +116,41 @@ export default async function HomePage({ searchParams }: Props) {
 
       <section aria-labelledby="latest-posts">
         <h2 className="section-heading" id="latest-posts">
-          Najnowsze artykuły
+          {t(locale, 'home.latest.heading')}
         </h2>
         {posts.length > 0 ? (
-          <PostList headingLevel={3} posts={posts} />
+          <PostList headingLevel={3} locale={locale} posts={posts} />
         ) : (
-          <p className="muted">Brak artykułów na tej stronie.</p>
+          <p className="muted">{t(locale, 'home.empty.page')}</p>
         )}
       </section>
 
       {result.totalPages > 1 ? (
-        <nav aria-label="Stronicowanie artykułów" className="pagination">
+        <nav
+          aria-label={t(locale, 'pagination.aria.articles')}
+          className="pagination"
+        >
           {page > 1 ? (
             <Link
               className="pagination-link"
-              href={page === 2 ? '/' : `/?page=${page - 1}`}
+              href={
+                page === 2
+                  ? homeUrl(locale)
+                  : `${homeUrl(locale)}?page=${page - 1}`
+              }
             >
-              ← Nowsze
+              {t(locale, 'pagination.prev')}
             </Link>
           ) : null}
           <span className="muted">
-            Strona {page} z {result.totalPages}
+            {tf(locale, 'pagination.status')(page, result.totalPages)}
           </span>
           {result.hasNextPage ? (
-            <Link className="pagination-link" href={`/?page=${page + 1}`}>
-              Starsze →
+            <Link
+              className="pagination-link"
+              href={`${homeUrl(locale)}?page=${page + 1}`}
+            >
+              {t(locale, 'pagination.next')}
             </Link>
           ) : null}
         </nav>

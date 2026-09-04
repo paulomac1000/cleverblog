@@ -12,14 +12,16 @@ export const Posts: CollectionConfig = {
     update: allowRoles('admin', 'editor', 'agent-writer'),
     delete: allowRoles('admin'),
   },
+  labels: { singular: 'Wpis', plural: 'Wpisy' },
   admin: {
-    defaultColumns: ['title', 'slug', '_status', 'publishedAt', 'updatedAt'],
+    group: 'Treść',
+    defaultColumns: ['title', 'publishReadiness', 'adminLocale', '_status', 'publishedAt', 'updatedAt'],
     useAsTitle: 'title',
   },
   fields: [
-    { name: 'title', type: 'text', required: true },
-    { name: 'slug', type: 'text', required: true, unique: true, index: true },
-    { name: 'excerpt', type: 'textarea' },
+    { name: 'title', type: 'text', required: true, localized: true },
+    { name: 'slug', type: 'text', required: true, unique: true, index: true, localized: true },
+    { name: 'excerpt', type: 'textarea', localized: true },
     {
       name: 'contentFormat',
       type: 'select',
@@ -30,7 +32,7 @@ export const Posts: CollectionConfig = {
         { label: 'Legacy sanitized HTML', value: 'legacy-html' },
       ],
     },
-    { name: 'content', type: 'richText', editor: lexicalEditor({}) },
+    { name: 'content', type: 'richText', editor: lexicalEditor({}), localized: true },
     { name: 'heroImage', type: 'upload', relationTo: 'media' },
     { name: 'categories', type: 'relationship', relationTo: 'categories', hasMany: true },
     { name: 'tags', type: 'relationship', relationTo: 'tags', hasMany: true },
@@ -41,6 +43,28 @@ export const Posts: CollectionConfig = {
       admin: { position: 'sidebar', date: { pickerAppearance: 'dayAndTime' } },
     },
     { name: 'commentsEnabled', type: 'checkbox', defaultValue: true },
+    {
+      name: 'publishReadiness',
+      type: 'ui',
+      label: 'Gotowość',
+      admin: {
+        components: {
+          Field: '/components/admin/posts/PublishReadinessField#PublishReadinessField',
+          Cell: '/components/admin/posts/PublishReadinessCell#PublishReadinessCell',
+        },
+      },
+    },
+    {
+      name: 'adminLocale',
+      type: 'ui',
+      label: 'Język',
+      admin: {
+        components: {
+          Field: '/components/admin/posts/LocaleField#LocaleField',
+          Cell: '/components/admin/posts/LocaleCell#LocaleCell',
+        },
+      },
+    },
     {
       name: 'verification',
       type: 'group',

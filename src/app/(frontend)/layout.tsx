@@ -2,6 +2,11 @@ import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import Link from 'next/link'
 
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { homeUrl, pageUrl } from '@/i18n/urls'
+import { t } from '@/i18n/messages'
+import type { Locale } from '@/i18n/config'
+
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -12,6 +17,8 @@ export const metadata: Metadata = {
   description: 'Practical engineering notes, verified on real systems.',
 }
 
+const locale: Locale = 'pl'
+
 export default function FrontendLayout({
   children,
 }: {
@@ -21,22 +28,30 @@ export default function FrontendLayout({
     <html lang="pl">
       <body>
         <header className="site-header">
-          <Link href="/" className="brand">CleverBlog</Link>
-          <span className="tagline">
-            engineering notes, not content filler
-          </span>
+          <Link href={homeUrl(locale)} className="brand">
+            CleverBlog
+          </Link>
+          <span className="tagline">{t(locale, 'site.tagline')}</span>
+          <LanguageSwitcher
+            counterpartUrl={homeUrl('en')}
+            currentPath={homeUrl(locale)}
+            locale={locale}
+          />
         </header>
         <main>{children}</main>
         <footer>
           <div className="footer-nav">
-            <Link href="/">Artykuły</Link>
-            <Link href="/o-nas">O nas</Link>
-            <Link href="/kontakt">Kontakt</Link>
+            <Link href={homeUrl(locale)}>
+              {t(locale, 'site.footer.articles')}
+            </Link>
+            <Link href={pageUrl(locale, 'o-nas')}>
+              {t(locale, 'site.footer.about')}
+            </Link>
+            <Link href={pageUrl(locale, 'kontakt')}>
+              {t(locale, 'site.footer.contact')}
+            </Link>
           </div>
-          <p className="footer-note">
-            cleverblog.pl — praktyczne notatki z prawdziwej pracy
-            inżynierskiej.
-          </p>
+          <p className="footer-note">{t(locale, 'site.footer.note')}</p>
         </footer>
       </body>
     </html>

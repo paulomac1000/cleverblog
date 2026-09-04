@@ -37,6 +37,9 @@ function requirePayloadSecret(): string {
 
 export default buildConfig({
   admin: {
+    components: {
+      beforeDashboard: ['/components/admin/dashboard/WorkloadDashboard#WorkloadDashboard'],
+    },
     importMap: { baseDir: path.resolve(dirname) },
     user: Users.slug,
   },
@@ -47,9 +50,9 @@ export default buildConfig({
     Categories,
     Tags,
     Comments,
+    Users,
     TopicCandidates,
     Evidence,
-    Users,
   ],
   cors: [serverURL],
   csrf: [serverURL],
@@ -57,6 +60,14 @@ export default buildConfig({
     pool: { connectionString: process.env.DATABASE_URL },
   }),
   editor: lexicalEditor({}),
+  localization: {
+    locales: [
+      { label: 'Polski', code: 'pl' },
+      { label: 'English', code: 'en' },
+    ],
+    defaultLocale: 'pl',
+    fallback: false,
+  },
   plugins: [
     seoPlugin({
       collections: ['posts', 'pages'],
