@@ -125,7 +125,15 @@ export async function CommentList({ postId }: Props) {
           </div>
         ) : null}
 
-        <p style={{ margin: '12px 0 0', whiteSpace: 'pre-wrap' }}>{comment.content}</p>
+        <p
+          style={{
+            margin: '12px 0 0',
+            whiteSpace: 'pre-wrap',
+            overflowWrap: 'anywhere',
+          }}
+        >
+          {comment.content}
+        </p>
       </div>
     )
   }

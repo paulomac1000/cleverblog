@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { ArticleBody } from '@/components/content/ArticleBody'
+import { RelatedLinks } from '@/components/content/RelatedLinks'
 import {
   findPublishedPostBySlug,
   getArticleCounterpart,
@@ -63,6 +64,7 @@ export default async function ArticlePage({
   return (
     <>
       <ArticleBody locale={locale} post={post} />
+      <RelatedLinks links={post.relatedLinks} />
     </>
   )
 }

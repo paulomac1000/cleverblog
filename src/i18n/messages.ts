@@ -69,6 +69,13 @@ const pl: Messages = {
 }
 
 const en: Messages = {
+  'site.tagline': 'engineering notes, not content filler',
+  'site.footer.articles': 'Articles',
+  'site.footer.about': 'About',
+  'site.footer.contact': 'Contact',
+  'site.footer.note': 'cleverblog.pl — practical notes from real engineering work.',
+
+  'home.hero.tagline': 'cleverblog.pl',
   'home.hero.heading': 'Practical engineering notes from real production work.',
   'home.hero.lead':
     'Linux, Raspberry Pi and home automation — verified in production.',
@@ -85,12 +92,25 @@ const en: Messages = {
   'home.empty.locale.cta': 'Go to Polish homepage',
 
   'archive.breadcrumb.all': 'All articles',
+  'archive.breadcrumb.category': 'Category',
+  'archive.breadcrumb.tag': 'Tag',
   'archive.empty.category': 'No articles in this category.',
   'archive.empty.tag': 'No articles with this tag.',
 
   'pagination.prev': '← Newer',
   'pagination.next': 'Older →',
+  'pagination.status': (page: number, total: number): string =>
+    `Page ${page} of ${total}`,
+  'pagination.aria.articles': 'Article pagination',
+  'pagination.aria.category': (name: string): string =>
+    `Pagination for category ${name}`,
+  'pagination.aria.tag': (name: string): string =>
+    `Pagination for tag ${name}`,
   'pagination.aria.en.articles': 'Article pagination',
+  'pagination.aria.en.category': (name: string): string =>
+    `Pagination for category ${name}`,
+  'pagination.aria.en.tag': (name: string): string =>
+    `Pagination for tag ${name}`,
 
   'categorySelect.all': 'All categories',
   'categorySelect.ariaLabel': 'Filter articles by category',
@@ -102,9 +122,13 @@ const en: Messages = {
 
   'article.publishedLabel': 'Published: ',
   'article.legacyFallback': 'Content has not been migrated yet.',
+
+  'tag.heading': (name: string): string => `Articles tagged with ${name}.`,
 }
 
 const messagesByLocale: Record<Locale, Messages> = { pl, en }
+
+export const messages: Record<Locale, Messages> = messagesByLocale
 
 /**
  * Translate a key. EN falls back to PL only if the key is missing in EN —

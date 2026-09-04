@@ -6,6 +6,7 @@ import * as migration_20260830_115713_p3_taxonomy_redirects from './20260830_115
 import * as migration_20260901_011939_add_blog_steward_provenance_fields from './20260901_011939_add_blog_steward_provenance_fields';
 import * as migration_20260901_211500_add_comment_submission_hash from './20260901_211500_add_comment_submission_hash';
 import * as migration_20260904_005148_add_localization from './20260904_005148_add_localization';
+import * as migration_20260904_161018_add_related_links from './20260904_161018_add_related_links';
 
 export const migrations = [
   {
@@ -46,6 +47,11 @@ export const migrations = [
   {
     up: migration_20260904_005148_add_localization.up,
     down: migration_20260904_005148_add_localization.down,
-    name: '20260904_005148_add_localization'
+    name: '20260904_005148_add_localization',
+  },
+  {
+    up: migration_20260904_161018_add_related_links.up,
+    down: migration_20260904_161018_add_related_links.down,
+    name: '20260904_161018_add_related_links'
   },
 ];

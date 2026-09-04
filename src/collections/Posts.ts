@@ -140,6 +140,54 @@ export const Posts: CollectionConfig = {
       ],
     },
     {
+      name: 'relatedLinks',
+      type: 'array',
+      maxRows: 3,
+      admin: {
+        description:
+          'Optional GitHub skill / repository / docs cards rendered under the article body.',
+      },
+      fields: [
+        {
+          name: 'label',
+          type: 'text',
+          required: true,
+          maxLength: 80,
+        },
+        {
+          name: 'url',
+          type: 'text',
+          required: true,
+          validate: (value: unknown) => {
+            if (typeof value !== 'string' || !value) return 'URL is required'
+            let parsed: URL
+            try {
+              parsed = new URL(value)
+            } catch {
+              return 'Must be a valid absolute URL'
+            }
+            if (parsed.protocol !== 'https:') return 'Only https:// URLs'
+            const host = parsed.hostname
+            if (host !== 'github.com' && host !== 'www.github.com') {
+              return 'Only github.com URLs'
+            }
+            return true
+          },
+        },
+        {
+          name: 'kind',
+          type: 'select',
+          required: true,
+          defaultValue: 'repository',
+          options: [
+            { label: 'GitHub Skill', value: 'github-skill' },
+            { label: 'Repository', value: 'repository' },
+            { label: 'Documentation', value: 'documentation' },
+          ],
+        },
+      ],
+    },
+    {
       name: 'legacy',
       type: 'group',
       admin: { description: 'Immutable migration provenance; do not remove after conversion.' },

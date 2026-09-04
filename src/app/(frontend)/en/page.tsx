@@ -69,6 +69,7 @@ export default async function EnHomePage({ searchParams }: Props) {
         <h1>{t(locale, 'home.hero.heading')}</h1>
         <p>{t(locale, 'home.hero.lead')}</p>
 
+        {categories.length > 0 && (
         <form
           action={homeUrl(locale)}
           className="category-filter"
@@ -81,6 +82,8 @@ export default async function EnHomePage({ searchParams }: Props) {
             {t(locale, 'home.hero.categoryFilter.hint')}
           </span>
           <CategorySelect
+            allLabel={t(locale, 'categorySelect.all')}
+            ariaLabel={t(locale, 'categorySelect.ariaLabel')}
             options={categories.map((category) => ({
               label: category.name,
               value: category.slug,
@@ -92,6 +95,7 @@ export default async function EnHomePage({ searchParams }: Props) {
             </button>
           </noscript>
         </form>
+        )}
       </section>
 
       <section aria-labelledby="latest-posts">
