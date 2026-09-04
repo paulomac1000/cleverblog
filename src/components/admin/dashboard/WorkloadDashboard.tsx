@@ -1,23 +1,31 @@
 import config from '@payload-config'
-import { getPayload, type Where } from 'payload'
+import { getPayload, type Payload, type Where } from 'payload'
 
 import { WorkloadCard } from './WorkloadCard'
+
+type Props = {
+  payload?: Payload
+  user?: unknown
+}
 
 /**
  * Editorial workload dashboard (admin.components.beforeDashboard).
  *
- * Server Component using the Local API — no HTTP round trip. Counts are
- * administrative metadata surfaced inside the auth-gated /admin route, so
- * overrideAccess stays at its default (true): scoping to the requesting user
- * would require plumbing the request user into a component that Payload does
- * not hand one, for information that every admin/editor is allowed to see
- * anyway.
+ * Server Component using the Local API — no HTTP round trip. Queries run
+ * with overrideAccess:false scoped to the logged-in user so role-based read
+ * access is honored.
  */
-export const WorkloadDashboard = async () => {
-  const payload = await getPayload({ config })
+export const WorkloadDashboard = async (props: Props = {}) => {
+  const payload = props.payload ?? (await getPayload({ config }))
+  const user = props.user
+  const scope = { overrideAccess: false, user }
 
   const [pendingComments, draftsAwaitingReview, notReady, recentlyPublished] = await Promise.all([
-    payload.count({ collection: 'comments', where: { status: { equals: 'pending' } } }),
+    payload.count({
+      collection: 'comments',
+      where: { status: { equals: 'pending' } } as Where,
+      ...scope,
+    }),
     payload.count({
       collection: 'posts',
       where: {
@@ -26,6 +34,7 @@ export const WorkloadDashboard = async () => {
           { 'verification.status': { not_equals: 'verified' } },
         ],
       } as Where,
+      ...scope,
     }),
     payload.count({
       collection: 'posts',
@@ -35,12 +44,13 @@ export const WorkloadDashboard = async () => {
           { 'review.status': { not_equals: 'approved' } },
         ],
       } as Where,
+      ...scope,
     }),
     payload.find({
       collection: 'posts',
       depth: 0,
       limit: 5,
-      overrideAccess: true,
+      ...scope,
       sort: '-publishedAt',
       where: { _status: { equals: 'published' } },
     }),

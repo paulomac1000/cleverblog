@@ -96,12 +96,17 @@ export const CommentsWorkbench = ({ canApprove, postTitles, initialStatus }: Pro
     )
   }
 
-  const handleStatus = async (id: number, status: 'approved' | 'spam') => {
+  const handleStatus = async (
+    id: number,
+    status: 'approved' | 'spam',
+    expectedStatus: 'pending' | 'approved' | 'spam' | 'hidden',
+  ) => {
     setNotice(null)
     applyLocalStatus(id, status)
     try {
-      await updateCommentStatus(id, status)
-      setRefetchTick((tick) => tick + 1)
+      const doc = await updateCommentStatus(id, status, expectedStatus)
+      const authoritative = (doc.doc ?? doc) as { status?: CommentRowModel['status'] }
+      applyLocalStatus(id, authoritative.status ?? status)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Operacja nie powiodła się.')
       setRefetchTick((tick) => tick + 1)
@@ -113,12 +118,18 @@ export const CommentsWorkbench = ({ canApprove, postTitles, initialStatus }: Pro
     if (ids.length === 0) return
     setBulkBusy(true)
     setNotice(null)
-    const { succeeded, failed } = await runBulkStatusUpdate(ids, status, (id, ok, doc) => {
+    const expectedByid = new Map(rows.map((row) => [row.id, row.status]))
+    const { succeeded, failed } = await runBulkStatusUpdate(
+      ids,
+      status,
+      (id, ok, doc) => {
       if (ok && doc) {
         const nextStatus = (doc.doc ?? doc) as { status?: CommentRowModel['status'] }
         applyLocalStatus(id, nextStatus.status ?? status)
       }
-    })
+      },
+      expectedByid,
+    )
     setBulkBusy(false)
     setSelected(new Set())
     setNotice(
@@ -161,8 +172,16 @@ export const CommentsWorkbench = ({ canApprove, postTitles, initialStatus }: Pro
         ))}
       </div>
 
-      {notice ? <p className="cb-row__meta">{notice}</p> : null}
-      {error ? <p className="cb-row__meta">Błąd: {error}</p> : null}
+      {notice ? (
+        <p className="cb-row__meta" role="status" aria-live="polite">
+          {notice}
+        </p>
+      ) : null}
+      {error ? (
+        <p className="cb-row__meta" role="alert">
+          Błąd: {error}
+        </p>
+      ) : null}
 
       {selectedCount > 0 ? (
         <ModerationBulkBar
@@ -192,7 +211,7 @@ export const CommentsWorkbench = ({ canApprove, postTitles, initialStatus }: Pro
             busy={bulkBusy}
             selected={selected.has(comment.id)}
             onToggle={toggle}
-            onStatus={(id, status) => void handleStatus(id, status)}
+            onStatus={(id, status, expected) => void handleStatus(id, status, expected)}
           />
         ))
       )}

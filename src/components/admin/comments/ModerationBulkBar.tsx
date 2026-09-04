@@ -1,6 +1,6 @@
 'use client'
 
-import { APPROVAL_TOOLTIP } from '@/lib/auth/commentModeration'
+import { APPROVAL_TOOLTIP } from '@/lib/auth/moderationConstants'
 
 type Props = {
   count: number

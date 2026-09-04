@@ -12,12 +12,17 @@ export type CommentStatus = 'pending' | 'approved' | 'spam' | 'hidden'
 export const updateCommentStatus = async (
   id: number | string,
   status: CommentStatus,
+  expectedStatus?: CommentStatus,
 ): Promise<Record<string, unknown>> => {
+  const body: Record<string, unknown> = { status }
+  if (expectedStatus !== undefined) {
+    body._expectedStatus = expectedStatus
+  }
   const response = await fetch(`/api/comments/${String(id)}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'same-origin',
-    body: JSON.stringify({ status }),
+    body: JSON.stringify(body),
   })
 
   if (!response.ok) {
@@ -38,6 +43,7 @@ export const runBulkStatusUpdate = async (
   ids: Array<number | string>,
   status: CommentStatus,
   onRowResult: (id: number | string, ok: boolean, doc?: Record<string, unknown>) => void,
+  expectedStatusByid?: Map<number | string, CommentStatus | undefined>,
 ): Promise<{ succeeded: number; failed: number }> => {
   const CONCURRENCY = 5
   let cursor = 0
@@ -49,7 +55,7 @@ export const runBulkStatusUpdate = async (
       const id = ids[cursor]
       cursor += 1
       try {
-        const doc = await updateCommentStatus(id, status)
+        const doc = await updateCommentStatus(id, status, expectedStatusByid?.get(id))
         succeeded += 1
         onRowResult(id, true, doc)
       } catch {

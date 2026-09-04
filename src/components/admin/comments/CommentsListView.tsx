@@ -17,16 +17,35 @@ type Props = ListViewServerPropsOnly
 export const CommentsListView = async (props: Props) => {
   const canApprove = canApproveComments(props.user)
 
-  const posts = await props.payload.find({
-    collection: 'posts',
-    depth: 0,
-    limit: 500,
-    overrideAccess: true,
-    select: { title: true, slug: true },
-  })
+  // Resolve titles only for the posts referenced by the CURRENT page of
+  // comments, scoped to the requesting user's read access.
+  type RawDoc = { post?: unknown }
+  type RawPost = { id?: unknown }
+
+  const postIds = [
+    ...new Set(
+      (props.data?.docs ?? [])
+        .map((doc: RawDoc) => doc.post)
+        .map((post: unknown) =>
+          post && typeof post === 'object' ? (post as RawPost).id : post,
+        )
+        .filter((id: unknown): id is number => typeof id === 'number'),
+    ),
+  ]
   const postTitles: Record<number, string> = {}
-  for (const post of posts.docs) {
-    postTitles[post.id] = post.title ?? post.slug ?? `#${post.id}`
+  if (postIds.length > 0) {
+    const posts = await props.payload.find({
+      collection: 'posts',
+      depth: 0,
+      limit: postIds.length,
+      overrideAccess: false,
+      user: props.user,
+      where: { id: { in: postIds } },
+    })
+    for (const post of posts.docs) {
+      const typed = post as { id: number; title?: string | null; slug?: string | null }
+      postTitles[typed.id] = typed.title ?? typed.slug ?? `#${typed.id}`
+    }
   }
 
   // Deep link support: /admin/collections/comments?workbench=pending opens

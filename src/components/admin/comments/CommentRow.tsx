@@ -1,7 +1,7 @@
 'use client'
 
 import { StatusChip } from './StatusChip'
-import { APPROVAL_TOOLTIP } from '@/lib/auth/commentModeration'
+import { APPROVAL_TOOLTIP } from '@/lib/auth/moderationConstants'
 import type { CommentRowModel } from './types'
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
   busy: boolean
   selected: boolean
   onToggle: (id: number, checked: boolean) => void
-  onStatus: (id: number, status: 'approved' | 'spam') => void
+  onStatus: (id: number, status: 'approved' | 'spam', expectedStatus: 'pending' | 'approved' | 'spam' | 'hidden') => void
 }
 
 const stripToPlainText = (value: unknown, max = 260): string => {
@@ -69,7 +69,7 @@ export const CommentRow = ({
           className="cb-btn cb-btn--primary"
           disabled={!canApprove || busy || comment.status === 'approved'}
           title={canApprove ? undefined : APPROVAL_TOOLTIP}
-          onClick={() => onStatus(comment.id, 'approved')}
+          onClick={() => onStatus(comment.id, 'approved', comment.status)}
         >
           ✓ Zatwierdź
         </button>
@@ -77,7 +77,7 @@ export const CommentRow = ({
           type="button"
           className="cb-btn cb-btn--danger"
           disabled={busy || comment.status === 'spam'}
-          onClick={() => onStatus(comment.id, 'spam')}
+          onClick={() => onStatus(comment.id, 'spam', comment.status)}
         >
           ✕ Spam
         </button>
