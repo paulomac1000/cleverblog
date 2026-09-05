@@ -81,7 +81,10 @@ jobs:
           mkdir -p media
           pnpm payload migrate
           pnpm generate:types
-          pnpm build
+          # build:prod freezes NEXT_PUBLIC_SERVER_URL=https://cleverblog.pl
+          # into the artifact (Next.js build-time env) — plain `pnpm build`
+          # would bake localhost into serverURL/cors/csrf/SEO.
+          pnpm build:prod
 
       - name: Ensure media directory in build context
         run: mkdir -p media
