@@ -8,6 +8,7 @@ Notable consumer- and operator-visible changes are recorded here. The release bo
 
 ### Fixed
 - Fixed the release workflow so it builds the application bundle (`pnpm install --frozen-lockfile`, `pnpm payload migrate`, `pnpm generate:types`, `pnpm build`) and creates the `media/` directory before the image build.
+- Fixed the release smoke probe to use `/api/access` (a real Payload REST endpoint that returns 200 regardless of database content) instead of bare `/api`, which returns 404 by design.
 - The v0.3.5 tag run failed at image build and no release was published.
 
 ### Changed

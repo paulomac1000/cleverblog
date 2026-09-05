@@ -112,7 +112,9 @@ jobs:
 
           deadline=$((SECONDS + 120))
           while (( SECONDS < deadline )); do
-            code="$(curl -fsS -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/api || true)"
+            # /api/access is a real Payload REST endpoint that returns 200
+            # regardless of database content; bare /api is 404 by design.
+            code="$(curl -fsS -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/api/access || true)"
             if [[ "$code" == '200' ]]; then
               cleanup
               trap - EXIT
