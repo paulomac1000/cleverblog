@@ -6,13 +6,13 @@ import {
 
 /**
  * Warm espresso syntax theme — token hexes per the chatgpt-mcp design spec.
- * Plain-text default plus nine semantic roles; all clear AA on #0f0d0b.
+ * Plain-text default plus nine semantic roles; all clear AA on #0b0908.
  */
 export const espressoTheme: ThemeRegistrationRaw = {
   name: 'cleverblog-espresso',
   type: 'dark',
   colors: {
-    'editor.background': '#0f0d0b',
+    'editor.background': '#0b0908',
     'editor.foreground': '#e2ddd7',
   },
   settings: [
