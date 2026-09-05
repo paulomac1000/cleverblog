@@ -95,6 +95,8 @@ const walkAndHighlight = async (node: LexicalNode): Promise<void> => {
     }
     node._shikiHtml = html
     delete node._code
+    node.type = 'shiki-html'
+    node.children = []
     return
   }
   for (const child of node.children ?? []) {
