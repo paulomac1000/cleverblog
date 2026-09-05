@@ -7,7 +7,7 @@ import '@fontsource-variable/ibm-plex-sans'
 import '@fontsource/ibm-plex-mono/400.css'
 import '@fontsource/ibm-plex-mono/500.css'
 
-import { homeUrl, pageUrl } from '@/i18n/urls'
+import { aboutPageSlug, contactPageSlug, homeUrl, pageUrl } from '@/i18n/urls'
 import { t } from '@/i18n/messages'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { getArticleCounterpart, getPageCounterpart } from '@/lib/content'
@@ -63,10 +63,10 @@ export default async function FrontendLayout({
             <Link href={homeUrl(locale)}>
               {t(locale, 'site.footer.articles')}
             </Link>
-            <Link href={pageUrl(locale, 'o-nas')}>
+            <Link href={pageUrl(locale, aboutPageSlug(locale))}>
               {t(locale, 'site.footer.about')}
             </Link>
-            <Link href={pageUrl(locale, 'kontakt')}>
+            <Link href={pageUrl(locale, contactPageSlug(locale))}>
               {t(locale, 'site.footer.contact')}
             </Link>
           </div>

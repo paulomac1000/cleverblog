@@ -42,6 +42,17 @@ export const tagUrl = (locale: Locale, slug: string): string =>
 export const pageUrl = (locale: Locale, slug: string): string =>
   localePath(locale, `/${encodeURIComponent(slug)}`)
 
+/**
+ * Localized slugs for the static pages (O mnie / Kontakt).
+ * PL slugs are the canonical public URLs; EN pages carry their own
+ * English slugs in the pages collection.
+ */
+export const aboutPageSlug = (locale: Locale): string =>
+  locale === 'pl' ? 'o-nas' : 'about'
+
+export const contactPageSlug = (locale: Locale): string =>
+  locale === 'pl' ? 'kontakt' : 'contact'
+
 export const feedUrl = (locale: Locale): string =>
   locale === 'pl' ? '/feed.xml' : '/en/feed.xml'
 

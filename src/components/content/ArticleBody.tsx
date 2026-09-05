@@ -97,14 +97,18 @@ export async function ArticleBody({
           dangerouslySetInnerHTML={{ __html: renderHTML }}
         />
       ) : highlighted ? (
-        <RichText
-          converters={({ defaultConverters }) => ({
-            ...defaultConverters,
-            ...CodeJSXConverter,
-            ...ShikiHtmlConverter,
-          })}
-          data={highlighted}
-        />
+        // CSS contract: prose rules (.payload-richtext headings/lists/blockquote)
+        // require this wrapper; Tailwind preflight strips list styles otherwise.
+        <div className="payload-richtext">
+          <RichText
+            converters={({ defaultConverters }) => ({
+              ...defaultConverters,
+              ...CodeJSXConverter,
+              ...ShikiHtmlConverter,
+            })}
+            data={highlighted}
+          />
+        </div>
       ) : (
         <p>{t(locale, 'article.legacyFallback')}</p>
       )}
@@ -135,14 +139,8 @@ export function StaticPageBody({
     <article className="article">
       <h1>{page.title}</h1>
 
-      {page.publishedAt ? (
-        <div className="meta">
-          <span>
-            {t(locale, 'article.publishedLabel')}
-            {formatDate(page.publishedAt, locale)}
-          </span>
-        </div>
-      ) : null}
+      {/* Static pages are undated by design: no "published on" meta line.
+          The underlying publishedAt data stays untouched. */}
 
       {renderHTML ? (
         <div
@@ -150,13 +148,15 @@ export function StaticPageBody({
           dangerouslySetInnerHTML={{ __html: renderHTML }}
         />
       ) : page.content ? (
-        <RichText
-          converters={({ defaultConverters }) => ({
-            ...defaultConverters,
-            ...CodeJSXConverter,
-          })}
-          data={page.content as SerializedEditorState}
-        />
+        <div className="payload-richtext">
+          <RichText
+            converters={({ defaultConverters }) => ({
+              ...defaultConverters,
+              ...CodeJSXConverter,
+            })}
+            data={page.content as SerializedEditorState}
+          />
+        </div>
       ) : (
         <p>{t(locale, 'article.legacyFallback')}</p>
       )}

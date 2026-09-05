@@ -12,7 +12,7 @@ type Messages = Record<string, MessageValue>
 const pl: Messages = {
   'site.tagline': 'engineering notes, not content filler',
   'site.footer.articles': 'Artykuły',
-  'site.footer.about': 'O nas',
+  'site.footer.about': 'O mnie',
   'site.footer.contact': 'Kontakt',
   'site.footer.note':
     'cleverblog.pl — praktyczne notatki z prawdziwej pracy inżynierskiej.',

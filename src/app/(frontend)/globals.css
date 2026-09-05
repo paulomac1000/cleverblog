@@ -13,7 +13,7 @@
   --text-muted: #9c958c;
   --accent: #f2c94c;
   --accent-link: #dca85f;
-  --code-bg: #0f0d0b;
+  --code-bg: #0b0908;
   --code-header: #191613;
   --radius: 14px;
   --radius-sm: 10px;
@@ -310,7 +310,7 @@ footer {
   border-bottom: 1px solid var(--border);
 }
 
-.legacy-content, .payload-richtext { font-size: 1.02rem }
+.legacy-content, .payload-richtext { font-size: 1.02rem; line-height: 1.72 }
 
 .legacy-content h2, .payload-richtext h2 {
   font-size: 1.6rem;
@@ -416,7 +416,7 @@ footer {
   padding: 6px 10px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 6px;
-  background: rgba(30, 30, 30, 0.8);
+  background: rgba(38, 34, 30, 0.85);
   color: var(--text);
   font: inherit;
   font-size: 0.78rem;
@@ -431,7 +431,7 @@ footer {
 }
 
 .code-copy-button:hover {
-  background: rgba(45, 45, 45, 0.92);
+  background: rgba(52, 46, 40, 0.95);
   border-color: var(--border-strong);
 }
 
