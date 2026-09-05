@@ -1,12 +1,11 @@
-import config from '@payload-config'
 import { NextResponse, type NextRequest } from 'next/server'
-import { getPayload } from 'payload'
-
-import { headers } from 'next/headers'
 
 import { resolveCounterpartUrl } from '@/lib/content/counterpart'
 import { getArticleCounterpart, getPageCounterpart } from '@/lib/content'
 import type { Locale } from '@/i18n/config'
+
+const resolveLocale = (path: string): Locale =>
+  path === '/en' || path.startsWith('/en/') ? 'en' : 'pl'
 
 export async function GET(request: NextRequest) {
   const path = request.nextUrl.searchParams.get('path')
@@ -14,16 +13,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'invalid path' }, { status: 400 })
   }
 
-  // Trust the middleware-derived locale over client input: the header comes
-  // from the proxy's own parsing of the same pathname.
-  const requestHeaders = await headers()
-  const locale: Locale = requestHeaders.get('x-cb-locale') === 'en' ? 'en' : 'pl'
-  const headerPath = requestHeaders.get('x-cb-path') ?? '/'
-  // Only resolve the path the middleware actually saw — this endpoint is a
-  // helper for the current page, not an open redirect oracle.
-  if (headerPath !== path) {
-    return NextResponse.json({ error: 'path mismatch' }, { status: 400 })
-  }
+  // The URL can only ever resolve to this site's own routes: the resolver
+  // maps between /, /en, /articles/..., /<slug>, /category/... and /tags...
+  // or returns null for documents without a counterpart.
+  const locale = resolveLocale(path)
 
   let counterpartUrl: string | null = null
   try {
