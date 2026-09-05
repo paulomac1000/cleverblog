@@ -12,6 +12,7 @@ export type PostCardData = {
   heroAlt?: string | null
   heroUrl?: string | null
   categoryNames?: string[]
+  tagNames?: string[]
 }
 
 type Props = {
@@ -46,7 +47,14 @@ export function PostCard({ post, headingLevel = 2, locale = 'pl' }: Props) {
   const articleHref = localePath(locale, `/articles/${post.slug}`)
 
   return (
-    <Link className="card" href={articleHref}>
+    <Link
+      className="card"
+      data-category-names={(post.categoryNames ?? []).join(' ')}
+      data-excerpt={post.excerpt ?? ''}
+      data-tag-names={(post.tagNames ?? []).join(' ')}
+      data-title={post.title}
+      href={articleHref}
+    >
       {post.heroUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img

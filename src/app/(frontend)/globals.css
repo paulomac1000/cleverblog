@@ -803,3 +803,120 @@ a.lang-segment:focus-visible {
     max-width: none;
   }
 }
+
+/* Home-page article discovery */
+.discovery {
+  margin: 0 0 8px;
+}
+
+.discovery-search-row {
+  width: min(100%, 520px);
+  margin-bottom: 14px;
+}
+
+.discovery-search-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.discovery-search-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease;
+}
+
+.discovery-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.discovery-search-input:hover {
+  border-color: var(--border-strong);
+}
+
+.discovery-search-input:focus-visible {
+  border-color: var(--accent);
+}
+
+.discovery-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.discovery-tags-label {
+  width: 100%;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.discovery-tag {
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.84rem;
+  cursor: pointer;
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    color 140ms ease;
+}
+
+.discovery-tag:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.discovery-tag[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--surface-raised);
+  color: var(--accent);
+}
+
+.discovery-count {
+  margin: 0 0 16px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+.discovery-empty {
+  margin: 16px 0 0;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-muted);
+}
+
+.discovery-results .card[hidden] {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .discovery-search-row,
+  .discovery-search-input {
+    width: 100%;
+  }
+
+  .discovery-tag {
+    min-height: 44px;
+  }
+}

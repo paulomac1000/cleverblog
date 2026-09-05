@@ -28,6 +28,13 @@ const pl: Messages = {
   'home.hero.categoryFilter.submit': 'Pokaż',
   'home.latest.heading': 'Najnowsze artykuły',
   'home.empty.page': 'Brak artykułów na tej stronie.',
+  'home.discovery.searchLabel': 'Szukaj artykułów',
+  'home.discovery.searchPlaceholder':
+    'Szukaj po tytule, opisie, kategorii lub tagu',
+  'home.discovery.popularTagsLabel': 'Popularne tagi',
+  'home.discovery.resultsTemplate': 'Artykuły: {visible} z {total}',
+  'home.discovery.emptyTemplate':
+    'Nie znaleziono artykułów dla „{query}". Spróbuj innego hasła albo wybierz tag.',
 
   'home.empty.locale.heading': 'No English articles yet.',
   'home.empty.locale.body':
@@ -104,6 +111,13 @@ const en: Messages = {
   'home.hero.categoryFilter.submit': 'Show',
   'home.latest.heading': 'Latest articles',
   'home.empty.page': 'No articles on this page.',
+  'home.discovery.searchLabel': 'Search articles',
+  'home.discovery.searchPlaceholder':
+    'Search by title, excerpt, category, or tag',
+  'home.discovery.popularTagsLabel': 'Popular tags',
+  'home.discovery.resultsTemplate': 'Articles: {visible} of {total}',
+  'home.discovery.emptyTemplate':
+    'No articles found for "{query}". Try another term or browse by tag.',
 
   'home.empty.locale.heading': 'No English articles yet.',
   'home.empty.locale.body':

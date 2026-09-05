@@ -2,10 +2,11 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 
+import { ArticleDiscovery } from '@/components/posts/ArticleDiscovery'
 import { PostList, toPostListItems } from '@/components/posts/PostList'
 import { CategorySelect } from '@/components/posts/CategorySelect'
 import { listPublishedPosts } from '@/lib/content/posts'
-import { listCategories } from '@/lib/content/taxonomy'
+import { listCategories, listPopularTags } from '@/lib/content/taxonomy'
 import { homeUrl, localePath } from '@/i18n/urls'
 import { t, tf } from '@/i18n/messages'
 import { buildLocalizedMetadata, serverURL } from '@/lib/seo/metadata'
@@ -13,10 +14,13 @@ import type { Locale } from '@/i18n/config'
 
 export const dynamic = 'force-dynamic'
 
+const PAGE_SIZE = 100
+
 type Props = {
   searchParams: Promise<{
     page?: string | string[]
     category?: string | string[]
+    q?: string | string[]
   }>
 }
 
@@ -33,7 +37,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function EnHomePage({ searchParams }: Props) {
-  const { page: pageParam, category: categoryParam } = await searchParams
+  const {
+    page: pageParam,
+    category: categoryParam,
+    q: queryParam,
+  } = await searchParams
 
   const selectedCategory = Array.isArray(categoryParam)
     ? categoryParam[0]
@@ -51,10 +59,14 @@ export default async function EnHomePage({ searchParams }: Props) {
   const parsedPage = Number(requestedPage)
   const page =
     Number.isSafeInteger(parsedPage) && parsedPage >= 1 ? parsedPage : 1
+  const initialQuery = Array.isArray(queryParam)
+    ? queryParam[0] ?? ''
+    : queryParam ?? ''
 
-  const [result, categories] = await Promise.all([
-    listPublishedPosts(locale, { page }),
+  const [result, categories, popularTags] = await Promise.all([
+    listPublishedPosts(locale, { page, limit: PAGE_SIZE }),
     listCategories(locale),
+    listPopularTags(locale),
   ])
 
   if (page > 1 && page > result.totalPages) notFound()
@@ -114,7 +126,21 @@ export default async function EnHomePage({ searchParams }: Props) {
             </p>
           </div>
         ) : (
-          <PostList headingLevel={3} locale={locale} posts={posts} />
+          <ArticleDiscovery
+            initialQuery={initialQuery}
+            locale={locale}
+            popularTags={popularTags}
+            strings={{
+              searchLabel: t(locale, 'home.discovery.searchLabel'),
+              searchPlaceholder: t(locale, 'home.discovery.searchPlaceholder'),
+              popularTagsLabel: t(locale, 'home.discovery.popularTagsLabel'),
+              resultsTemplate: t(locale, 'home.discovery.resultsTemplate'),
+              emptyTemplate: t(locale, 'home.discovery.emptyTemplate'),
+            }}
+            totalCount={posts.length}
+          >
+            <PostList headingLevel={3} locale={locale} posts={posts} />
+          </ArticleDiscovery>
         )}
       </section>
 

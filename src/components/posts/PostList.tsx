@@ -2,7 +2,7 @@ import { PostCard, type PostCardData } from './PostCard'
 
 import type { Locale } from '@/i18n/config'
 
-type RelatedCategory = {
+type RelatedTaxonomy = {
   name?: string | null
 }
 
@@ -18,7 +18,10 @@ export type PostListSource = {
   excerpt?: string | null
   publishedAt?: string | null
   heroImage?: number | RelatedMedia | null
-  categories?: (number | RelatedCategory)[] | null
+  categories?: (number | RelatedTaxonomy)[] | null
+  tags?: (number | RelatedTaxonomy)[] | null
+  categoryNames?: string[]
+  tagNames?: string[]
 }
 
 type Props = {
@@ -26,6 +29,15 @@ type Props = {
   headingLevel?: 2 | 3
   locale?: Locale
 }
+
+const relationNames = (
+  relations: (number | RelatedTaxonomy)[] | null | undefined,
+): string[] =>
+  (relations ?? [])
+    .map((relation) =>
+      typeof relation === 'object' && relation !== null ? relation.name : null,
+    )
+    .filter((name): name is string => Boolean(name))
 
 export const toPostListItems = (
   posts: PostListSource[],
@@ -36,13 +48,8 @@ export const toPostListItems = (
       post.heroImage && typeof post.heroImage !== 'number'
         ? post.heroImage
         : null
-    const categoryNames = (post.categories ?? [])
-      .map((category) =>
-        typeof category === 'object' && category !== null
-          ? category.name
-          : null,
-      )
-      .filter((name): name is string => Boolean(name))
+    const categoryNames = post.categoryNames ?? relationNames(post.categories)
+    const tagNames = post.tagNames ?? relationNames(post.tags)
 
     return {
       id: post.id,
@@ -53,6 +60,7 @@ export const toPostListItems = (
       heroAlt: hero?.alt ?? null,
       heroUrl: hero?.url ?? null,
       categoryNames,
+      tagNames,
     }
   })
 

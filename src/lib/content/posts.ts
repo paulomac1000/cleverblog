@@ -26,6 +26,19 @@ const buildLocaleArgs = (locale: Locale) =>
 const translationExists = (locale: Locale): Where | undefined =>
   locale === 'en' ? { title: { not_equals: null } } : undefined
 
+type NamedRelation = {
+  name?: string | null
+}
+
+const relationNames = (
+  relations: (number | NamedRelation)[] | null | undefined,
+): string[] =>
+  (relations ?? [])
+    .map((relation) =>
+      typeof relation === 'object' && relation !== null ? relation.name : null,
+    )
+    .filter((name): name is string => Boolean(name))
+
 export type PublishedPost = NonNullable<
   Awaited<ReturnType<typeof findPublishedPostBySlug>>
 >
@@ -132,7 +145,7 @@ export const listPublishedPosts = async (
     where.and?.push({ categories: { equals: args.categoryId } } as never)
   }
 
-  return payload.find({
+  const result = await payload.find({
     collection: 'posts',
     limit,
     page,
@@ -142,6 +155,15 @@ export const listPublishedPosts = async (
     sort: '-publishedAt',
     where,
   })
+
+  return {
+    ...result,
+    docs: result.docs.map((doc) => ({
+      ...doc,
+      categoryNames: relationNames(doc.categories),
+      tagNames: relationNames(doc.tags),
+    })),
+  }
 }
 
 export const findPostByLegacyWordpressId = async (
