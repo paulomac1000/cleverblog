@@ -4,6 +4,15 @@ Notable consumer- and operator-visible changes are recorded here. The release bo
 
 ## [Unreleased]
 
+## [0.3.6] - 2026-09-06
+
+### Fixed
+- Fixed the release workflow so it builds the application bundle (`pnpm install --frozen-lockfile`, `pnpm payload migrate`, `pnpm generate:types`, `pnpm build`) and creates the `media/` directory before the image build.
+- The v0.3.5 tag run failed at image build and no release was published.
+
+### Changed
+- v0.3.6 is the first release published through the tag-triggered release pipeline.
+
 ## [0.3.5] - 2026-09-06
 
 ### Added
