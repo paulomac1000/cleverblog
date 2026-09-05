@@ -29,9 +29,8 @@ export const espressoTheme: ThemeRegistrationRaw = {
 }
 
 const LANGS = [
-  'python', 'bash', 'shellscript', 'sql', 'typescript', 'typescriptreact',
-  'javascript', 'json', 'yaml', 'ini', 'nginx', 'dockerfile',
-  'c', 'cpp', 'css', 'html', 'markdown',
+  'python', 'bash', 'sql', 'typescript', 'tsx', 'javascript', 'json',
+  'yaml', 'ini', 'dockerfile', 'c', 'cpp', 'css', 'html', 'markdown',
 ]
 
 let highlighterPromise: Promise<Highlighter> | null = null
@@ -41,6 +40,10 @@ export const getEspressoHighlighter = (): Promise<Highlighter> => {
     highlighterPromise = createHighlighter({
       themes: [espressoTheme],
       langs: LANGS,
+    }).catch((error) => {
+      // Allow a later request to retry instead of caching the rejection.
+      highlighterPromise = null
+      throw error
     })
   }
   return highlighterPromise
@@ -93,10 +96,15 @@ const walkAndHighlight = async (node: LexicalNode): Promise<void> => {
       html = rendered ?? ''
       memoSet(key, html)
     }
+    if (!html) {
+      // Highlighter unavailable — keep the plain code node (fallback render).
+      delete node._code
+      return
+    }
     node._shikiHtml = html
     delete node._code
-    node.type = 'shiki-html'
     node.children = []
+    node.type = 'shiki-html'
     return
   }
   for (const child of node.children ?? []) {
