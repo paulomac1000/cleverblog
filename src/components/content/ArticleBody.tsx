@@ -5,7 +5,8 @@
 
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 import { RichText } from '@payloadcms/richtext-lexical/react'
-import { CodeJSXConverter } from '@/components/richtext/codeConverter'
+import { CodeJSXConverter, ShikiHtmlConverter } from '@/components/richtext/codeConverter'
+import { highlightLexicalCode } from '@/components/richtext/espresso'
 import { CommentForm } from '@/components/comments/CommentForm'
 import { CommentList } from '@/components/comments/CommentList'
 import { CodeHighlight } from '@/components/CodeHighlight'
@@ -57,7 +58,7 @@ const resolveRenderHTML = (
   return null
 }
 
-export function ArticleBody({
+export async function ArticleBody({
   post,
   locale,
 }: {
@@ -65,6 +66,11 @@ export function ArticleBody({
   locale: Locale
 }) {
   const renderHTML = resolveRenderHTML(post, locale)
+  const highlighted: SerializedEditorState | null = post.content
+    ? ((await highlightLexicalCode(
+        post.content as never,
+      )) as unknown as SerializedEditorState)
+    : null
   const commentConfig = getCommentConfig()
   let commentFormToken: string | undefined
   let turnstileSiteKey: string | undefined
@@ -90,13 +96,14 @@ export function ArticleBody({
           className="legacy-content"
           dangerouslySetInnerHTML={{ __html: renderHTML }}
         />
-      ) : post.content ? (
+      ) : highlighted ? (
         <RichText
           converters={({ defaultConverters }) => ({
             ...defaultConverters,
             ...CodeJSXConverter,
+            ...ShikiHtmlConverter,
           })}
-          data={post.content as SerializedEditorState}
+          data={highlighted}
         />
       ) : (
         <p>{t(locale, 'article.legacyFallback')}</p>

@@ -2,16 +2,19 @@
   color-scheme: dark;
   font-family: 'IBM Plex Sans Variable', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
   line-height: 1.65;
-  background: #0c0f14;
-  color: #e8eaed;
-  --bg: #0c0f14;
-  --surface: #151a21;
-  --surface-raised: #1b222b;
-  --border: #2b323d;
-  --border-strong: #454e5a;
-  --text: #e8eaed;
-  --text-muted: #97a0ab;
+  background: #12100e;
+  color: #eae6e1;
+  --bg: #12100e;
+  --surface: #1c1916;
+  --surface-raised: #26221e;
+  --border: #3a342e;
+  --border-strong: #524a42;
+  --text: #eae6e1;
+  --text-muted: #9c958c;
   --accent: #f2c94c;
+  --accent-link: #dca85f;
+  --code-bg: #0f0d0b;
+  --code-header: #191613;
   --radius: 14px;
   --radius-sm: 10px;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
@@ -365,7 +368,7 @@ footer {
   position: relative;
   overflow-x: auto;
   padding: 18px 20px;
-  background: #0a0d14;
+  background: var(--code-bg);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   margin: 22px 0;
@@ -744,4 +747,59 @@ a.lang-segment:focus-visible {
 .payload-richtext h2, .payload-richtext h3, .payload-richtext h4,
 .legacy-content h2, .legacy-content h3, .legacy-content h4 {
   text-wrap: balance;
+}
+
+
+/* Article editorial color map (warm espresso + amber) */
+.legacy-content h1, .payload-richtext h1 { color: #f2eee9 }
+.legacy-content h2, .payload-richtext h2 {
+  color: #f0ebe5;
+  border-left: 3px solid var(--accent);
+  padding-left: 14px;
+}
+.legacy-content h3, .payload-richtext h3 { color: #e8c66a }
+
+.legacy-content a, .payload-richtext a { color: var(--accent-link) }
+.legacy-content a:hover, .payload-richtext a:hover { color: var(--accent) }
+
+.legacy-content code, .payload-richtext code {
+  color: #e8c66a;
+  background: #26211b;
+  border-color: #443b31;
+}
+
+.legacy-content pre code, .payload-richtext pre code {
+  color: #e2ddd7;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.legacy-content pre[data-language]::before,
+.payload-richtext pre[data-language]::before {
+  color: #9c958c;
+  background: var(--code-header);
+}
+
+.legacy-content blockquote, .payload-richtext blockquote {
+  border-left-color: #c78a5b;
+  color: #c9b28f;
+}
+
+/* Callouts: low-saturation surfaces, colored rules (use sparingly) */
+.callout { border-radius: var(--radius-sm); padding: 14px 18px; margin: 22px 0 }
+.callout-info    { background: #1d2119; border: 1px solid #8fa66a; border-left-width: 3px }
+.callout-tip     { background: #19211a; border: 1px solid #75a77a; border-left-width: 3px }
+.callout-warning { background: #282116; border: 1px solid #d4a63d; border-left-width: 3px }
+.callout-danger  { background: #281a17; border: 1px solid #c76852; border-left-width: 3px }
+
+/* Diagrams & figures break out of the 760px prose measure on wide screens */
+@media (min-width: 1100px) {
+  .article { max-width: 760px }
+  .legacy-content img, .payload-richtext img,
+  .legacy-content figure, .payload-richtext figure {
+    width: calc(100% + 280px);
+    margin-left: -140px;
+    max-width: none;
+  }
 }
