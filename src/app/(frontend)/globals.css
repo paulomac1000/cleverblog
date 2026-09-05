@@ -713,8 +713,12 @@ a.lang-segment:focus-visible {
   overflow-wrap: break-word;
 }
 
+/* Justify EN only: Chromium ships no Polish hyphenation dictionary, so
+   justified PL text produces rivers for most visitors. EN hyphenates
+   everywhere. Wide measures only. */
 @media (min-width: 40rem) {
-  .legacy-content p, .payload-richtext p {
+  html[lang='en'] .legacy-content p,
+  html[lang='en'] .payload-richtext p {
     text-align: justify;
     text-justify: inter-word;
   }
