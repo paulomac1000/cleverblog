@@ -4,6 +4,14 @@ Notable consumer- and operator-visible changes are recorded here. The release bo
 
 ## [Unreleased]
 
+## [0.3.5] - 2026-09-06
+
+### Added
+- Added a separate hosted CI security gate using `pnpm audit --audit-level=high --prod` against production dependencies.
+
+### Changed
+- Prepared repository release metadata for v0.3.5, whose tag will validate the tag-triggered release workflow end-to-end.
+
 ## [0.3.4] - 2026-09-05
 
 ### Added
