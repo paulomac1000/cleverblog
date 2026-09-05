@@ -133,19 +133,31 @@ export async function POST(request: NextRequest) {
       }
       const outcome = await translateCommentText(comment.content)
       if (outcome.status === 'ready' && outcome.text) {
+        const readyData = {
+          text: outcome.text,
+          status: 'ready' as const,
+          provider: outcome.provider,
+          model: outcome.model,
+          sourceHash: outcome.sourceHash,
+          translationVersion: 1,
+          nextRetryAt: null,
+        }
+        if (failedRow) {
+          // Promote the previously failed row — create would collide on the
+          // unique (comment, locale) index.
+          await payload.update({
+            collection: 'comment-translations',
+            id: failedRow.id,
+            data: readyData,
+            overrideAccess: true,
+          })
+          results[id] = outcome.text
+          continue
+        }
         try {
           await payload.create({
             collection: 'comment-translations',
-            data: {
-              comment: id,
-              locale: locale as 'en',
-              text: outcome.text,
-              status: 'ready',
-              provider: outcome.provider,
-              model: outcome.model,
-              sourceHash: outcome.sourceHash,
-              translationVersion: 1,
-            },
+            data: { comment: id, locale: locale as 'en', ...readyData },
             overrideAccess: true,
           })
         } catch {
@@ -170,17 +182,27 @@ export async function POST(request: NextRequest) {
         }
         results[id] = outcome.text
       } else if (outcome.status === 'failed') {
-        await payload.create({
-          collection: 'comment-translations',
-          data: {
-            comment: id,
-            locale: locale as 'en',
-            text: '',
-            status: 'failed',
-            nextRetryAt: new Date(Date.now() + RETRY_DELAY_MS).toISOString(),
-          },
-          overrideAccess: true,
-        }).catch(() => undefined)
+        if (failedRow) {
+          // Re-failure: push the cooldown forward instead of colliding.
+          await payload.update({
+            collection: 'comment-translations',
+            id: failedRow.id,
+            data: { nextRetryAt: new Date(Date.now() + RETRY_DELAY_MS).toISOString() },
+            overrideAccess: true,
+          })
+        } else {
+          await payload.create({
+            collection: 'comment-translations',
+            data: {
+              comment: id,
+              locale: locale as 'en',
+              text: '',
+              status: 'failed',
+              nextRetryAt: new Date(Date.now() + RETRY_DELAY_MS).toISOString(),
+            },
+            overrideAccess: true,
+          }).catch(() => undefined)
+        }
       }
     }
   }
