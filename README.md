@@ -1,29 +1,35 @@
 # cleverblog
 
-Payload CMS 3.88 + Next.js 16 + PostgreSQL blog at [cleverblog.pl](https://cleverblog.pl). Replaced the legacy WordPress runtime; historical content keeps permanent provenance in the `legacy` group (`/?p=ID` URLs still resolve).
+A bilingual technical blog with Polish as the primary language at [cleverblog.pl](https://cleverblog.pl)
+and English under `/en`, built on Payload CMS 3.88, Next.js 16 and PostgreSQL. It replaced a legacy
+WordPress runtime while preserving permanent historical provenance and the `/?p=ID` resolution contract.
+Production runs in Docker behind Cloudflare through nginx ingress, with external managed PostgreSQL.
 
-## Status
+## Highlights
 
-Production is live (Docker, external PostgreSQL, nginx ingress behind Cloudflare).
+- Localized Polish/English content, routes and navigation, including localized slugs and
+  language-counterpart metadata for alternate-language discovery.
+- Moderated public comments with Cloudflare Turnstile verified server-side, signed form-age tokens,
+  per-IP rate limiting, a honeypot, duplicate suppression and spam scoring; comments are never
+  auto-approved. Approved comments can optionally use the flagged machine-translation path with a
+  per-comment/per-locale cache.
+- Homepage article discovery keeps a server-rendered list as the baseline, with client-side metadata
+  search across title, excerpt, category and tags plus popular-tag filtering.
+- Server-side syntax highlighting with Shiki, integrated into the espresso editorial theme.
+- Payload publication gate requires public provenance, verified status and approved review before
+  publication; agent roles cannot publish posts or approve comments.
+- Legacy WordPress HTML is preserved as provenance and rendered through a sanitized fallback path
+  when needed.
 
-Implemented:
+## Not implemented yet
 
-- Payload 3.88.0 (stable line) with drafts, versions, scheduled publishing and a backend publication gate.
-- Official SEO, search, redirects and MCP plugins; MCP delete disabled.
-- Collections for posts, pages, media, categories, tags, comments, topic candidates, evidence, users.
-- Agent roles with collection access controls; agents cannot publish or approve comments.
-- Moderated public comments: Cloudflare Turnstile (action + hostname verified server-side), signed form-age tokens, per-IP rate limiting, honeypot, duplicate suppression, spam scoring. Everything lands `pending` or `spam` — never auto-approved.
-- Chronological homepage with a zero-JS category filter and `/category/[slug]` archives (legacy category URLs preserved).
-- Legacy sanitized HTML fallback rendering (`contentFormat: legacy-html`).
-
-Not implemented yet:
-
-- R2/S3 production storage adapter (local filesystem media in production).
-- Domain-specific MCP tools such as `propose_topic` (generic Payload MCP is available first).
+- S3/R2 production storage adapter; production still uses the local `./media` volume.
+- Domain-specific MCP tools on top of the generic Payload MCP.
 
 ## Local development
 
 Requirements: Node >= 24.15 and pnpm 10+.
+The development PostgreSQL service comes from `docker-compose.yml`.
 
 ```bash
 cp .env.example .env
@@ -33,21 +39,37 @@ pnpm generate:types
 pnpm dev
 ```
 
-Open:
+Verify: open http://localhost:3000 — the homepage renders the bilingual article list, and
+http://localhost:3000/admin reaches the Payload admin (create the first admin user there).
 
-- frontend: http://localhost:3000
+Run `pnpm generate:types` before any typecheck because `src/payload-types.ts` is gitignored.
+
+Endpoints:
+
+- Frontend: http://localhost:3000
 - Payload admin: http://localhost:3000/admin
 - Payload REST API: http://localhost:3000/api
 - MCP: http://localhost:3000/api/mcp
 
-Create the first admin user through Payload Admin. For MCP, create dedicated users with API keys and a restricted role; do not reuse the human admin API key.
+For MCP, use dedicated users with API keys and a restricted role; never reuse the human admin key.
 
 ## Security invariants
 
-1. Agent roles cannot publish posts; drafts only.
-2. Content cannot be published unless `sourceVisibility=public`, `verification.status=verified`, and `review.status=approved`.
-3. MCP delete is disabled even when Payload access control would otherwise allow deletion.
-4. Historical WordPress HTML is always retained; frontend fallback HTML is sanitized before rendering.
-5. Raw/private project material must never be copied into public article content. `private`, `mixed`, and `unknown` provenance cannot pass the publication gate.
+1. Agent roles cannot publish posts; they may create drafts only.
+2. Content cannot be published unless `sourceVisibility=public`, `verification.status=verified` and
+   `review.status=approved`.
+3. MCP delete stays disabled even when Payload access control would otherwise permit deletion.
+4. Historical WordPress HTML is retained permanently, and frontend fallback HTML is sanitized before
+   rendering.
+5. Raw or private project material must never enter public article content; `private`, `mixed` and
+   `unknown` provenance cannot pass the publication gate.
 
-See [AGENTS.md](AGENTS.md) for agent workflow and invariants.
+## Releases
+
+- Release boundary: one `vX.Y.Z` tag on `main`.
+- `.github/workflows/release.yml` builds the image once, smoke-tests that exact image, publishes it to
+  GHCR and records its digest; production deployment is operator-authorized and uses only that exact
+  digest.
+- `CHANGELOG.md` is the canonical release record, and `package.json` owns the repository version.
+
+See [AGENTS.md](AGENTS.md) for agent workflow, invariants and canonical owners.
