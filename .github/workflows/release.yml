@@ -61,6 +61,34 @@ jobs:
       - name: Log in to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.x
+        with:
+          version: 10.15.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.x
+        with:
+          node-version: 24.15.0
+
+      - name: Build application bundle
+        shell: bash
+        env:
+          DATABASE_URL: postgres://cleverblog:cleverblog@127.0.0.1:5432/cleverblog
+          PAYLOAD_SECRET: ci-only-secret-ci-only-secret-ci-only
+          NEXT_PUBLIC_SERVER_URL: http://localhost:3000
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile
+          mkdir -p media
+          pnpm payload migrate
+          pnpm generate:types
+          # build:prod freezes NEXT_PUBLIC_SERVER_URL=https://cleverblog.pl
+          # into the artifact (Next.js build-time env) — plain `pnpm build`
+          # would bake localhost into serverURL/cors/csrf/SEO.
+          pnpm build:prod
+
+      - name: Ensure media directory in build context
+        run: mkdir -p media
+
       - name: Build release image once
         run: docker build -t "ghcr.io/${{ github.repository }}:${RELEASE_TAG}" -t "ghcr.io/${{ github.repository }}:sha-${{ github.sha }}" .
 
@@ -87,7 +115,9 @@ jobs:
 
           deadline=$((SECONDS + 120))
           while (( SECONDS < deadline )); do
-            code="$(curl -fsS -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/api || true)"
+            # /api/access is a real Payload REST endpoint that returns 200
+            # regardless of database content; bare /api is 404 by design.
+            code="$(curl -fsS -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/api/access || true)"
             if [[ "$code" == '200' ]]; then
               cleanup
               trap - EXIT
