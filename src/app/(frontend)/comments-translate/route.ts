@@ -161,8 +161,9 @@ export async function POST(request: NextRequest) {
             overrideAccess: true,
           })
         } catch {
-          // Lost a single-flight race: serve the winner's translation.
-          const winner = await payload.find({
+          // Lost a single-flight race. The winner may be ready (serve it) or
+          // failed (promote it with our fresh translation).
+          const race = await payload.find({
             collection: 'comment-translations',
             depth: 0,
             limit: 1,
@@ -171,14 +172,25 @@ export async function POST(request: NextRequest) {
               and: [
                 { comment: { equals: id } },
                 { locale: { equals: locale as 'en' } },
-                { status: { equals: 'ready' } },
               ],
             },
           })
-          const winningText = winner.docs[0]?.text
-          if (!winningText) throw new Error('translation race lost without a winner')
-          results[id] = winningText
-          continue
+          const winner = race.docs[0]
+          if (winner && winner.status === 'ready') {
+            results[id] = winner.text
+            continue
+          }
+          if (winner) {
+            await payload.update({
+              collection: 'comment-translations',
+              id: winner.id,
+              data: readyData,
+              overrideAccess: true,
+            })
+            results[id] = outcome.text
+            continue
+          }
+          throw new Error('translation race lost without a surviving row')
         }
         results[id] = outcome.text
       } else if (outcome.status === 'failed') {
