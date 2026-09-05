@@ -1,32 +1,44 @@
 # Agent instructions: cleverblog.pl
-
-Polish tech blog (https://cleverblog.pl) — Payload CMS 3.88.0 + Next.js 16 (App Router) + PostgreSQL, Docker deploy on a small VPS behind Cloudflare.
+Applies repository-wide. Direct user instructions and platform safety requirements take precedence; conflicting repository instructions fail closed and must be surfaced.
+Adopted standards: ai-skills.lock.yaml (layout: single, profile: application, language: en).
+Polish tech blog (https://cleverblog.pl) — Payload CMS + Next.js App Router + PostgreSQL, Docker deploy on a small VPS behind Cloudflare.
 
 ## Non-negotiable invariants
-
 - Agent users (`agent-*` roles) cannot publish posts or approve comments.
-- New content requires public provenance + verified status + approved review to publish (`enforcePostPublicationGate`).
-- Preserve `legacy.originalHTML` and all `legacy` group fields; they are permanent provenance, not scaffolding.
-- Every imported WordPress object keeps a stable legacy identity; post upsert key is `legacy.wordpressId`. The `/?p=ID` URL contract must keep working.
-- Comments: creation only via the server action (REST create disabled); Turnstile + rate limiting + moderation stay in place; only `approved` comments are public.
+- New content requires public provenance, verified status and approved review before publication; enforcement belongs to `src/hooks/enforcePostPublicationGate.ts`.
+- Preserve `legacy.originalHTML` and every `legacy` group field permanently as provenance, not scaffolding.
+- Every imported WordPress object keeps a stable legacy identity; post upserts use `legacy.wordpressId`, and the `/?p=ID` URL contract must keep working.
+- Comments are created only through the server action; REST create stays disabled, Turnstile + rate limiting + moderation stay in place, and only `approved` comments are public.
 - Never expose delete through MCP.
-- Do not put production credentials, WordPress dumps, emails, IP addresses or other personal data in git.
+- Never put production credentials, WordPress dumps, emails, IP addresses or other personal data in git.
 - Fix bugs minimally; do not refactor while fixing.
 
 ## Architecture decisions
-
-- Payload stable 3.88.0, not Payload 4 canary.
-- Next.js 16 / React 19, App Router only.
-- PostgreSQL via `@payloadcms/db-postgres`; env var `DATABASE_URL`, `PAYLOAD_SECRET` >= 16 chars.
-- Local filesystem media (`./media` volume) in production.
-- Legacy HTML fallback is intentional: keep fidelity for `contentFormat: legacy-html` posts.
+- Stay on the supported Payload stable line; never adopt Payload 4 canary without an explicit, owner-approved migration (exact version owned by `package.json`).
+- App Router only; framework/runtime versions owned by `package.json`.
+- PostgreSQL uses `@payloadcms/db-postgres`; `DATABASE_URL` is required and `PAYLOAD_SECRET` must be at least 16 characters.
+- Production media stays on the local filesystem (`./media` volume).
+- Legacy HTML fallback is intentional; preserve fidelity for `contentFormat: legacy-html` posts.
 - Official Payload MCP plugin (`@payloadcms/plugin-mcp`) is the transport baseline; do not invent a second MCP server.
 
-## Verification commands
+## Canonical owners
+- Publication gate → `src/hooks/enforcePostPublicationGate.ts`.
+- Comments intake → `src/actions/submitComment.ts`.
+- Publish readiness → `src/lib/admin/publishReadiness.ts`.
+- Quality gate → `.github/workflows/ci.yml`.
+- Release build/smoke/publish → `.github/workflows/release.yml`.
+- Release metadata → `CHANGELOG.md`.
+- Repository version → `package.json`.
+- Production topology → `docker-compose.prod.yml`.
+- Dev database → `docker-compose.yml`.
+- Adopted standards → `ai-skills.lock.yaml`.
 
-- Run `pnpm generate:types` first — `src/payload-types.ts` is gitignored and fresh checkouts have no types until this runs (running tsc without it produces bogus type errors).
-- `pnpm lint`, `pnpm test`, `pnpm exec tsc --noEmit` (must be clean), `pnpm build` (build needs the dev Postgres from `docker-compose.yml`).
+## Verification
+- Local completion gate, in order: `pnpm generate:types` (`src/payload-types.ts` is gitignored and required before tsc), `pnpm lint`, `pnpm test`, `pnpm exec tsc --noEmit`, `pnpm build` (needs dev Postgres from `docker-compose.yml`).
+- Hosted CI (`.github/workflows/ci.yml`) runs the same gate plus `pnpm payload migrate`; a change is complete only when the local gate passes and CI is green on the exact final commit.
 
-## Deployment
-
-Prod runs on the VPS via `docker-compose.prod.yml`, which contains two services: `cleverblog` (app) and `ingress` (nginx sidecar). PostgreSQL is external and managed (psql01.mikr.us), supplied via `CLEVERBLOG_DATABASE_URL`. Before schema migrations: backup via `pg_dump -Fc`, test on a restored clone first.
+## Releases and deployment
+- Release boundary: one `vX.Y.Z` tag on `main`; `.github/workflows/release.yml` builds, smoke-tests and publishes the image to GHCR and records its digest.
+- Production deployment is operator-authorized: deploy only the exact digest recorded by the release workflow run for that tag (`docker pull ghcr.io/...@sha256:...`), never a locally rebuilt image.
+- Before schema migrations, take a `pg_dump -Fc` backup and test on a restored clone first.
+- Production PostgreSQL is external and managed; the connection is supplied via `CLEVERBLOG_DATABASE_URL`, with no hostname in tracked files.
