@@ -56,9 +56,13 @@ const PROVIDER_TIMEOUT_MS = 8_000
 const SYSTEM_PROMPT =
   'You translate Polish blog comments to English. Output ONLY the translation as plain text. Preserve meaning and tone; never add commentary; keep URLs, code, and commands untouched.'
 
-const translateViaOpenRouter = async (text: string): Promise<string> => {
-  const apiKey = process.env.OPENROUTER_API_KEY ?? ''
-  const model = process.env.COMMENTS_MT_MODEL ?? ''
+type OpenRouterChoice = { message?: { content?: string } }
+
+const callOpenRouter = async (
+  model: string,
+  apiKey: string,
+  text: string,
+): Promise<string> => {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), PROVIDER_TIMEOUT_MS)
   try {
@@ -68,9 +72,12 @@ const translateViaOpenRouter = async (text: string): Promise<string> => {
       headers: {
         authorization: `Bearer ${apiKey}`,
         'content-type': 'application/json',
+        'HTTP-Referer': process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://cleverblog.pl',
+        'X-Title': 'cleverblog comment translation',
       },
       body: JSON.stringify({
         model,
+        temperature: 0.2,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           { role: 'user', content: text },
@@ -80,9 +87,7 @@ const translateViaOpenRouter = async (text: string): Promise<string> => {
     if (!resp.ok) {
       throw new Error(`provider ${resp.status}`)
     }
-    const body = (await resp.json()) as {
-      choices?: Array<{ message?: { content?: string } }>
-    }
+    const body = (await resp.json()) as { choices?: OpenRouterChoice[] }
     const content = body.choices?.[0]?.message?.content?.trim()
     if (!content) {
       throw new Error('provider returned empty translation')
@@ -91,6 +96,24 @@ const translateViaOpenRouter = async (text: string): Promise<string> => {
   } finally {
     clearTimeout(timer)
   }
+}
+
+const translateViaOpenRouter = async (
+  text: string,
+): Promise<{ text: string; model: string }> => {
+  const apiKey = process.env.OPENROUTER_API_KEY ?? ''
+  const primary = process.env.COMMENTS_MT_MODEL ?? ''
+  const fallback = process.env.COMMENTS_MT_FALLBACK_MODEL ?? ''
+  const models = [primary, fallback].filter((m): m is string => Boolean(m))
+  let lastError: unknown = new Error('no model configured')
+  for (const model of models) {
+    try {
+      return { text: await callOpenRouter(model, apiKey, text), model }
+    } catch (error) {
+      lastError = error
+    }
+  }
+  throw lastError
 }
 
 export const translateCommentText = async (
@@ -104,12 +127,12 @@ export const translateCommentText = async (
   }
   providerInFlight += 1
   try {
-    const translated = await translateViaOpenRouter(text)
+    const { text: translated, model } = await translateViaOpenRouter(text)
     return {
       text: translated,
       status: 'ready',
       provider: 'openrouter',
-      model: process.env.COMMENTS_MT_MODEL ?? '',
+      model,
       sourceHash: hashSource(text),
     }
   } catch {
