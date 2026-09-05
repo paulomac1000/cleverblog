@@ -1,0 +1,262 @@
+schema_version: 1
+verification_mode: structural-attestation
+assessment_id: cleverblog-readme-architect-2851f7b7
+generated_at: '2026-09-05T21:30:00Z'
+prepared_by:
+- provider: github
+  login: paulomac1000
+  id: 9095484
+repository:
+  name: paulomac1000/cleverblog
+  revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+  source_branch: main
+skill:
+  name: readme-architect
+  version: 1.4.0
+  maturity: stable
+  pinned_revision: 435061ad67ee36d77e01a993bc4f9e4379a29666
+scope:
+  included:
+  - repository root documents and workflows
+  excluded: []
+  exclusion_rationale: {}
+applicability:
+- rule_id: readme.evidence.owned
+  status: applicable
+  rationale: canonical owners routed (AGENTS.md, CHANGELOG.md)
+  implementation:
+  - path: README.md:41-43
+  verification:
+  - command: README.md:41-43
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: readme.entrypoint.clear
+  status: applicable
+  rationale: identity/audience/value + production posture
+  implementation:
+  - path: README.md:1-5
+  verification:
+  - command: README.md:1-5
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: readme.quickstart.verified
+  status: applicable
+  rationale: quick start ends in observable verification
+  implementation:
+  - path: README.md:32-41
+  verification:
+  - command: README.md:32-41
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: readme.structure.profiled
+  status: applicable
+  rationale: smallest applicable section set
+  implementation:
+  - path: README.md (application profile)
+  verification:
+  - command: README.md (application profile)
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: readme.security.projected
+  status: applicable
+  rationale: 5 invariants projected from AGENTS.md
+  implementation:
+  - path: README.md:44-52
+  verification:
+  - command: README.md:44-52
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: readme.drift.bounded
+  status: applicable
+  rationale: capability phrasing, no volatile counts
+  implementation:
+  - path: README.md:9-19
+  verification:
+  - command: README.md:9-19
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: readme.presentation.accessible
+  status: applicable
+  rationale: scannable headings, fenced commands, plain links
+  implementation:
+  - path: README.md
+  verification:
+  - command: README.md
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: readme.mcp.projected
+  status: applicable
+  rationale: MCP endpoint + restricted-user guidance only
+  implementation:
+  - path: README.md:22-24
+  verification:
+  - command: README.md:22-24
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: readme.afds.routed
+  status: applicable
+  rationale: publication ownership routed to AGENTS.md
+  implementation:
+  - path: README.md:41-43
+  verification:
+  - command: README.md:41-43
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: readme.completion.evidenced
+  status: applicable
+  rationale: agent + chatgpt-mcp review
+  implementation:
+  - path: dual review bound to 2851f7b7c6dd776b55520a988639c04f4ac89db4
+  verification:
+  - command: dual review bound to 2851f7b7c6dd776b55520a988639c04f4ac89db4
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+behavior:
+  preserved:
+  - all existing invariants and gates
+  intentionally_changed:
+  - release contract now tag+digest based
+  - version mirror synced to 0.3.4
+  removed_legacy:
+  - hostname/topology inventory in AGENTS.md policy text
+waivers: []
+artifact_verification:
+  exact_revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+  artifacts: []
+compatibility_results: []
+extensions: {}
+rollback:
+  trigger_conditions:
+  - release.yml smoke failure on next tag
+  procedure:
+  - revert to prior GHCR digest on the VPS
+  data_recovery:
+  - pg_dump -Fc before migrations
+residual_risks:
+- 'provider-backed acceptance pending: branch protection unavailable on private repo
+  without GitHub Pro'
+- release.yml smoke path unexercised until the first tag push after this change
+decision:
+  status: request-changes
+  rationale: structural attestation only; provider-backed acceptance requires branch
+    protection (GitHub Pro or public visibility) and is pending external admin action

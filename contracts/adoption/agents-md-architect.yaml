@@ -1,0 +1,269 @@
+schema_version: 1
+verification_mode: structural-attestation
+assessment_id: cleverblog-agents-md-architect-2851f7b7
+generated_at: '2026-09-05T21:30:00Z'
+prepared_by:
+- provider: github
+  login: paulomac1000
+  id: 9095484
+repository:
+  name: paulomac1000/cleverblog
+  revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+  source_branch: main
+skill:
+  name: agents-md-architect
+  version: 1.4.0
+  maturity: stable
+  pinned_revision: 435061ad67ee36d77e01a993bc4f9e4379a29666
+scope:
+  included:
+  - repository root documents and workflows
+  excluded:
+  - mcp-server-architect
+  - mcp-server-consumer
+  exclusion_rationale:
+    mcp-server-architect: cleverblog consumes the official Payload MCP plugin; it
+      does not implement an MCP server
+    mcp-server-consumer: 'applicability deferred: consumer-side usage is governed
+      by AGENTS.md invariants (MCP delete disabled, plugin-only transport); full consumer
+      assessment deferred with this rationale'
+applicability:
+- rule_id: agents.scope.precedence
+  status: applicable
+  rationale: documented scope + precedence + fail-closed
+  implementation:
+  - path: AGENTS.md:2
+  verification:
+  - command: AGENTS.md:2
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: agents.discovery.evidence
+  status: applicable
+  rationale: gate commands verified in CI run
+  implementation:
+  - path: AGENTS.md:37
+  verification:
+  - command: AGENTS.md:37
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: agents.modes.profiled
+  status: applicable
+  rationale: operator-authorized release/deploy modes
+  implementation:
+  - path: AGENTS.md:40-44
+  verification:
+  - command: AGENTS.md:40-44
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: agents.ownership.boundaries
+  status: applicable
+  rationale: canonical owners as durable paths
+  implementation:
+  - path: AGENTS.md:24-34
+  verification:
+  - command: AGENTS.md:24-34
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: agents.safety.fail-closed
+  status: applicable
+  rationale: invariants incl. MCP delete + secrets
+  implementation:
+  - path: AGENTS.md:6-14
+  verification:
+  - command: AGENTS.md:6-14
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: agents.commands.executable
+  status: applicable
+  rationale: same gate executes green in CI
+  implementation:
+  - path: AGENTS.md:36-38
+  verification:
+  - command: AGENTS.md:36-38
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: agents.context.routed
+  status: applicable
+  rationale: task-routed owners, no encyclopedia
+  implementation:
+  - path: AGENTS.md:24-34
+  verification:
+  - command: AGENTS.md:24-34
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: agents.nested.locality
+  status: applicable
+  rationale: no nested files needed at this scale
+  implementation:
+  - path: AGENTS.md (single layout)
+  verification:
+  - command: AGENTS.md (single layout)
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: agents.drift.prevented
+  status: applicable
+  rationale: volatile facts removed from policy text
+  implementation:
+  - path: CHANGELOG.md contract
+  verification:
+  - command: CHANGELOG.md contract
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: agents.completion.evidenced
+  status: applicable
+  rationale: completion = local gate + CI green on exact SHA
+  implementation:
+  - path: .github/workflows/ci.yml
+  verification:
+  - command: .github/workflows/ci.yml
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+behavior:
+  preserved:
+  - all existing invariants and gates
+  intentionally_changed:
+  - release contract now tag+digest based
+  - version mirror synced to 0.3.4
+  removed_legacy:
+  - hostname/topology inventory in AGENTS.md policy text
+waivers: []
+artifact_verification:
+  exact_revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+  artifacts: []
+compatibility_results: []
+extensions: {}
+rollback:
+  trigger_conditions:
+  - release.yml smoke failure on next tag
+  procedure:
+  - revert to prior GHCR digest on the VPS
+  data_recovery:
+  - pg_dump -Fc before migrations
+residual_risks:
+- 'provider-backed acceptance pending: branch protection unavailable on private repo
+  without GitHub Pro'
+- release.yml smoke path unexercised until the first tag push after this change
+decision:
+  status: request-changes
+  rationale: structural attestation only; provider-backed acceptance requires branch
+    protection (GitHub Pro or public visibility) and is pending external admin action

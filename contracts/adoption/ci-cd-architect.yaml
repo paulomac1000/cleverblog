@@ -1,0 +1,241 @@
+schema_version: 1
+verification_mode: structural-attestation
+assessment_id: cleverblog-ci-cd-architect-2851f7b7
+generated_at: '2026-09-05T21:30:00Z'
+prepared_by:
+- provider: github
+  login: paulomac1000
+  id: 9095484
+repository:
+  name: paulomac1000/cleverblog
+  revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+  source_branch: main
+skill:
+  name: ci-cd-architect
+  version: 1.4.0
+  maturity: stable
+  pinned_revision: 435061ad67ee36d77e01a993bc4f9e4379a29666
+scope:
+  included:
+  - repository root documents and workflows
+  excluded: []
+  exclusion_rationale: {}
+applicability:
+- rule_id: cicd.layers.separated
+  status: applicable
+  rationale: validation separated from publication
+  implementation:
+  - path: release.yml vs ci.yml
+  verification:
+  - command: release.yml vs ci.yml
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: cicd.workflow.least-privilege
+  status: applicable
+  rationale: permissions, timeout, concurrency, SHA pins, digest-pinned service
+  implementation:
+  - path: ci.yml:11-21
+  verification:
+  - command: ci.yml:11-21
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: cicd.workflow.profiled
+  status: applicable
+  rationale: 'ai-skills-policy-profile: trusted-ci markers'
+  implementation:
+  - path: ci.yml:2 + release.yml:2
+  verification:
+  - command: ci.yml:2 + release.yml:2
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: cicd.execution.on-demand
+  status: applicable
+  rationale: workflow_dispatch; push only main; PRs cover branches
+  implementation:
+  - path: ci.yml:4-9
+  verification:
+  - command: ci.yml:4-9
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: cicd.quality.language
+  status: applicable
+  rationale: lint, test, migrate, types, tsc, build
+  implementation:
+  - path: ci.yml:50-56
+  verification:
+  - command: ci.yml:50-56
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: cicd.security.documentation
+  status: applicable
+  rationale: 'contents: read least privilege'
+  implementation:
+  - path: ci.yml:11-12
+  verification:
+  - command: ci.yml:11-12
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: cicd.release.identity
+  status: applicable
+  rationale: single build, smoke, digest to step summary
+  implementation:
+  - path: release.yml:103-112
+  verification:
+  - command: release.yml:103-112
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: cicd.local.bounded
+  status: applicable
+  rationale: local gate mirrors CI
+  implementation:
+  - path: AGENTS.md:36-38
+  verification:
+  - command: AGENTS.md:36-38
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: cicd.verification.recorded
+  status: applicable
+  rationale: green on exact final SHA
+  implementation:
+  - path: run 33994571401
+  verification:
+  - command: run 33994571401
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+behavior:
+  preserved:
+  - all existing invariants and gates
+  intentionally_changed:
+  - release contract now tag+digest based
+  - version mirror synced to 0.3.4
+  removed_legacy:
+  - hostname/topology inventory in AGENTS.md policy text
+waivers: []
+artifact_verification:
+  exact_revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+  artifacts: []
+compatibility_results: []
+extensions: {}
+rollback:
+  trigger_conditions:
+  - release.yml smoke failure on next tag
+  procedure:
+  - revert to prior GHCR digest on the VPS
+  data_recovery:
+  - pg_dump -Fc before migrations
+residual_risks:
+- 'provider-backed acceptance pending: branch protection unavailable on private repo
+  without GitHub Pro'
+- release.yml smoke path unexercised until the first tag push after this change
+decision:
+  status: request-changes
+  rationale: structural attestation only; provider-backed acceptance requires branch
+    protection (GitHub Pro or public visibility) and is pending external admin action

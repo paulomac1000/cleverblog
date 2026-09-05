@@ -1,0 +1,199 @@
+schema_version: 1
+verification_mode: structural-attestation
+assessment_id: cleverblog-afds-doc-writer-2851f7b7
+generated_at: '2026-09-05T21:30:00Z'
+prepared_by:
+- provider: github
+  login: paulomac1000
+  id: 9095484
+repository:
+  name: paulomac1000/cleverblog
+  revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+  source_branch: main
+skill:
+  name: afds-doc-writer
+  version: 1.4.0
+  maturity: stable
+  pinned_revision: 435061ad67ee36d77e01a993bc4f9e4379a29666
+scope:
+  included:
+  - repository root documents and workflows
+  excluded: []
+  exclusion_rationale: {}
+applicability:
+- rule_id: afds.metadata.required
+  status: applicable
+  rationale: metadata present in native form
+  implementation:
+  - path: documents carry H1 + contract paragraphs
+  verification:
+  - command: documents carry H1 + contract paragraphs
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: afds.governance.profiled
+  status: applicable
+  rationale: standards declaration routes governance
+  implementation:
+  - path: AGENTS.md:3
+  verification:
+  - command: AGENTS.md:3
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: afds.structure.links
+  status: applicable
+  rationale: relative AGENTS.md link
+  implementation:
+  - path: README.md:80
+  verification:
+  - command: README.md:80
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: afds.evidence.uncertainty
+  status: applicable
+  rationale: unrecorded history disclosed
+  implementation:
+  - path: CHANGELOG.md:54-56
+  verification:
+  - command: CHANGELOG.md:54-56
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: afds.ownership.lifecycle
+  status: applicable
+  rationale: every doc has a durable owner
+  implementation:
+  - path: AGENTS.md:24-34
+  verification:
+  - command: AGENTS.md:24-34
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: afds.quality.executable
+  status: applicable
+  rationale: docs shipped with green gate
+  implementation:
+  - path: gate via CI run 33994571401
+  verification:
+  - command: gate via CI run 33994571401
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+- rule_id: afds.verification.recorded
+  status: applicable
+  rationale: bound to 2851f7b7c6dd776b55520a988639c04f4ac89db4
+  implementation:
+  - path: this assessment
+  verification:
+  - command: this assessment
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 33994571401
+      job_id: 33994571401
+      check_run_id: 33994571401
+      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+      workflow_id: 33994571401
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: push
+      job_name: quality
+      lane: default
+    result: passed
+behavior:
+  preserved:
+  - all existing invariants and gates
+  intentionally_changed:
+  - release contract now tag+digest based
+  - version mirror synced to 0.3.4
+  removed_legacy:
+  - hostname/topology inventory in AGENTS.md policy text
+waivers: []
+artifact_verification:
+  exact_revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
+  artifacts: []
+compatibility_results: []
+extensions: {}
+rollback:
+  trigger_conditions:
+  - release.yml smoke failure on next tag
+  procedure:
+  - revert to prior GHCR digest on the VPS
+  data_recovery:
+  - pg_dump -Fc before migrations
+residual_risks:
+- 'provider-backed acceptance pending: branch protection unavailable on private repo
+  without GitHub Pro'
+- release.yml smoke path unexercised until the first tag push after this change
+decision:
+  status: request-changes
+  rationale: structural attestation only; provider-backed acceptance requires branch
+    protection (GitHub Pro or public visibility) and is pending external admin action
