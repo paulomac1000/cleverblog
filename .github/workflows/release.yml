@@ -1,0 +1,101 @@
+name: Release
+# ai-skills-policy-profile: trusted-ci
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Optional release tag; defaults to the current ref
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    services:
+      postgres:
+        image: postgres:17-alpine@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
+        env:
+          POSTGRES_DB: cleverblog
+          POSTGRES_USER: cleverblog
+          POSTGRES_PASSWORD: cleverblog
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cleverblog -d cleverblog"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.x
+        with:
+          persist-credentials: false
+          ref: ${{ github.ref }}
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build release image once
+        run: docker build -t ghcr.io/${{ github.repository }}:${{ github.ref_name }} -t ghcr.io/${{ github.repository }}:sha-${{ github.sha }} .
+
+      - name: Smoke exact image
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if ss -ltn '( sport = :3000 )' | grep -q LISTEN; then
+            echo 'Port 3000 is already in use' >&2
+            exit 1
+          fi
+
+          docker run -d --name smoke --network host \
+            -e DATABASE_URL=postgres://cleverblog:cleverblog@127.0.0.1:5432/cleverblog \
+            -e PAYLOAD_SECRET=smoke-only-secret-smoke-only-secret \
+            -e NEXT_PUBLIC_SERVER_URL=http://localhost:3000 \
+            ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+
+          cleanup() {
+            docker rm -f smoke >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
+          deadline=$((SECONDS + 120))
+          while (( SECONDS < deadline )); do
+            code="$(curl -fsS -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/api || true)"
+            if [[ "$code" == '200' ]]; then
+              cleanup
+              trap - EXIT
+              exit 0
+            fi
+            sleep 5
+          done
+
+          docker logs smoke || true
+          echo 'Smoke test did not return HTTP 200 within 120 seconds' >&2
+          exit 1
+
+      - name: Publish immutable release image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker push ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+          docker push ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+
+          IMAGE_DIGEST="$(docker inspect --format '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ github.ref_name }})"
+          test -n "$IMAGE_DIGEST"
+          echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> "$GITHUB_STEP_SUMMARY"
