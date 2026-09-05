@@ -27,6 +27,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     services:
       postgres:
         image: postgres:17-alpine@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
@@ -47,11 +49,20 @@ jobs:
           persist-credentials: false
           ref: ${{ github.ref }}
 
+      - name: Validate release tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$RELEASE_TAG" =~ ^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$ ]]; then
+            echo "Invalid Docker release tag: $RELEASE_TAG" >&2
+            exit 1
+          fi
+
       - name: Log in to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build release image once
-        run: docker build -t ghcr.io/${{ github.repository }}:${{ github.ref_name }} -t ghcr.io/${{ github.repository }}:sha-${{ github.sha }} .
+        run: docker build -t "ghcr.io/${{ github.repository }}:${RELEASE_TAG}" -t "ghcr.io/${{ github.repository }}:sha-${{ github.sha }}" .
 
       - name: Smoke exact image
         shell: bash
@@ -67,7 +78,7 @@ jobs:
             -e DATABASE_URL=postgres://cleverblog:cleverblog@127.0.0.1:5432/cleverblog \
             -e PAYLOAD_SECRET=smoke-only-secret-smoke-only-secret \
             -e NEXT_PUBLIC_SERVER_URL=http://localhost:3000 \
-            ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+            "ghcr.io/${{ github.repository }}:${RELEASE_TAG}"
 
           cleanup() {
             docker rm -f smoke >/dev/null 2>&1 || true
@@ -93,9 +104,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          docker push ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-          docker push ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+          docker push "ghcr.io/${{ github.repository }}:${RELEASE_TAG}"
+          docker push "ghcr.io/${{ github.repository }}:sha-${{ github.sha }}"
 
-          IMAGE_DIGEST="$(docker inspect --format '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ github.ref_name }})"
+          IMAGE_DIGEST="$(docker inspect --format '{{index .RepoDigests 0}}' "ghcr.io/${{ github.repository }}:${RELEASE_TAG}")"
           test -n "$IMAGE_DIGEST"
           echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> "$GITHUB_STEP_SUMMARY"
