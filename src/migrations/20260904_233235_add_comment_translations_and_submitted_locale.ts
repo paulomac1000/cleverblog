@@ -22,7 +22,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   
   ALTER TABLE "comments" ADD COLUMN "submitted_locale" "enum_comments_submitted_locale" DEFAULT 'pl';
   ALTER TABLE "payload_locked_documents_rels" ADD COLUMN "comment_translations_id" integer;
-  ALTER TABLE "comment_translations" ADD CONSTRAINT "comment_translations_comment_id_comments_id_fk" FOREIGN KEY ("comment_id") REFERENCES "public"."comments"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "comment_translations" ADD CONSTRAINT "comment_translations_comment_id_comments_id_fk" FOREIGN KEY ("comment_id") REFERENCES "public"."comments"("id") ON DELETE cascade ON UPDATE no action;
   CREATE INDEX "comment_translations_comment_idx" ON "comment_translations" USING btree ("comment_id");
   CREATE INDEX "comment_translations_locale_idx" ON "comment_translations" USING btree ("locale");
   CREATE INDEX "comment_translations_status_idx" ON "comment_translations" USING btree ("status");

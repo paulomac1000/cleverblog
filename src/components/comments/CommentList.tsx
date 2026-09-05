@@ -107,6 +107,7 @@ export async function CommentList({ postId, locale }: Props) {
     repliesByRoot.set(rootId, replies)
   }
 
+  const dateFormatter = new Intl.DateTimeFormat('pl-PL')
   const toThreadComment = (
     comment: (typeof result.docs)[number],
     parentAuthor: string | null,
@@ -117,9 +118,10 @@ export async function CommentList({ postId, locale }: Props) {
     authorUrl: getSafeAuthorUrl(comment.authorUrl),
     createdAt:
       typeof comment.createdAt === 'string' ? comment.createdAt : String(comment.createdAt),
+    createdAtText: dateFormatter.format(new Date(comment.createdAt)),
+    replyToText: parentAuthor ? tf(locale, 'comments.replyTo')(parentAuthor) : null,
     content: comment.content,
     translated,
-    parentAuthor,
   })
 
   const tree: ThreadRoot[] = rootComments.map((root) => {
@@ -149,7 +151,6 @@ export async function CommentList({ postId, locale }: Props) {
         strings={{
           empty: t(locale, 'comments.empty'),
           machineTranslated: t(locale, 'comments.machineTranslated'),
-          replyToPrefix: t(locale, 'comments.replyTo') + ' ',
           showOriginal: t(locale, 'comments.showOriginal'),
           showTranslation: t(locale, 'comments.showTranslation'),
         }}

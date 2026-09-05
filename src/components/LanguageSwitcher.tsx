@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef } from 'react'
 import { usePathname } from 'next/navigation'
 
 import { t } from '@/i18n/messages'
@@ -58,11 +59,17 @@ export function LanguageSwitcher({
     pathname === '/en' || pathname.startsWith('/en/') ? 'en' : 'pl'
   const target: Locale = currentLocale === 'pl' ? 'en' : 'pl'
 
+  // Server data is authoritative only for the page that SSR rendered. After
+  // client-side navigation the layout props go stale and the counterpart
+  // existence cannot be known client-side, so the click resolves it via the
+  // same server logic instead of guessing a URL that may not exist.
   const onSsrPath = pathname === ssrPath
   const resolvedCounterpart = onSsrPath
     ? counterpartUrl
     : swapLocalePrefix(currentLocale, pathname)
+  const needsResolution = !onSsrPath
   const disabled = onSsrPath && counterpartUrl === null
+  const resolvingRef = useRef(false)
 
   const handleSwitch = (
     event: React.MouseEvent,
@@ -70,8 +77,22 @@ export function LanguageSwitcher({
     href: string,
   ) => {
     event.preventDefault()
+    if (resolvingRef.current) return
     setPreferenceCookie(nextLocale)
-    window.location.assign(href)
+    if (needsResolution) {
+      resolvingRef.current = true
+      fetch(`/comments-counterpart?path=${encodeURIComponent(pathname)}`)
+        .then((resp) => (resp.ok ? resp.json() : null))
+        .then((body: { url?: string | null } | null) => {
+          window.location.assign(body?.url ?? swapLocalePrefix(currentLocale, pathname))
+        })
+        .catch(() => {
+          resolvingRef.current = false
+          window.location.assign(swapLocalePrefix(currentLocale, pathname))
+        })
+      return
+    }
+    if (href) window.location.assign(href)
   }
 
   const ariaLabel = t(locale, 'switcher.aria')

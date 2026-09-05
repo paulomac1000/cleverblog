@@ -18,8 +18,12 @@ export type CommentFormState = {
   status: 'idle' | 'error' | 'success'
 }
 
-const successState = (): CommentFormState => ({
-  message: 'Dziękujemy. Komentarz został przyjęty do moderacji.',
+const MESSAGE_KEYS = {
+  success: { pl: 'Dziękujemy. Komentarz został przyjęty do moderacji.', en: 'Thanks! Your comment has been received and queued for moderation.' },
+} as const
+
+const successState = (locale: 'pl' | 'en'): CommentFormState => ({
+  message: MESSAGE_KEYS.success[locale],
   status: 'success',
 })
 
@@ -65,13 +69,19 @@ export async function submitComment(
   _previousState: CommentFormState,
   formData: FormData,
 ): Promise<CommentFormState> {
+  const submittedLocaleRaw = getString(formData, 'submittedLocale')
+  const locale: 'pl' | 'en' = submittedLocaleRaw === 'en' ? 'en' : 'pl'
   const commentConfig = getCommentConfig()
   if (!commentConfig) {
-    return errorState('Dodawanie komentarzy jest obecnie wyłączone.')
+    return errorState(
+      locale === 'en'
+        ? 'Comment submission is currently disabled.'
+        : 'Dodawanie komentarzy jest obecnie wyłączone.',
+    )
   }
 
   if (getString(formData, 'fax_number').trim()) {
-    return successState()
+    return successState(locale)
   }
 
   const postId = Number(getString(formData, 'postId'))
@@ -97,7 +107,7 @@ export async function submitComment(
   const rateLimit = consumeCommentRateLimit(rawClientIP, commentConfig.securitySecret)
 
   if (!rateLimit.allowed) {
-    return errorState('Zbyt wiele prób. Spróbuj ponownie za kilka minut.')
+    return errorState(locale === 'en' ? 'Too many attempts. Try again in a few minutes.' : 'Zbyt wiele prób. Spróbuj ponownie za kilka minut.')
   }
 
   const turnstileToken = getString(formData, 'cf-turnstile-response')
@@ -110,7 +120,7 @@ export async function submitComment(
   })
 
   if (!turnstileValid) {
-    return errorState('Weryfikacja antyspamowa nie powiodła się. Spróbuj ponownie.')
+    return errorState(locale === 'en' ? 'Anti-spam verification failed. Please try again.' : 'Weryfikacja antyspamowa nie powiodła się. Spróbuj ponownie.')
   }
 
   const payload = await getPayload({ config })
@@ -130,25 +140,23 @@ export async function submitComment(
 
   const post = postResult.docs[0]
   if (!post) {
-    return errorState('Komentarze są wyłączone dla tego artykułu.')
+    return errorState(locale === 'en' ? 'Comments are disabled for this article.' : 'Komentarze są wyłączone dla tego artykułu.')
   }
 
   const authorName = getString(formData, 'authorName').trim()
   const authorEmail = getString(formData, 'authorEmail').trim().toLowerCase()
   const content = getString(formData, 'content').replace(/\r\n/g, '\n').trim()
-  const submittedLocaleRaw = getString(formData, 'submittedLocale')
-  const submittedLocale = submittedLocaleRaw === 'en' ? 'en' : 'pl'
 
   if (authorName.length < 2 || authorName.length > 80) {
-    return errorState('Imię lub pseudonim musi mieć od 2 do 80 znaków.')
+    return errorState(locale === 'en' ? 'Name must be between 2 and 80 characters.' : 'Imię lub pseudonim musi mieć od 2 do 80 znaków.')
   }
 
   if (authorEmail.length > 254 || (authorEmail && !isValidEmail(authorEmail))) {
-    return errorState('Podaj poprawny adres e-mail albo pozostaw to pole puste.')
+    return errorState(locale === 'en' ? 'Enter a valid e-mail address or leave the field empty.' : 'Podaj poprawny adres e-mail albo pozostaw to pole puste.')
   }
 
   if (content.length < 2 || content.length > 5_000) {
-    return errorState('Komentarz musi mieć od 2 do 5000 znaków.')
+    return errorState(locale === 'en' ? 'The comment must be between 2 and 5000 characters.' : 'Komentarz musi mieć od 2 do 5000 znaków.')
   }
 
   const submissionHash = createSubmissionHash(
@@ -172,7 +180,7 @@ export async function submitComment(
   })
 
   if (duplicate.docs.length > 0) {
-    return successState()
+    return successState(locale)
   }
 
   const spam = scoreCommentSpam({ authorName, content })
@@ -190,7 +198,7 @@ export async function submitComment(
         },
         post: post.id,
         status: spam.score >= 80 ? 'spam' : 'pending',
-        submittedLocale,
+        submittedLocale: locale,
         submissionHash,
       },
       overrideAccess: true,
@@ -211,11 +219,11 @@ export async function submitComment(
     })
 
     if (concurrentDuplicate.docs.length > 0) {
-      return successState()
+      return successState(locale)
     }
 
-    return errorState('Nie udało się zapisać komentarza. Spróbuj ponownie.')
+    return errorState(locale === 'en' ? 'Failed to save the comment. Please try again.' : 'Nie udało się zapisać komentarza. Spróbuj ponownie.')
   }
 
-  return successState()
+  return successState(locale)
 }

@@ -9,9 +9,10 @@ export type ThreadComment = {
   authorName: string
   authorUrl: string | null
   createdAt: string
+  createdAtText: string
+  replyToText: string | null
   content: string
   translated: string | null
-  parentAuthor: string | null
 }
 
 export type ThreadRoot = {
@@ -25,7 +26,6 @@ type Props = {
   tree: ThreadRoot[]
   strings: {
     empty: string
-    replyToPrefix: string
     machineTranslated: string
     showOriginal: string
     showTranslation: string
@@ -35,8 +35,6 @@ type Props = {
 type TranslationResponse = {
   translations?: Record<string, string>
 }
-
-const dateFormatter = new Intl.DateTimeFormat('pl-PL')
 
 export function CommentsThread({
   locale,
@@ -174,15 +172,9 @@ export function CommentsThread({
           )}
         </strong>
         <time className="muted" dateTime={comment.createdAt} style={{ fontSize: '0.85rem' }}>
-          {dateFormatter.format(new Date(comment.createdAt))}
+          {comment.createdAtText}
         </time>
       </div>
-      {comment.parentAuthor ? (
-        <div className="muted" style={{ fontSize: '0.85rem', marginTop: 8 }}>
-          {strings.replyToPrefix}
-          {comment.parentAuthor}
-        </div>
-      ) : null}
       {renderBody(comment)}
     </div>
   )

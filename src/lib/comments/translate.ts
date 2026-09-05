@@ -25,16 +25,28 @@ const PER_IP_LIMIT = 5
 const GLOBAL_LIMIT = 30
 
 const ipHits = new Map<string, number[]>()
+const IP_MAP_MAX_ENTRIES = 5_000
 let globalHits: number[] = []
 let providerInFlight = 0
 
 const prune = (hits: number[], now: number): number[] =>
   hits.filter((ts) => now - ts < RATE_WINDOW_MS)
 
+const pruneIpMap = (now: number): void => {
+  if (ipHits.size < IP_MAP_MAX_ENTRIES) return
+  for (const [key, hits] of ipHits) {
+    if (prune(hits, now).length === 0) ipHits.delete(key)
+  }
+  while (ipHits.size >= IP_MAP_MAX_ENTRIES) {
+    ipHits.delete(ipHits.keys().next().value as string)
+  }
+}
+
 export const consumeRateLimit = (
   ip: string,
 ): { allowed: boolean; retryAfterSeconds: number } => {
   const now = Date.now()
+  pruneIpMap(now)
   ipHits.set(ip, prune(ipHits.get(ip) ?? [], now))
   globalHits = prune(globalHits, now)
 

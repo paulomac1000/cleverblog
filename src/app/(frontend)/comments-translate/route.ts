@@ -1,4 +1,5 @@
 import config from '@payload-config'
+import { isIP } from 'node:net'
 import { NextResponse, type NextRequest } from 'next/server'
 import { getPayload } from 'payload'
 
@@ -12,9 +13,9 @@ import {
 } from '@/lib/comments/translate'
 
 type Body = {
-  postId?: number
-  commentIds?: number[]
-  locale?: string
+  postId?: unknown
+  commentIds?: unknown
+  locale?: unknown
 }
 
 const asId = (value: unknown): number | null =>
@@ -25,18 +26,26 @@ const asId = (value: unknown): number | null =>
 const RETRY_DELAY_MS = 15 * 60_000
 
 export async function POST(request: NextRequest) {
-  let body: Body
+  let body: unknown
   try {
-    body = (await request.json()) as Body
+    body = await request.json()
   } catch {
     return NextResponse.json({ error: 'invalid json' }, { status: 400 })
   }
+  if (typeof body !== 'object' || body === null || Array.isArray(body)) {
+    return NextResponse.json({ error: 'invalid body' }, { status: 400 })
+  }
+  const parsed = body as Body
 
-  const postId = asId(body.postId)
-  const locale = body.locale
-  const commentIds = Array.isArray(body.commentIds)
-    ? body.commentIds.map(asId).filter((v): v is number => v !== null)
-    : []
+  const postId = asId(parsed.postId)
+  const locale = typeof parsed.locale === 'string' ? parsed.locale : null
+  if (
+    !Array.isArray(parsed.commentIds) ||
+    parsed.commentIds.some((id) => asId(id) === null)
+  ) {
+    return NextResponse.json({ error: 'invalid commentIds' }, { status: 400 })
+  }
+  const commentIds = [...new Set(parsed.commentIds.map((id) => asId(id) as number))]
 
   if (!postId || commentIds.length === 0 || commentIds.length > MAX_TRANSLATION_BATCH) {
     return NextResponse.json({ error: 'invalid input' }, { status: 400 })
@@ -45,10 +54,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'unsupported locale' }, { status: 400 })
   }
 
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    'unknown'
+  const headerIP =
+    request.headers.get('x-verified-client-ip')?.trim() ??
+    request.headers.get('x-real-ip')?.trim() ??
+    ''
+  const ip = isIP(headerIP) ? headerIP : 'unknown'
   const rate = consumeRateLimit(ip)
   if (!rate.allowed) {
     return NextResponse.json(
@@ -113,20 +123,41 @@ export async function POST(request: NextRequest) {
       if (!comment || typeof comment.content !== 'string') continue
       const outcome = await translateCommentText(comment.content)
       if (outcome.status === 'ready' && outcome.text) {
-        await payload.create({
-          collection: 'comment-translations',
-          data: {
-            comment: id,
-            locale: locale as 'en',
-            text: outcome.text,
-            status: 'ready',
-            provider: outcome.provider,
-            model: outcome.model,
-            sourceHash: outcome.sourceHash,
-            translationVersion: 1,
-          },
-          overrideAccess: true,
-        })
+        try {
+          await payload.create({
+            collection: 'comment-translations',
+            data: {
+              comment: id,
+              locale: locale as 'en',
+              text: outcome.text,
+              status: 'ready',
+              provider: outcome.provider,
+              model: outcome.model,
+              sourceHash: outcome.sourceHash,
+              translationVersion: 1,
+            },
+            overrideAccess: true,
+          })
+        } catch {
+          // Lost a single-flight race: serve the winner's translation.
+          const winner = await payload.find({
+            collection: 'comment-translations',
+            depth: 0,
+            limit: 1,
+            overrideAccess: true,
+            where: {
+              and: [
+                { comment: { equals: id } },
+                { locale: { equals: locale as 'en' } },
+                { status: { equals: 'ready' } },
+              ],
+            },
+          })
+          const winningText = winner.docs[0]?.text
+          if (!winningText) throw new Error('translation race lost without a winner')
+          results[id] = winningText
+          continue
+        }
         results[id] = outcome.text
       } else if (outcome.status === 'failed') {
         await payload.create({

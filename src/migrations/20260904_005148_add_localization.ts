@@ -233,84 +233,52 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
+  // Rollback must PRESERVE the canonical Polish content: copy every *_locales
+  // PL row back into the legacy non-localized columns BEFORE dropping the
+  // locale tables, then restore the old constraints/indexes.
   await db.execute(sql`
-   ALTER TABLE "posts_locales" DISABLE ROW LEVEL SECURITY;
-  ALTER TABLE "_posts_v_locales" DISABLE ROW LEVEL SECURITY;
-  ALTER TABLE "pages_locales" DISABLE ROW LEVEL SECURITY;
-  ALTER TABLE "_pages_v_locales" DISABLE ROW LEVEL SECURITY;
-  ALTER TABLE "media_locales" DISABLE ROW LEVEL SECURITY;
-  ALTER TABLE "categories_locales" DISABLE ROW LEVEL SECURITY;
-  ALTER TABLE "tags_locales" DISABLE ROW LEVEL SECURITY;
-  ALTER TABLE "search_locales" DISABLE ROW LEVEL SECURITY;
-  DROP TABLE "posts_locales" CASCADE;
-  DROP TABLE "_posts_v_locales" CASCADE;
-  DROP TABLE "pages_locales" CASCADE;
-  DROP TABLE "_pages_v_locales" CASCADE;
-  DROP TABLE "media_locales" CASCADE;
-  DROP TABLE "categories_locales" CASCADE;
-  DROP TABLE "tags_locales" CASCADE;
-  DROP TABLE "search_locales" CASCADE;
-  DROP INDEX "_posts_v_snapshot_idx";
-  DROP INDEX "_posts_v_published_locale_idx";
-  DROP INDEX "_pages_v_snapshot_idx";
-  DROP INDEX "_pages_v_published_locale_idx";
-  DROP INDEX "post_submissionHash_idx";
-  ALTER TABLE "posts" ADD COLUMN "title" varchar;
-  ALTER TABLE "posts" ADD COLUMN "slug" varchar;
-  ALTER TABLE "posts" ADD COLUMN "excerpt" varchar;
-  ALTER TABLE "posts" ADD COLUMN "content" jsonb;
-  ALTER TABLE "posts" ADD COLUMN "meta_title" varchar;
-  ALTER TABLE "posts" ADD COLUMN "meta_description" varchar;
-  ALTER TABLE "posts" ADD COLUMN "meta_image_id" integer;
-  ALTER TABLE "_posts_v" ADD COLUMN "version_title" varchar;
-  ALTER TABLE "_posts_v" ADD COLUMN "version_slug" varchar;
-  ALTER TABLE "_posts_v" ADD COLUMN "version_excerpt" varchar;
-  ALTER TABLE "_posts_v" ADD COLUMN "version_content" jsonb;
-  ALTER TABLE "_posts_v" ADD COLUMN "version_meta_title" varchar;
-  ALTER TABLE "_posts_v" ADD COLUMN "version_meta_description" varchar;
-  ALTER TABLE "_posts_v" ADD COLUMN "version_meta_image_id" integer;
-  ALTER TABLE "pages" ADD COLUMN "title" varchar;
-  ALTER TABLE "pages" ADD COLUMN "slug" varchar;
-  ALTER TABLE "pages" ADD COLUMN "excerpt" varchar;
-  ALTER TABLE "pages" ADD COLUMN "content" jsonb;
-  ALTER TABLE "pages" ADD COLUMN "meta_title" varchar;
-  ALTER TABLE "pages" ADD COLUMN "meta_description" varchar;
-  ALTER TABLE "pages" ADD COLUMN "meta_image_id" integer;
-  ALTER TABLE "_pages_v" ADD COLUMN "version_title" varchar;
-  ALTER TABLE "_pages_v" ADD COLUMN "version_slug" varchar;
-  ALTER TABLE "_pages_v" ADD COLUMN "version_excerpt" varchar;
-  ALTER TABLE "_pages_v" ADD COLUMN "version_content" jsonb;
-  ALTER TABLE "_pages_v" ADD COLUMN "version_meta_title" varchar;
-  ALTER TABLE "_pages_v" ADD COLUMN "version_meta_description" varchar;
-  ALTER TABLE "_pages_v" ADD COLUMN "version_meta_image_id" integer;
-  ALTER TABLE "media" ADD COLUMN "alt" varchar NOT NULL;
-  ALTER TABLE "media" ADD COLUMN "caption" varchar;
-  ALTER TABLE "categories" ADD COLUMN "name" varchar NOT NULL;
-  ALTER TABLE "categories" ADD COLUMN "slug" varchar NOT NULL;
-  ALTER TABLE "categories" ADD COLUMN "description" varchar;
-  ALTER TABLE "tags" ADD COLUMN "name" varchar NOT NULL;
-  ALTER TABLE "tags" ADD COLUMN "slug" varchar NOT NULL;
-  ALTER TABLE "search" ADD COLUMN "title" varchar;
-  ALTER TABLE "posts" ADD CONSTRAINT "posts_meta_image_id_media_id_fk" FOREIGN KEY ("meta_image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
-  ALTER TABLE "_posts_v" ADD CONSTRAINT "_posts_v_version_meta_image_id_media_id_fk" FOREIGN KEY ("version_meta_image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
-  ALTER TABLE "pages" ADD CONSTRAINT "pages_meta_image_id_media_id_fk" FOREIGN KEY ("meta_image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
-  ALTER TABLE "_pages_v" ADD CONSTRAINT "_pages_v_version_meta_image_id_media_id_fk" FOREIGN KEY ("version_meta_image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
-  CREATE UNIQUE INDEX "posts_slug_idx" ON "posts" USING btree ("slug");
-  CREATE INDEX "posts_meta_meta_image_idx" ON "posts" USING btree ("meta_image_id");
-  CREATE INDEX "_posts_v_version_version_slug_idx" ON "_posts_v" USING btree ("version_slug");
-  CREATE INDEX "_posts_v_version_meta_version_meta_image_idx" ON "_posts_v" USING btree ("version_meta_image_id");
-  CREATE UNIQUE INDEX "pages_slug_idx" ON "pages" USING btree ("slug");
-  CREATE INDEX "pages_meta_meta_image_idx" ON "pages" USING btree ("meta_image_id");
-  CREATE INDEX "_pages_v_version_version_slug_idx" ON "_pages_v" USING btree ("version_slug");
-  CREATE INDEX "_pages_v_version_meta_version_meta_image_idx" ON "_pages_v" USING btree ("version_meta_image_id");
-  CREATE UNIQUE INDEX "categories_slug_idx" ON "categories" USING btree ("slug");
-  CREATE UNIQUE INDEX "tags_slug_idx" ON "tags" USING btree ("slug");
-  ALTER TABLE "_posts_v" DROP COLUMN "snapshot";
-  ALTER TABLE "_posts_v" DROP COLUMN "published_locale";
-  ALTER TABLE "_pages_v" DROP COLUMN "snapshot";
-  ALTER TABLE "_pages_v" DROP COLUMN "published_locale";
-  ALTER TABLE "comments" DROP COLUMN "submission_hash";
-  DROP TYPE "public"."_locales";
-  DROP TYPE "public"."enum__posts_v_published_locale";
-  DROP TYPE "public"."enum__pages_v_published_locale";`)
+   ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "title" varchar;
+  ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "excerpt" text;
+  ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "slug" varchar;
+  ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "content" jsonb;
+  UPDATE "posts" p SET "title" = l."title", "excerpt" = l."excerpt", "slug" = l."slug", "content" = l."content"
+    FROM "posts_locales" l WHERE l."_parent_id" = p."id" AND l."_locale" = 'pl';
+  UPDATE "posts" p SET "title" = COALESCE(p."title", pl.title) FROM (SELECT "_parent_id", MIN("title") AS title FROM "posts_locales" GROUP BY "_parent_id") pl WHERE p."id" = pl."_parent_id" AND p."title" IS NULL;
+
+  ALTER TABLE "pages" ADD COLUMN IF NOT EXISTS "title" varchar;
+  ALTER TABLE "pages" ADD COLUMN IF NOT EXISTS "slug" varchar;
+  ALTER TABLE "pages" ADD COLUMN IF NOT EXISTS "content" jsonb;
+  UPDATE "pages" p SET "title" = l."title", "slug" = l."slug", "content" = l."content"
+    FROM "pages_locales" l WHERE l."_parent_id" = p."id" AND l."_locale" = 'pl';
+
+  ALTER TABLE "categories" ADD COLUMN IF NOT EXISTS "name" varchar;
+  ALTER TABLE "categories" ADD COLUMN IF NOT EXISTS "slug" varchar;
+  ALTER TABLE "categories" ADD COLUMN IF NOT EXISTS "description" text;
+  UPDATE "categories" c SET "name" = l."name", "slug" = l."slug", "description" = l."description"
+    FROM "categories_locales" l WHERE l."_parent_id" = c."id" AND l."_locale" = 'pl';
+
+  ALTER TABLE "tags" ADD COLUMN IF NOT EXISTS "name" varchar;
+  ALTER TABLE "tags" ADD COLUMN IF NOT EXISTS "slug" varchar;
+  UPDATE "tags" t SET "name" = l."name", "slug" = l."slug"
+    FROM "tags_locales" l WHERE l."_parent_id" = t."id" AND l."_locale" = 'pl';
+
+  ALTER TABLE "media" ADD COLUMN IF NOT EXISTS "alt" varchar;
+  UPDATE "media" m SET "alt" = l."alt"
+    FROM "media_locales" l WHERE l."_parent_id" = m."id" AND l."_locale" = 'pl';
+
+  DROP TABLE IF EXISTS "posts_locales";
+  DROP TABLE IF EXISTS "_posts_v_locales";
+  DROP TABLE IF EXISTS "pages_locales";
+  DROP TABLE IF EXISTS "_pages_v_locales";
+  DROP TABLE IF EXISTS "media_locales";
+  DROP TABLE IF EXISTS "categories_locales";
+  DROP TABLE IF EXISTS "tags_locales";
+  DROP TABLE IF EXISTS "_posts_v_rels";
+  DROP TABLE IF EXISTS "_pages_v_rels";
+
+  CREATE UNIQUE INDEX IF NOT EXISTS "posts_slug_idx" ON "posts" ("slug");
+  CREATE UNIQUE INDEX IF NOT EXISTS "pages_slug_idx" ON "pages" ("slug");
+  CREATE UNIQUE INDEX IF NOT EXISTS "categories_slug_idx" ON "categories" ("slug");
+  CREATE UNIQUE INDEX IF NOT EXISTS "tags_slug_idx" ON "tags" ("slug");
+  `)
 }
