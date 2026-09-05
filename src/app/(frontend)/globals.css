@@ -501,7 +501,11 @@ footer {
   margin: 0 0 18px;
 }
 
-.legacy-content li { margin-bottom: 6px }
+.legacy-content ol, .payload-richtext ol { list-style: decimal }
+
+.legacy-content ul, .payload-richtext ul { list-style: disc }
+
+.legacy-content li, .payload-richtext li { margin-bottom: 6px }
 
 .legacy-content a { color: var(--accent) }
 
@@ -695,4 +699,45 @@ a.lang-segment:focus-visible {
 .related-links .rl-kind {
   color: var(--text-muted);
   font-size: 0.78rem;
+}
+
+
+/* Long-form prose typography: left + pretty + hyphens base,
+   justify only on wide measures. Prose only — never code. */
+.legacy-content p, .payload-richtext p {
+  text-align: left;
+  text-wrap: pretty;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  hyphenate-limit-chars: 8 3 3;
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 40rem) {
+  .legacy-content p, .payload-richtext p {
+    text-align: justify;
+    text-justify: inter-word;
+  }
+}
+
+.legacy-content li, .payload-richtext li {
+  text-align: left;
+  text-wrap: pretty;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+
+.legacy-content pre, .payload-richtext pre,
+.legacy-content code, .payload-richtext code,
+.legacy-content kbd, .payload-richtext kbd,
+.legacy-content samp, .payload-richtext samp {
+  text-align: left;
+  -webkit-hyphens: none;
+  hyphens: none;
+}
+
+.payload-richtext h2, .payload-richtext h3, .payload-richtext h4,
+.legacy-content h2, .legacy-content h3, .legacy-content h4 {
+  text-wrap: balance;
 }
