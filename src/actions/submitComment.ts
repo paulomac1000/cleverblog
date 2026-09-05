@@ -93,7 +93,9 @@ export async function submitComment(
     !verifyFormToken(formToken, postId, commentConfig.securitySecret)
   ) {
     return errorState(
-      'Formularz jest nieprawidłowy lub został wysłany zbyt szybko. Odśwież stronę i spróbuj ponownie.',
+      locale === 'en'
+        ? 'The form is invalid or was submitted too quickly. Refresh the page and try again.'
+        : 'Formularz jest nieprawidłowy lub został wysłany zbyt szybko. Odśwież stronę i spróbuj ponownie.',
     )
   }
 

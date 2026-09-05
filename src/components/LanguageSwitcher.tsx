@@ -84,11 +84,12 @@ export function LanguageSwitcher({
       fetch(`/comments-counterpart?path=${encodeURIComponent(pathname)}`)
         .then((resp) => (resp.ok ? resp.json() : null))
         .then((body: { url?: string | null } | null) => {
-          window.location.assign(body?.url ?? swapLocalePrefix(currentLocale, pathname))
+          // No counterpart (or resolver failure) = stay on the current page.
+          resolvingRef.current = false
+          if (body?.url) window.location.assign(body.url)
         })
         .catch(() => {
           resolvingRef.current = false
-          window.location.assign(swapLocalePrefix(currentLocale, pathname))
         })
       return
     }

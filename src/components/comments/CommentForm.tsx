@@ -111,6 +111,7 @@ export function CommentForm({ formToken, locale, postId, siteKey }: Props) {
             maxLength={80}
             minLength={2}
             name="authorName"
+            placeholder={t(locale, 'comments.form.namePlaceholder')}
             required
             style={inputStyle}
             type="text"

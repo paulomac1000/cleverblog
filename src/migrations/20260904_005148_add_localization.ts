@@ -233,22 +233,35 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
-  // Rollback must PRESERVE the canonical Polish content: copy every *_locales
-  // PL row back into the legacy non-localized columns BEFORE dropping the
-  // locale tables, then restore the old constraints/indexes.
+  // Rollback must PRESERVE canonical Polish content. Every *_locales table is
+  // copied back into the legacy non-localized columns BEFORE the locale
+  // tables are dropped. Per-locale version rows (_*_locales) cannot map back
+  // onto the old version schema and are intentionally dropped last.
   await db.execute(sql`
    ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "title" varchar;
-  ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "excerpt" text;
   ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "slug" varchar;
+  ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "excerpt" text;
   ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "content" jsonb;
-  UPDATE "posts" p SET "title" = l."title", "excerpt" = l."excerpt", "slug" = l."slug", "content" = l."content"
+  ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "meta_title" varchar;
+  ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "meta_description" text;
+  ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "meta_image_id" integer;
+  UPDATE "posts" p SET
+      "title" = l."title", "slug" = l."slug", "excerpt" = l."excerpt",
+      "content" = l."content", "meta_title" = l."meta_title",
+      "meta_description" = l."meta_description", "meta_image_id" = l."meta_image_id"
     FROM "posts_locales" l WHERE l."_parent_id" = p."id" AND l."_locale" = 'pl';
-  UPDATE "posts" p SET "title" = COALESCE(p."title", pl.title) FROM (SELECT "_parent_id", MIN("title") AS title FROM "posts_locales" GROUP BY "_parent_id") pl WHERE p."id" = pl."_parent_id" AND p."title" IS NULL;
 
   ALTER TABLE "pages" ADD COLUMN IF NOT EXISTS "title" varchar;
   ALTER TABLE "pages" ADD COLUMN IF NOT EXISTS "slug" varchar;
+  ALTER TABLE "pages" ADD COLUMN IF NOT EXISTS "excerpt" text;
   ALTER TABLE "pages" ADD COLUMN IF NOT EXISTS "content" jsonb;
-  UPDATE "pages" p SET "title" = l."title", "slug" = l."slug", "content" = l."content"
+  ALTER TABLE "pages" ADD COLUMN IF NOT EXISTS "meta_title" varchar;
+  ALTER TABLE "pages" ADD COLUMN IF NOT EXISTS "meta_description" text;
+  ALTER TABLE "pages" ADD COLUMN IF NOT EXISTS "meta_image_id" integer;
+  UPDATE "pages" p SET
+      "title" = l."title", "slug" = l."slug", "excerpt" = l."excerpt",
+      "content" = l."content", "meta_title" = l."meta_title",
+      "meta_description" = l."meta_description", "meta_image_id" = l."meta_image_id"
     FROM "pages_locales" l WHERE l."_parent_id" = p."id" AND l."_locale" = 'pl';
 
   ALTER TABLE "categories" ADD COLUMN IF NOT EXISTS "name" varchar;
@@ -263,16 +276,22 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
     FROM "tags_locales" l WHERE l."_parent_id" = t."id" AND l."_locale" = 'pl';
 
   ALTER TABLE "media" ADD COLUMN IF NOT EXISTS "alt" varchar;
-  UPDATE "media" m SET "alt" = l."alt"
+  ALTER TABLE "media" ADD COLUMN IF NOT EXISTS "caption" text;
+  UPDATE "media" m SET "alt" = l."alt", "caption" = l."caption"
     FROM "media_locales" l WHERE l."_parent_id" = m."id" AND l."_locale" = 'pl';
 
-  DROP TABLE IF EXISTS "posts_locales";
+  ALTER TABLE "search" ADD COLUMN IF NOT EXISTS "title" varchar;
+  UPDATE "search" s SET "title" = l."title"
+    FROM "search_locales" l WHERE l."_parent_id" = s."id" AND l."_locale" = 'pl';
+
   DROP TABLE IF EXISTS "_posts_v_locales";
-  DROP TABLE IF EXISTS "pages_locales";
   DROP TABLE IF EXISTS "_pages_v_locales";
+  DROP TABLE IF EXISTS "posts_locales";
+  DROP TABLE IF EXISTS "pages_locales";
   DROP TABLE IF EXISTS "media_locales";
   DROP TABLE IF EXISTS "categories_locales";
   DROP TABLE IF EXISTS "tags_locales";
+  DROP TABLE IF EXISTS "search_locales";
   DROP TABLE IF EXISTS "_posts_v_rels";
   DROP TABLE IF EXISTS "_pages_v_rels";
 

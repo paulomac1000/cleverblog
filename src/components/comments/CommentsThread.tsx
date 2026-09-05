@@ -175,6 +175,11 @@ export function CommentsThread({
           {comment.createdAtText}
         </time>
       </div>
+      {comment.replyToText ? (
+        <div className="muted" style={{ fontSize: '0.85rem', marginTop: 8 }}>
+          {comment.replyToText}
+        </div>
+      ) : null}
       {renderBody(comment)}
     </div>
   )

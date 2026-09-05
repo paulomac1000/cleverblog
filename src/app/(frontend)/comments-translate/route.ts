@@ -54,10 +54,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'unsupported locale' }, { status: 400 })
   }
 
-  const headerIP =
-    request.headers.get('x-verified-client-ip')?.trim() ??
-    request.headers.get('x-real-ip')?.trim() ??
-    ''
+  // Only the trusted ingress header is ever honored (it is always
+  // overwritten upstream, so it cannot be spoofed).
+  const headerIP = request.headers.get('x-verified-client-ip')?.trim() ?? ''
   const ip = isIP(headerIP) ? headerIP : 'unknown'
   const rate = consumeRateLimit(ip)
   if (!rate.allowed) {
@@ -83,7 +82,7 @@ export async function POST(request: NextRequest) {
   })
 
   const approvedById = new Map(comments.docs.map((c) => [c.id, c]))
-  const cached = await payload.find({
+  const existing = await payload.find({
     collection: 'comment-translations',
     depth: 0,
     limit: MAX_TRANSLATION_BATCH,
@@ -92,13 +91,20 @@ export async function POST(request: NextRequest) {
       and: [
         { comment: { in: commentIds } },
         { locale: { equals: locale } },
-        { status: { equals: 'ready' } },
       ],
     },
   })
-  const cachedByComment = new Map(
-    cached.docs.map((t) => [getRelationshipId(t.comment), t.text]),
-  )
+  const cachedByComment = new Map<number, string>()
+  const failedById = new Map<number, (typeof existing.docs)[number]>()
+  for (const row of existing.docs) {
+    const cid = getRelationshipId(row.comment)
+    if (cid === null) continue
+    if (row.status === 'ready') {
+      cachedByComment.set(cid, row.text)
+    } else {
+      failedById.set(cid, row)
+    }
+  }
 
   const results: Record<number, string> = {}
   const missing: number[] = []
@@ -121,6 +127,10 @@ export async function POST(request: NextRequest) {
     for (const id of missing) {
       const comment = approvedById.get(id)
       if (!comment || typeof comment.content !== 'string') continue
+      const failedRow = failedById.get(id)
+      if (failedRow?.nextRetryAt && new Date(failedRow.nextRetryAt).getTime() > Date.now()) {
+        continue
+      }
       const outcome = await translateCommentText(comment.content)
       if (outcome.status === 'ready' && outcome.text) {
         try {

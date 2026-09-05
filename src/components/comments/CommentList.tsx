@@ -107,7 +107,9 @@ export async function CommentList({ postId, locale }: Props) {
     repliesByRoot.set(rootId, replies)
   }
 
-  const dateFormatter = new Intl.DateTimeFormat('pl-PL')
+  const dateFormatter = new Intl.DateTimeFormat(
+    locale === 'en' ? 'en-GB' : 'pl-PL',
+  )
   const toThreadComment = (
     comment: (typeof result.docs)[number],
     parentAuthor: string | null,
