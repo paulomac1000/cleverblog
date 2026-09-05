@@ -40,5 +40,5 @@ Polish tech blog (https://cleverblog.pl) — Payload CMS + Next.js App Router + 
 ## Releases and deployment
 - Release boundary: one `vX.Y.Z` tag on `main`; `.github/workflows/release.yml` builds, smoke-tests and publishes the image to GHCR and records its digest.
 - Production deployment is operator-authorized: deploy only the exact digest recorded by the release workflow run for that tag (`docker pull ghcr.io/...@sha256:...`), never a locally rebuilt image.
-- Before schema migrations, take a `pg_dump -Fc` backup and test on a restored clone first.
+- Before schema migrations, take a `pg_dump -Fc` backup and test on a restored clone first. In non-interactive shells `payload migrate` can block on a confirmation prompt that never renders: when a data-loss warning is expected pass `--force-accept-warning`; otherwise apply the SQL via psql and insert the row into `payload_migrations` (name + batch), then confirm with `migrate:status`.
 - Production PostgreSQL is external and managed; the connection is supplied via `CLEVERBLOG_DATABASE_URL`, with no hostname in tracked files.
