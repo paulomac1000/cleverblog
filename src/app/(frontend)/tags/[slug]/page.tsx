@@ -1,68 +1,62 @@
-import config from '@payload-config'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+
+import { findTagBySlug, getTagCounterpart } from '@/lib/content/taxonomy'
+import { tagUrl } from '@/i18n/urls'
+import { t, tf } from '@/i18n/messages'
+import { buildLocalizedMetadata, serverURL } from '@/lib/seo/metadata'
+import config from '@payload-config'
 import { getPayload } from 'payload'
+import type { Locale } from '@/i18n/config'
 
 export const dynamic = 'force-dynamic'
-
-const serverURL = (process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000').replace(/\/+$/, '')
 
 type Props = {
   params: Promise<{ slug: string }>
 }
 
-const findTag = async (slug: string) => {
-  const payload = await getPayload({ config })
-  const result = await payload.find({
-    collection: 'tags',
-    depth: 0,
-    limit: 1,
-    overrideAccess: true,
-    where: { slug: { equals: slug } },
-  })
-
-  return result.docs[0] ?? null
-}
+const locale: Locale = 'pl'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const tag = await findTag(slug)
+  const tag = await findTagBySlug(locale, slug)
 
   if (!tag) {
     notFound()
   }
+  const tagCounterpart = await getTagCounterpart(locale, slug)
 
-  return {
+  const tagCounterpartMeta = await getTagCounterpart(locale, slug)
+  const enUrl =
+    tagCounterpartMeta.enExists && tagCounterpartMeta.enSlug
+      ? `${serverURL}${tagUrl('en', tagCounterpartMeta.enSlug)}`
+      : null
+
+  return buildLocalizedMetadata({
+    locale,
+    canonicalPath: tagUrl(locale, slug),
     title: tag.name,
-    description: `Artykuły oznaczone tagiem ${tag.name}.`,
-    alternates: {
-      canonical: `${serverURL}/tags/${tag.slug}`,
-    },
-  }
+    description: tf(locale, 'tag.heading')(tag.name),
+    counterpartUrl: enUrl,
+  })
 }
 
 export default async function TagArchivePage({ params }: Props) {
   const { slug } = await params
-  const payload = await getPayload({ config })
-  const tagResult = await payload.find({
-    collection: 'tags',
-    depth: 0,
-    limit: 1,
-    overrideAccess: true,
-    where: { slug: { equals: slug } },
-  })
-  const tag = tagResult.docs[0]
-
+  const tag = await findTagBySlug(locale, slug)
   if (!tag) {
     notFound()
   }
+  const tagCounterpart = await getTagCounterpart(locale, slug)
 
+  const payload = await getPayload({ config })
   const posts = await payload.find({
     collection: 'posts',
     depth: 0,
     pagination: false,
     overrideAccess: true,
+    locale: 'pl',
     sort: '-publishedAt',
     where: {
       and: [{ _status: { equals: 'published' } }, { tags: { equals: tag.id } }],

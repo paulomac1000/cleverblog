@@ -1,6 +1,6 @@
 import type { CollectionBeforeChangeHook } from 'payload'
 
-import { getUserRole } from '@/access/roles'
+import { canApproveComments } from '@/lib/auth/commentModeration'
 
 type AnyRecord = Record<string, unknown>
 
@@ -20,12 +20,25 @@ export const assertCommentApprovalAllowed = ({
   const previous = objectValue(originalDoc)
   const status = next.status ?? previous.status
 
+  // Optimistic concurrency for the moderation workbench: the client sends
+  // _expectedStatus (the status it saw). If the doc changed in the meantime,
+  // reject with a conflict so the row is refetched instead of blindly
+  // overwriting another moderator's decision.
+  const expectedStatus = next._expectedStatus
+  if (typeof expectedStatus === 'string' && expectedStatus !== '') {
+    delete next._expectedStatus
+    if (previous.status !== expectedStatus) {
+      throw new Error(
+        'Komentarz zmienił status w międzyczasie. Odśwież listę i spróbuj ponownie.',
+      )
+    }
+  }
+
   if (status !== 'approved') return
 
-  const role = getUserRole(user)
-  if (role?.startsWith('agent-')) {
+  if (!canApproveComments(user)) {
     throw new Error(
-      'Agent identities are not allowed to approve comments. Set spam/hidden or leave pending; approval belongs to admin/editor.',
+      'Rola agenta nie może zatwierdzać komentarzy. Zatwierdzenie wymaga redaktora lub administratora.',
     )
   }
 }

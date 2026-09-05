@@ -1,23 +1,17 @@
-import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
-import { RichText } from '@payloadcms/richtext-lexical/react'
-import config from '@payload-config'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getPayload } from 'payload'
 
-import { CodeHighlight } from '@/components/CodeHighlight'
-import { CommentForm } from '@/components/comments/CommentForm'
-import { CommentList } from '@/components/comments/CommentList'
-import { CodeJSXConverter } from '@/components/richtext/codeConverter'
-import { getCommentConfig } from '@/lib/comments/config'
-import { createFormToken } from '@/lib/comments/formToken'
+import { ArticleBody } from '@/components/content/ArticleBody'
+import { RelatedLinks } from '@/components/content/RelatedLinks'
+import {
+  findPublishedPostBySlug,
+  getArticleCounterpart,
+} from '@/lib/content/posts'
+import { articleUrl } from '@/i18n/urls'
+import { buildLocalizedMetadata, serverURL } from '@/lib/seo/metadata'
+import type { Locale } from '@/i18n/config'
 
 export const dynamic = 'force-dynamic'
-
-const serverURL = (
-  process.env.NEXT_PUBLIC_SERVER_URL ??
-  'http://localhost:3000'
-).replace(/\/+$/, '')
 
 type Props = {
   params: Promise<{
@@ -25,137 +19,52 @@ type Props = {
   }>
 }
 
-const findPost = async (
-  slug: string,
-) => {
-  const payload = await getPayload({
-    config,
-  })
-
-  const result = await payload.find({
-    collection: 'posts',
-    limit: 1,
-    overrideAccess: true,
-    where: {
-      and: [
-        {
-          slug: {
-            equals: slug,
-          },
-        },
-        {
-          _status: {
-            equals: 'published',
-          },
-        },
-      ],
-    },
-  })
-
-  return result.docs[0] ?? null
-}
+const locale: Locale = 'pl'
 
 export async function generateMetadata({
   params,
 }: Props): Promise<Metadata> {
   const { slug } = await params
-  const post = await findPost(slug)
+  const post = await findPublishedPostBySlug(locale, slug)
 
   if (!post) {
     notFound()
   }
 
-  return {
+  const counterpart = await getArticleCounterpart(locale, slug)
+
+  return buildLocalizedMetadata({
+    locale,
+    canonicalPath: articleUrl(locale, slug),
     title: post.title,
-    description:
-      post.excerpt || undefined,
-    alternates: {
-      canonical:
-        `${serverURL}/articles/${post.slug}`,
-    },
-  }
+    description: post.excerpt || undefined,
+    counterpartUrl: counterpart.enExists
+      ? `${serverURL}${articleUrl('en', counterpart.enSlug ?? slug)}`
+      : null,
+  })
 }
 
 export default async function ArticlePage({
   params,
 }: Props) {
   const { slug } = await params
-  const post = await findPost(slug)
+  const post = await findPublishedPostBySlug(locale, slug)
 
   if (!post) {
     notFound()
   }
 
-  // Render working copy only: media URLs rewritten to Payload, sanitized at
-  // import time. originalHTML is the immutable provenance snapshot and is
-  // never rendered.
-  const renderHTML =
-    post.legacy?.renderHTML
+  const counterpart = await getArticleCounterpart(locale, slug)
+  const counterpartUrl = counterpart.enExists
+    ? articleUrl('en', counterpart.enSlug ?? slug)
+    : null
 
-  const showLegacy =
-    post.contentFormat ===
-      'legacy-html' &&
-    typeof renderHTML === 'string' &&
-    renderHTML.length > 0
-
-  const commentConfig = getCommentConfig()
-  let commentFormToken: string | undefined
-  let turnstileSiteKey: string | undefined
-
-  if (post.commentsEnabled && commentConfig) {
-    commentFormToken = createFormToken(post.id, commentConfig.securitySecret)
-    turnstileSiteKey = commentConfig.turnstileSiteKey
-  }
-
+  // renderHTML is the sanitized migration working copy. originalHTML remains
+  // immutable migration provenance and is never rendered.
   return (
-    <article className="article">
-      <h1>{post.title}</h1>
-
-      {post.publishedAt ? (
-        <div className="meta">
-          Opublikowano:{' '}
-          {new Date(
-            post.publishedAt,
-          ).toLocaleDateString(
-            'pl-PL',
-          )}
-        </div>
-      ) : null}
-
-      {showLegacy ? (
-        <div
-          className="legacy-content"
-          dangerouslySetInnerHTML={{
-            __html: renderHTML,
-          }}
-        />
-      ) : post.content ? (
-        <RichText
-          converters={({
-            defaultConverters,
-          }) => ({
-            ...defaultConverters,
-            ...CodeJSXConverter,
-          })}
-          data={
-            post.content as SerializedEditorState
-          }
-        />
-      ) : (
-        <p>
-          Treść nie została jeszcze
-          zmigrowana.
-        </p>
-      )}
-
-      <CodeHighlight />
-
-      <CommentList postId={post.id} />
-      <CommentForm
-        formToken={commentFormToken}
-        postId={post.id}
-        siteKey={turnstileSiteKey}
-      />
-    </article>
+    <>
+      <ArticleBody locale={locale} post={post} />
+      <RelatedLinks links={post.relatedLinks} />
+    </>
   )
 }

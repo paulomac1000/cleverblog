@@ -7,12 +7,17 @@ type CategoryOption = {
 
 type Props = {
   options: CategoryOption[]
+  allLabel: string
+  ariaLabel?: string
 }
 
-export function CategorySelect({ options }: Props) {
+export function CategorySelect({ options, allLabel, ariaLabel }: Props) {
+  if (options.length === 0) return null
+
   return (
     <select
       aria-describedby="category-filter-hint"
+      aria-label={ariaLabel}
       defaultValue=""
       id="category"
       name="category"
@@ -20,7 +25,7 @@ export function CategorySelect({ options }: Props) {
         event.currentTarget.form?.requestSubmit()
       }}
     >
-      <option value="">Wszystkie kategorie</option>
+      <option value="">{allLabel}</option>
       {options.map((option) => (
         <option key={option.value} value={option.value}>
           {option.label}

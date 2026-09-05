@@ -1,18 +1,16 @@
-import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
-import { RichText } from '@payloadcms/richtext-lexical/react'
-import config from '@payload-config'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getPayload } from 'payload'
 
-import { CodeJSXConverter } from '@/components/richtext/codeConverter'
+import { StaticPageBody } from '@/components/content/ArticleBody'
+import {
+  findPublishedPageBySlug,
+  getPageCounterpart,
+} from '@/lib/content/pages'
+import { pageUrl } from '@/i18n/urls'
+import { buildLocalizedMetadata, serverURL } from '@/lib/seo/metadata'
+import type { Locale } from '@/i18n/config'
 
 export const dynamic = 'force-dynamic'
-
-const serverURL = (
-  process.env.NEXT_PUBLIC_SERVER_URL ??
-  'http://localhost:3000'
-).replace(/\/+$/, '')
 
 type Props = {
   params: Promise<{
@@ -20,120 +18,49 @@ type Props = {
   }>
 }
 
-const findPage = async (
-  slug: string,
-) => {
-  const payload = await getPayload({
-    config,
-  })
-
-  const result = await payload.find({
-    collection: 'pages',
-    limit: 1,
-    overrideAccess: true,
-    where: {
-      and: [
-        {
-          slug: {
-            equals: slug,
-          },
-        },
-        {
-          _status: {
-            equals: 'published',
-          },
-        },
-      ],
-    },
-  })
-
-  return result.docs[0] ?? null
-}
+const locale: Locale = 'pl'
 
 export async function generateMetadata({
   params,
 }: Props): Promise<Metadata> {
   const { slug } = await params
-  const page = await findPage(slug)
+  const page = await findPublishedPageBySlug(locale, slug)
 
   if (!page) {
     notFound()
   }
 
-  return {
+  const counterpart = await getPageCounterpart(locale, slug)
+
+  return buildLocalizedMetadata({
+    locale,
+    canonicalPath: pageUrl(locale, slug),
     title: page.title,
-    description:
-      page.excerpt || undefined,
-    alternates: {
-      canonical:
-        `${serverURL}/${page.slug}`,
-    },
-  }
+    description: page.excerpt || undefined,
+    counterpartUrl: counterpart.enExists
+      ? `${serverURL}${pageUrl('en', counterpart.enSlug ?? slug)}`
+      : null,
+  })
 }
 
 export default async function StaticPage({
   params,
 }: Props) {
   const { slug } = await params
-  const page = await findPage(slug)
+  const page = await findPublishedPageBySlug(locale, slug)
 
   if (!page) {
     notFound()
   }
 
-  // renderHTML is the sanitized migration working copy. originalHTML remains
-  // immutable migration provenance and is never rendered.
-  const renderHTML =
-    page.legacy?.renderHTML
-
-  const showLegacy =
-    page.contentFormat ===
-      'legacy-html' &&
-    typeof renderHTML === 'string' &&
-    renderHTML.length > 0
+  const counterpart = await getPageCounterpart(locale, slug)
+  const counterpartUrl = counterpart.enExists
+    ? pageUrl('en', counterpart.enSlug ?? slug)
+    : null
 
   return (
-    <article className="article">
-      <h1>{page.title}</h1>
-
-      {page.publishedAt ? (
-        <div className="meta">
-          <span>
-            Opublikowano:{' '}
-            {new Date(
-              page.publishedAt,
-            ).toLocaleDateString(
-              'pl-PL',
-            )}
-          </span>
-        </div>
-      ) : null}
-
-      {showLegacy ? (
-        <div
-          className="legacy-content"
-          dangerouslySetInnerHTML={{
-            __html: renderHTML,
-          }}
-        />
-      ) : page.content ? (
-        <RichText
-          converters={({
-            defaultConverters,
-          }) => ({
-            ...defaultConverters,
-            ...CodeJSXConverter,
-          })}
-          data={
-            page.content as SerializedEditorState
-          }
-        />
-      ) : (
-        <p>
-          Treść nie została jeszcze
-          zmigrowana.
-        </p>
-      )}
-    </article>
+    <>
+      <StaticPageBody locale={locale} page={page} />
+    </>
   )
 }

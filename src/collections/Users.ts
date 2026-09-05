@@ -16,7 +16,8 @@ export const Users: CollectionConfig = {
     read: allowRoles('admin', 'editor'),
     update: adminOnly,
   },
-  admin: {
+  labels: { singular: 'Użytkownik', plural: 'Użytkownicy' },
+  admin: { group: 'System',
     defaultColumns: ['name', 'email', 'role'],
     useAsTitle: 'name',
   },

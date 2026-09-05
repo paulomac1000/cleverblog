@@ -39,7 +39,7 @@ describe('comment approval gate', () => {
         data: { status: 'approved' },
         user: agentUser,
       }),
-    ).toThrowError(/not allowed to approve/)
+    ).toThrowError(/nie może zatwierdzać/)
   })
 
   it('blocks agents when the document stays approved through an update', () => {
@@ -49,7 +49,7 @@ describe('comment approval gate', () => {
         originalDoc: { status: 'approved' },
         user: agentUser,
       }),
-    ).toThrowError(/not allowed to approve/)
+    ).toThrowError(/nie może zatwierdzać/)
   })
 
   it('allows admin and editor to approve', () => {

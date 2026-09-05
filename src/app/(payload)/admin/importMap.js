@@ -21,13 +21,19 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { PublishReadinessField as PublishReadinessField_3933d8ac58c9742d0de2f0a2a2f91e35 } from '../../../components/admin/posts/PublishReadinessField'
+import { PublishReadinessCell as PublishReadinessCell_0cc1f740777dac5ced117899c752570f } from '../../../components/admin/posts/PublishReadinessCell'
+import { LocaleField as LocaleField_ab509f61a636790d7f49719a05052344 } from '../../../components/admin/posts/LocaleField'
+import { LocaleCell as LocaleCell_2178c03c1014a6affce6ddd7ffbb2a70 } from '../../../components/admin/posts/LocaleCell'
 import { OverviewComponent as OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
+import { CommentsListView as CommentsListView_0deb912d294a6212cb29cb2903457686 } from '../../../components/admin/comments/CommentsListView'
 import { LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
+import { WorkloadDashboard as WorkloadDashboard_ca4f78b21b662da480412193d095a03e } from '../../../components/admin/dashboard/WorkloadDashboard'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -55,12 +61,18 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "/components/admin/posts/PublishReadinessField#PublishReadinessField": PublishReadinessField_3933d8ac58c9742d0de2f0a2a2f91e35,
+  "/components/admin/posts/PublishReadinessCell#PublishReadinessCell": PublishReadinessCell_0cc1f740777dac5ced117899c752570f,
+  "/components/admin/posts/LocaleField#LocaleField": LocaleField_ab509f61a636790d7f49719a05052344,
+  "/components/admin/posts/LocaleCell#LocaleCell": LocaleCell_2178c03c1014a6affce6ddd7ffbb2a70,
   "@payloadcms/plugin-seo/client#OverviewComponent": OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaTitleComponent": MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaDescriptionComponent": MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaImageComponent": MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
+  "/components/admin/comments/CommentsListView#CommentsListView": CommentsListView_0deb912d294a6212cb29cb2903457686,
   "@payloadcms/plugin-search/client#LinkToDoc": LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/plugin-search/client#ReindexButton": ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
+  "/components/admin/dashboard/WorkloadDashboard#WorkloadDashboard": WorkloadDashboard_ca4f78b21b662da480412193d095a03e,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

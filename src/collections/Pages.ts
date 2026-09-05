@@ -11,11 +11,12 @@ export const Pages: CollectionConfig = {
     update: allowRoles('admin', 'editor'),
     delete: allowRoles('admin'),
   },
-  admin: { useAsTitle: 'title' },
+  labels: { singular: 'Strona', plural: 'Strony' },
+  admin: { group: 'Treść', useAsTitle: 'title' },
   fields: [
-    { name: 'title', type: 'text', required: true },
-    { name: 'slug', type: 'text', required: true, unique: true, index: true },
-    { name: 'excerpt', type: 'textarea' },
+    { name: 'title', type: 'text', required: true, localized: true },
+    { name: 'slug', type: 'text', required: true, unique: true, index: true, localized: true },
+    { name: 'excerpt', type: 'textarea', localized: true },
     {
       name: 'contentFormat',
       type: 'select',
@@ -26,7 +27,7 @@ export const Pages: CollectionConfig = {
         { label: 'Legacy sanitized HTML', value: 'legacy-html' },
       ],
     },
-    { name: 'content', type: 'richText', editor: lexicalEditor({}) },
+    { name: 'content', type: 'richText', editor: lexicalEditor({}), localized: true },
     {
       name: 'publishedAt',
       type: 'date',

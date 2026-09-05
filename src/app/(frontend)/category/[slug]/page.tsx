@@ -1,17 +1,23 @@
-import config from '@payload-config'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getPayload } from 'payload'
 
 import { PostList, toPostListItems } from '@/components/posts/PostList'
+import {
+  findCategoryBySlug,
+  getCategoryCounterpart,
+} from '@/lib/content/taxonomy'
+import {
+  listPublishedPosts,
+} from '@/lib/content/posts'
+import { categoryUrl, homeUrl } from '@/i18n/urls'
+import { t, tf } from '@/i18n/messages'
+import { buildLocalizedMetadata, serverURL } from '@/lib/seo/metadata'
+import type { Locale } from '@/i18n/config'
 
 export const dynamic = 'force-dynamic'
 
 const PAGE_SIZE = 12
-const serverURL = (
-  process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000'
-).replace(/\/+$/, '')
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -20,28 +26,14 @@ type Props = {
   }>
 }
 
+const locale: Locale = 'pl'
+
 const parsePage = (value?: string | string[]) => {
   const raw = Array.isArray(value) ? value[0] : value
   const parsed = Number(raw)
 
   return Number.isSafeInteger(parsed) && parsed >= 1 ? parsed : 1
 }
-
-const findCategory = async (slug: string) => {
-  const payload = await getPayload({ config })
-  const result = await payload.find({
-    collection: 'categories',
-    depth: 0,
-    limit: 1,
-    overrideAccess: true,
-    where: { slug: { equals: slug } },
-  })
-
-  return result.docs[0] ?? null
-}
-
-const categoryURL = (slug: string, page: number) =>
-  `${serverURL}/category/${slug}${page > 1 ? `?page=${page}` : ''}`
 
 export async function generateMetadata({
   params,
@@ -51,7 +43,7 @@ export async function generateMetadata({
     params,
     searchParams,
   ])
-  const category = await findCategory(slug)
+  const category = await findCategoryBySlug(locale, slug)
 
   if (!category) {
     notFound()
@@ -61,13 +53,19 @@ export async function generateMetadata({
   const description =
     category.description?.trim() || `Artykuły w kategorii ${category.name}.`
 
-  return {
+  const categoryCounterpart = await getCategoryCounterpart(locale, slug)
+  const enUrl =
+    categoryCounterpart.enExists && categoryCounterpart.enSlug
+      ? `${serverURL}${categoryUrl('en', categoryCounterpart.enSlug, page)}`
+      : null
+
+  return buildLocalizedMetadata({
+    locale,
+    canonicalPath: categoryUrl(locale, slug, page),
     title: category.name,
     description,
-    alternates: {
-      canonical: categoryURL(category.slug, page),
-    },
-  }
+    counterpartUrl: enUrl,
+  })
 }
 
 export default async function CategoryArchivePage({
@@ -79,33 +77,15 @@ export default async function CategoryArchivePage({
     searchParams,
   ])
   const page = parsePage(pageParam)
-  const payload = await getPayload({ config })
-  const categoryResult = await payload.find({
-    collection: 'categories',
-    depth: 0,
-    limit: 1,
-    overrideAccess: true,
-    where: { slug: { equals: slug } },
-  })
-  const category = categoryResult.docs[0]
+  const category = await findCategoryBySlug(locale, slug)
 
   if (!category) {
     notFound()
   }
 
-  const result = await payload.find({
-    collection: 'posts',
-    depth: 1,
-    limit: PAGE_SIZE,
+  const result = await listPublishedPosts(locale, {
     page,
-    overrideAccess: true,
-    sort: '-publishedAt',
-    where: {
-      and: [
-        { _status: { equals: 'published' } },
-        { categories: { equals: category.id } },
-      ],
-    },
+    categoryId: category.id,
   })
 
   if (page > 1 && page > result.totalPages) {
@@ -114,48 +94,50 @@ export default async function CategoryArchivePage({
 
   const posts = toPostListItems(result.docs)
 
+  const categoryCounterpart = await getCategoryCounterpart(locale, category.slug)
+  const switcherUrl = categoryCounterpart.enExists ? categoryUrl('en', categoryCounterpart.enSlug ?? category.slug) : null
+
   return (
     <>
       <header className="archive-header">
         <p className="muted">
-          <Link href="/">Wszystkie artykuły</Link> / Kategoria
+          <Link href={homeUrl(locale)}>
+            {t(locale, 'archive.breadcrumb.all')}
+          </Link>{' '}
+          / {t(locale, 'archive.breadcrumb.category')}
         </p>
         <h1>{category.name}</h1>
         {category.description ? <p>{category.description}</p> : null}
       </header>
 
       {posts.length > 0 ? (
-        <PostList posts={posts} />
+        <PostList locale={locale} posts={posts} />
       ) : (
-        <p className="muted">Brak artykułów w tej kategorii.</p>
+        <p className="muted">{t(locale, 'archive.empty.category')}</p>
       )}
 
       {result.totalPages > 1 ? (
         <nav
-          aria-label={`Stronicowanie kategorii ${category.name}`}
+          aria-label={tf(locale, 'pagination.aria.category')(category.name)}
           className="pagination"
         >
           {page > 1 ? (
             <Link
               className="pagination-link"
-              href={
-                page === 2
-                  ? `/category/${category.slug}`
-                  : `/category/${category.slug}?page=${page - 1}`
-              }
+              href={categoryUrl(locale, category.slug, page - 1)}
             >
-              ← Nowsze
+              {t(locale, 'pagination.prev')}
             </Link>
           ) : null}
           <span className="muted">
-            Strona {page} z {result.totalPages}
+            {tf(locale, 'pagination.status')(page, result.totalPages)}
           </span>
           {result.hasNextPage ? (
             <Link
               className="pagination-link"
-              href={`/category/${category.slug}?page=${page + 1}`}
+              href={categoryUrl(locale, category.slug, page + 1)}
             >
-              Starsze →
+              {t(locale, 'pagination.next')}
             </Link>
           ) : null}
         </nav>

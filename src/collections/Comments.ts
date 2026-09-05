@@ -5,6 +5,17 @@ import { enforceCommentApprovalGate } from '@/hooks/enforceCommentApprovalGate'
 
 export const Comments: CollectionConfig = {
   slug: 'comments',
+  labels: { singular: 'Komentarz', plural: 'Komentarze' },
+  admin: {
+    group: 'Społeczność',
+    components: {
+      views: {
+        list: {
+          Component: '/components/admin/comments/CommentsListView#CommentsListView',
+        },
+      },
+    },
+  },
   access: {
     read: ({ req }) => {
       if (hasRole(req.user, ['admin', 'editor', 'agent-moderator'])) return true
@@ -14,7 +25,6 @@ export const Comments: CollectionConfig = {
     update: allowRoles('admin', 'editor', 'agent-moderator'),
     delete: allowRoles('admin'),
   },
-  admin: { defaultColumns: ['post', 'authorName', 'status', 'createdAt'] },
   defaultSort: '-createdAt',
   hooks: { beforeChange: [enforceCommentApprovalGate] },
   indexes: [{ fields: ['post', 'submissionHash'], unique: true }],
@@ -65,6 +75,13 @@ export const Comments: CollectionConfig = {
       required: true,
       options: ['pending', 'approved', 'spam', 'hidden'],
       index: true,
+    },
+    {
+      name: 'submittedLocale',
+      type: 'select',
+      defaultValue: 'pl',
+      options: ['pl', 'en'],
+      admin: { hidden: true },
     },
     {
       name: 'moderation',

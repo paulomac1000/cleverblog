@@ -1,8 +1,13 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
+import { t, tf } from '@/i18n/messages'
+import type { Locale } from '@/i18n/config'
+import { CommentsThread, type ThreadComment, type ThreadRoot } from '@/components/comments/CommentsThread'
+
 type Props = {
   postId: number
+  locale: Locale
 }
 
 const getRelationshipId = (value: unknown): number | null => {
@@ -31,7 +36,7 @@ const getSafeAuthorUrl = (value: unknown): string | null => {
   }
 }
 
-export async function CommentList({ postId }: Props) {
+export async function CommentList({ postId, locale }: Props) {
   const payload = await getPayload({ config })
   const result = await payload.find({
     collection: 'comments',
@@ -48,6 +53,26 @@ export async function CommentList({ postId }: Props) {
   })
 
   const commentById = new Map(result.docs.map((comment) => [comment.id, comment]))
+  const translationsByComment = new Map<number, string>()
+  if (locale === 'en' && result.docs.length > 0) {
+    const cached = await payload.find({
+      collection: 'comment-translations',
+      depth: 0,
+      pagination: false,
+      overrideAccess: true,
+      where: {
+        and: [
+          { comment: { in: result.docs.map((c) => c.id) } },
+          { locale: { equals: 'en' } },
+          { status: { equals: 'ready' } },
+        ],
+      },
+    })
+    for (const tr of cached.docs) {
+      const cid = getRelationshipId(tr.comment)
+      if (cid !== null) translationsByComment.set(cid, tr.text)
+    }
+  }
   const authorById = new Map(result.docs.map((comment) => [comment.id, comment.authorName]))
   const rootComments: typeof result.docs = []
   const repliesByRoot = new Map<number, typeof result.docs>()
@@ -82,95 +107,57 @@ export async function CommentList({ postId }: Props) {
     repliesByRoot.set(rootId, replies)
   }
 
-  const renderComment = (comment: (typeof result.docs)[number], nested = false) => {
-    const parentId = getRelationshipId(comment.parent)
-    const parentAuthor = parentId ? authorById.get(parentId) : null
-    const authorUrl = getSafeAuthorUrl(comment.authorUrl)
+  const dateFormatter = new Intl.DateTimeFormat(
+    locale === 'en' ? 'en-GB' : 'pl-PL',
+  )
+  const toThreadComment = (
+    comment: (typeof result.docs)[number],
+    parentAuthor: string | null,
+    translated: string | null,
+  ): ThreadComment => ({
+    id: comment.id,
+    authorName: comment.authorName,
+    authorUrl: getSafeAuthorUrl(comment.authorUrl),
+    createdAt:
+      typeof comment.createdAt === 'string' ? comment.createdAt : String(comment.createdAt),
+    createdAtText: dateFormatter.format(new Date(comment.createdAt)),
+    replyToText: parentAuthor ? tf(locale, 'comments.replyTo')(parentAuthor) : null,
+    content: comment.content,
+    translated,
+  })
 
-    return (
-      <div
-        style={{
-          background: 'var(--surface)',
-          border: '1px solid var(--border)',
-          borderLeft: nested ? '3px solid var(--accent)' : '1px solid var(--border)',
-          borderRadius: 'var(--radius)',
-          padding: nested ? '14px 16px' : 18,
-        }}
-      >
-        <div
-          style={{
-            alignItems: 'baseline',
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '6px 12px',
-          }}
-        >
-          <strong>
-            {authorUrl ? (
-              <a href={authorUrl} rel="ugc nofollow external">
-                {comment.authorName}
-              </a>
-            ) : (
-              comment.authorName
-            )}
-          </strong>
-          <time className="muted" dateTime={comment.createdAt} style={{ fontSize: '0.85rem' }}>
-            {new Date(comment.createdAt).toLocaleDateString('pl-PL')}
-          </time>
-        </div>
-
-        {parentAuthor ? (
-          <div className="muted" style={{ fontSize: '0.85rem', marginTop: 8 }}>
-            Odpowiedź do: {parentAuthor}
-          </div>
-        ) : null}
-
-        <p style={{ margin: '12px 0 0', whiteSpace: 'pre-wrap' }}>{comment.content}</p>
-      </div>
-    )
-  }
+  const tree: ThreadRoot[] = rootComments.map((root) => {
+    const rootParentId = getRelationshipId(root.parent)
+    const rootParentAuthor = rootParentId ? authorById.get(rootParentId) ?? null : null
+    const replies = (repliesByRoot.get(root.id) ?? []).map((reply) => {
+      const replyParentId = getRelationshipId(reply.parent)
+      const replyParentAuthor = replyParentId ? authorById.get(replyParentId) ?? null : null
+      return toThreadComment(
+        reply,
+        replyParentAuthor,
+        translationsByComment.get(reply.id) ?? null,
+      )
+    })
+    return {
+      root: toThreadComment(root, rootParentAuthor, translationsByComment.get(root.id) ?? null),
+      replies,
+    }
+  })
 
   return (
-    <section
-      aria-labelledby="comments-heading"
-      style={{
-        borderTop: '1px solid var(--border)',
-        marginTop: 48,
-        paddingTop: 32,
-      }}
-    >
-      <h2 id="comments-heading">Komentarze ({result.docs.length})</h2>
-
-      {result.docs.length === 0 ? (
-        <p className="muted">Brak komentarzy.</p>
-      ) : (
-        <ol style={{ display: 'grid', gap: 16, listStyle: 'none', margin: 0, padding: 0 }}>
-          {rootComments.map((comment) => {
-            const replies = repliesByRoot.get(comment.id) ?? []
-
-            return (
-              <li key={comment.id}>
-                {renderComment(comment)}
-                {replies.length > 0 ? (
-                  <ol
-                    style={{
-                      display: 'grid',
-                      gap: 10,
-                      listStyle: 'none',
-                      margin: '12px 0 0 24px',
-                      padding: 0,
-                    }}
-                  >
-                    {replies.map((reply) => (
-                      <li key={reply.id}>{renderComment(reply, true)}</li>
-                    ))}
-                  </ol>
-                ) : null}
-              </li>
-            )
-          })}
-        </ol>
-      )}
+    <section aria-labelledby="comments-heading" style={{ borderTop: '1px solid var(--border)', marginTop: 48, paddingTop: 32 }}>
+      <h2 id="comments-heading">{tf(locale, 'comments.heading')(result.docs.length)}</h2>
+      <CommentsThread
+        locale={locale}
+        postId={postId}
+        strings={{
+          empty: t(locale, 'comments.empty'),
+          machineTranslated: t(locale, 'comments.machineTranslated'),
+          showOriginal: t(locale, 'comments.showOriginal'),
+          showTranslation: t(locale, 'comments.showTranslation'),
+        }}
+        tree={tree}
+      />
     </section>
   )
 }
