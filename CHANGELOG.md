@@ -2,7 +2,7 @@
 
 Notable consumer- and operator-visible changes are recorded here. The release boundary is one `vX.Y.Z` git tag on `main`; `package.json` `version` is the canonical repository version; the matching CHANGELOG heading, git tag and GitHub Release must agree. Published tags are immutable, so mistakes become a new version. Production deployment uses the exact GHCR digest built by `.github/workflows/release.yml` for the release tag.
 
-## [Unreleased]
+## [0.3.7] - 2026-09-06
 
 ### Fixed
 - The global comment admission limit is now charged only after successful Turnstile verification, so junk requests can no longer exhaust the shared quota for legitimate visitors (hardening found in the pre-publication security review).
