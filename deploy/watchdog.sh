@@ -125,6 +125,13 @@ docker stats --no-stream --format '{{.Name}} {{.MemUsage}}' 2>/dev/null | grep -
 
 log "SITE_FAIL status=app:$app_status health:$app_health oom:$app_oom restarts:$app_restarts ingress:$ing_status memAvailKB:${mem_avail:-?}"
 
+# ---- 3. traccar: observe + escalate only, NEVER restart ---------------------
+tr_status=$(f_field "$TRACCAR" '{{.State.Status}}')
+if [ "$tr_status" != "running" ] && [ "$(cat "$LAST_TRACCAR_FILE" 2>/dev/null || echo running)" = "running" ]; then
+  escalate "traccar is not running (status=$tr_status) — NOT auto-restarting (owner-critical, observe only)"
+fi
+echo "${tr_status:-unknown}" > "$LAST_TRACCAR_FILE"
+
 # ---- 4. recovery ladder ------------------------------------------------------
 epoch=$(now)
 started_epoch=0
