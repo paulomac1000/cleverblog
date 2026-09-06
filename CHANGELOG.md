@@ -2,6 +2,13 @@
 
 Notable consumer- and operator-visible changes are recorded here. The release boundary is one `vX.Y.Z` git tag on `main`; `package.json` `version` is the canonical repository version; the matching CHANGELOG heading, git tag and GitHub Release must agree. Published tags are immutable, so mistakes become a new version. Production deployment uses the exact GHCR digest built by `.github/workflows/release.yml` for the release tag.
 
+## [Unreleased]
+
+## [0.3.8] - 2026-09-06
+
+### Changed
+- Release images are now published to the public package `ghcr.io/paulomac1000/cleverblog-site`, linked to this public repository; the historical private `cleverblog` package remains as an archive of versions up to v0.3.7.
+
 ## [0.3.7] - 2026-09-06
 
 ### Fixed
