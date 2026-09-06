@@ -45,7 +45,7 @@ if (scenario === 'healthy') {
     { env: process.env, stdio: 'ignore' },
   )
   process.on('SIGTERM', () => process.exit(0))
-  if (marker) fs.writeFileSync(marker, 'grandchild:' + grandchild.pid + '\\n')
+  if (marker) fs.appendFileSync(marker, 'armed\\ngrandchild:' + grandchild.pid + '\\n')
   process.stdout.write('armed\\n')
   setInterval(() => {}, 1_000)
 } else if (scenario === 'exit-on-signal') {
@@ -213,32 +213,37 @@ describe('migrate-headless', () => {
   it('kills descendants after the pnpm leader exits during forced termination', async () => {
     const fake = await createFakePnpm()
     const marker = join(fake.dir, 'descendant.txt')
+    await writeFile(marker, 'test-started\n', 'utf8')
     vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
     vi.spyOn(process.stderr, 'write').mockImplementation(() => true)
 
-    const exitCode = await runHeadlessMigration({
+    const migrationPromise = runHeadlessMigration({
       env: {
         ...fake.env,
         FAKE_MIGRATE_MARKER: marker,
         FAKE_MIGRATE_SCENARIO: 'leader-exits-grandchild-ignores-term',
       },
-      idleTimeoutMs: 150,
-      maxRuntimeMs: 500,
+      idleTimeoutMs: 1_000,
+      maxRuntimeMs: 2_000,
       registerSignalHandlers: false,
       terminationGraceMs: 100,
     })
 
+    const armed = await waitForMarker(marker, 'armed\ngrandchild:', 1_500)
+    expect(armed).toContain('test-started')
+    const pidMatch = armed.match(/grandchild:(\d+)/)
+    expect(pidMatch).not.toBeNull()
+    if (!pidMatch) throw new Error('Fake pnpm did not record the grandchild pid')
+    const grandchildPid = Number(pidMatch[1])
+
+    const exitCode = await migrationPromise
     expect(exitCode).toBe(124)
     const atReturn = await readFile(marker, 'utf8')
-    const pidMatch = atReturn.match(/grandchild:(\d+)/)
-    expect(pidMatch).not.toBeNull()
     expect(atReturn).toContain('grandchild-started')
 
     await new Promise((resolve) => setTimeout(resolve, 50))
     expect(await readFile(marker, 'utf8')).toBe(atReturn)
 
-    if (!pidMatch) throw new Error('Fake pnpm did not record the grandchild pid')
-    const grandchildPid = Number(pidMatch[1])
     if (processIsAlive(grandchildPid)) {
       const stat = await readFile(`/proc/${grandchildPid}/stat`, 'utf8').catch(() => '')
       expect(stat.split(' ')[2]).toBe('Z')
