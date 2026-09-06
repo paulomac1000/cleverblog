@@ -10,7 +10,7 @@ Polish tech blog (https://cleverblog.pl) — Payload CMS + Next.js App Router + 
 - Every imported WordPress object keeps a stable legacy identity; post upserts use `legacy.wordpressId`, and the `/?p=ID` URL contract must keep working.
 - Comments are created only through the server action; REST create stays disabled, Turnstile + rate limiting + moderation stay in place, and only `approved` comments are public.
 - Never expose delete through MCP.
-- Never put production credentials, WordPress dumps, emails, IP addresses or other personal data in git.
+- Never commit production credentials, personal data, database hosts or origin-server addresses; explicitly documented public/proxy ingress topology may be tracked.
 - Fix bugs minimally; do not refactor while fixing.
 
 ## Architecture decisions
