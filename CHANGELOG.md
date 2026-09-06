@@ -6,6 +6,12 @@ Notable consumer- and operator-visible changes are recorded here. The release bo
 
 ## [0.3.10] - 2026-09-07
 
+### Security
+- Redirect targets built from CMS slugs are now percent-encoded as a single
+  path segment. A page slug such as `//attacker.example` previously resolved
+  to a protocol-relative external redirect (CWE-601); path or query
+  delimiters in any collection slug could also rewrite the target.
+
 ### Fixed
 - Paginated homepages (`/?page=N`, `/en?page=N`) now carry their own
   self-referencing canonical and page-paired hreflang alternates. Previously

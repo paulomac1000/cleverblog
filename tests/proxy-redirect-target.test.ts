@@ -55,6 +55,23 @@ describe('resolveTarget redirect targets match real frontend routes', () => {
     expect(resolveTarget({ from: '/old', type: '301', to: null })).toBeNull()
   })
 
+  it('encodes slugs so path/query delimiters cannot rewrite the target', () => {
+    // A pages slug "//attacker.example" used to resolve through
+    // new URL(target, request.url) as a protocol-relative EXTERNAL redirect.
+    expect(resolveTarget(doc('pages', '//attacker.example'))).toEqual({
+      target: '/%2F%2Fattacker.example',
+      status: 301,
+    })
+    expect(resolveTarget(doc('posts', 'a/b'))).toEqual({
+      target: '/articles/a%2Fb',
+      status: 301,
+    })
+    expect(resolveTarget(doc('tags', 'x?next='))).toEqual({
+      target: '/tags/x%3Fnext%3D',
+      status: 301,
+    })
+  })
+
   it('rejects empty or missing slugs', () => {
     expect(resolveTarget(doc('posts', ''))).toBeNull()
     expect(

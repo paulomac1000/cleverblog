@@ -53,14 +53,20 @@ export const resolveTarget = (
   const status = doc.type === '302' ? 302 : doc.type === '301' ? 301 : null
   if (status === null) return null
 
+  // A slug is one path segment. Encoding it prevents delimiter injection:
+  // a pages slug like "//attacker.example" would otherwise resolve through
+  // new URL(target, request.url) as a protocol-relative EXTERNAL redirect
+  // (CWE-601), and "/" or "?" would rewrite the target's path or query.
+  const encodedSlug = encodeURIComponent(slug)
+
   const target =
     relationTo === 'posts'
-      ? `/articles/${slug}`
+      ? `/articles/${encodedSlug}`
       : relationTo === 'pages'
-        ? `/${slug}`
+        ? `/${encodedSlug}`
         : relationTo === 'categories'
-          ? `/category/${slug}`
-          : `/tags/${slug}`
+          ? `/category/${encodedSlug}`
+          : `/tags/${encodedSlug}`
 
   return { target, status }
 }
