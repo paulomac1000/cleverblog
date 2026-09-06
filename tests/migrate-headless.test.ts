@@ -1,15 +1,19 @@
+import { spawn } from 'node:child_process'
 import { chmod, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { delimiter, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { runHeadlessMigration } from '../scripts/migrate-headless.mjs'
 
 const tempDirs: string[] = []
+const wrapperPath = fileURLToPath(new URL('../scripts/migrate-headless.mjs', import.meta.url))
 
 const fakePnpmSource = `#!/usr/bin/env node
 const fs = require('node:fs')
+const { spawn } = require('node:child_process')
 const scenario = process.env.FAKE_MIGRATE_SCENARIO
 if (process.argv[2] !== 'payload' || process.argv[3] !== 'migrate') process.exit(91)
 if (scenario === 'healthy') {
@@ -28,6 +32,31 @@ if (scenario === 'healthy') {
     if (marker) fs.appendFileSync(marker, 'sigterm\\n')
   })
   if (marker) fs.writeFileSync(marker, 'armed\\n')
+  process.stdout.write('armed\\n')
+  setInterval(() => {}, 1_000)
+} else if (scenario === 'leader-exits-grandchild-ignores-term') {
+  const marker = process.env.FAKE_MIGRATE_MARKER
+  const grandchild = spawn(
+    process.execPath,
+    [
+      '-e',
+      "const fs=require('node:fs');const marker=process.env.FAKE_MIGRATE_MARKER;process.on('SIGTERM',()=>{});if(marker)fs.appendFileSync(marker,'grandchild-started'+String.fromCharCode(10));setInterval(()=>{if(marker)fs.appendFileSync(marker,'beat'+String.fromCharCode(10))},10)",
+    ],
+    { env: process.env, stdio: 'ignore' },
+  )
+  process.on('SIGTERM', () => process.exit(0))
+  if (marker) fs.writeFileSync(marker, 'grandchild:' + grandchild.pid + '\\n')
+  process.stdout.write('armed\\n')
+  setInterval(() => {}, 1_000)
+} else if (scenario === 'exit-on-signal') {
+  const marker = process.env.FAKE_MIGRATE_MARKER
+  const exitOnSignal = (signal) => {
+    if (marker) fs.appendFileSync(marker, signal.toLowerCase() + '\\n')
+    process.exit(0)
+  }
+  process.on('SIGTERM', () => exitOnSignal('SIGTERM'))
+  process.on('SIGINT', () => exitOnSignal('SIGINT'))
+  if (marker) fs.writeFileSync(marker, 'pid:' + process.pid + '\\narmed\\n')
   process.stdout.write('armed\\n')
   setInterval(() => {}, 1_000)
 } else if (scenario === 'stdin') {
@@ -59,6 +88,30 @@ const sawWrite = (
   calls: readonly (readonly unknown[])[],
   text: string,
 ): boolean => calls.some(([chunk]) => String(chunk).includes(text))
+
+const waitForMarker = async (path: string, text: string, timeoutMs = 1_000) => {
+  const deadline = Date.now() + timeoutMs
+  while (Date.now() < deadline) {
+    try {
+      const contents = await readFile(path, 'utf8')
+      if (contents.includes(text)) return contents
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+    }
+    await new Promise((resolve) => setTimeout(resolve, 10))
+  }
+  throw new Error(`Timed out waiting for ${JSON.stringify(text)} in ${path}`)
+}
+
+const processIsAlive = (pid: number): boolean => {
+  try {
+    process.kill(pid, 0)
+    return true
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ESRCH') return false
+    throw error
+  }
+}
 
 afterEach(async () => {
   vi.restoreAllMocks()
@@ -155,6 +208,74 @@ describe('migrate-headless', () => {
     const signals = await readFile(marker, 'utf8')
     expect(signals).toContain('armed')
     expect(signals).toContain('sigterm')
+  })
+
+  it('kills descendants after the pnpm leader exits during forced termination', async () => {
+    const fake = await createFakePnpm()
+    const marker = join(fake.dir, 'descendant.txt')
+    vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true)
+
+    const exitCode = await runHeadlessMigration({
+      env: {
+        ...fake.env,
+        FAKE_MIGRATE_MARKER: marker,
+        FAKE_MIGRATE_SCENARIO: 'leader-exits-grandchild-ignores-term',
+      },
+      idleTimeoutMs: 150,
+      maxRuntimeMs: 500,
+      registerSignalHandlers: false,
+      terminationGraceMs: 100,
+    })
+
+    expect(exitCode).toBe(124)
+    const atReturn = await readFile(marker, 'utf8')
+    const pidMatch = atReturn.match(/grandchild:(\d+)/)
+    expect(pidMatch).not.toBeNull()
+    expect(atReturn).toContain('grandchild-started')
+
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(await readFile(marker, 'utf8')).toBe(atReturn)
+
+    if (!pidMatch) throw new Error('Fake pnpm did not record the grandchild pid')
+    const grandchildPid = Number(pidMatch[1])
+    if (processIsAlive(grandchildPid)) {
+      const stat = await readFile(`/proc/${grandchildPid}/stat`, 'utf8').catch(() => '')
+      expect(stat.split(' ')[2]).toBe('Z')
+    }
+  })
+
+  it.each([
+    ['SIGTERM', 143, 'sigterm'],
+    ['SIGINT', 130, 'sigint'],
+  ] as const)('propagates %s from the actual wrapper and exits %i', async (signal, expectedExitCode, markerSignal) => {
+    const fake = await createFakePnpm()
+    const marker = join(fake.dir, 'wrapper-signal.txt')
+    const wrapper = spawn(process.execPath, [wrapperPath], {
+      env: {
+        ...fake.env,
+        FAKE_MIGRATE_MARKER: marker,
+        FAKE_MIGRATE_SCENARIO: 'exit-on-signal',
+        MIGRATE_HEADLESS_IDLE_TIMEOUT_MS: '5000',
+        MIGRATE_HEADLESS_MAX_RUNTIME_MS: '5000',
+      },
+      stdio: 'ignore',
+    })
+    const closePromise = new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolve) => {
+      wrapper.once('close', (code, closeSignal) => resolve({ code, signal: closeSignal }))
+    })
+
+    const armed = await waitForMarker(marker, 'armed')
+    const childPidMatch = armed.match(/pid:(\d+)/)
+    expect(childPidMatch).not.toBeNull()
+    if (!childPidMatch) throw new Error('Fake pnpm did not record its pid')
+
+    expect(wrapper.kill(signal)).toBe(true)
+    await expect(closePromise).resolves.toEqual({ code: expectedExitCode, signal: null })
+
+    const markerContents = await readFile(marker, 'utf8')
+    expect(markerContents).toContain(markerSignal)
+    expect(processIsAlive(Number(childPidMatch[1]))).toBe(false)
   })
 
   it('never sends bytes to a child that attempts to read stdin', async () => {

@@ -70,15 +70,17 @@ export const runHeadlessMigration = ({
       ],
     })
 
-    const sendToGroup = (signal) => {
-      if (typeof child.pid !== 'number') return
+    const signalGroup = (signal) => {
+      if (typeof child.pid !== 'number') return false
 
       try {
         process.kill(-child.pid, signal)
+        return true
       } catch (error) {
-        if (!(error instanceof Error && 'code' in error && error.code === 'ESRCH')) {
-          throw error
+        if (error instanceof Error && 'code' in error && error.code === 'ESRCH') {
+          return false
         }
+        throw error
       }
     }
 
@@ -102,14 +104,18 @@ export const runHeadlessMigration = ({
     const startGracePeriod = () => {
       if (graceTimer !== null) return
       graceTimer = setTimeout(() => {
-        sendToGroup('SIGKILL')
+        signalGroup('SIGKILL')
+        if (forcedExitCode !== null) finish(forcedExitCode)
       }, terminationGraceMs)
     }
 
     const terminateFor = (exitCode, signal = 'SIGTERM') => {
       if (forcedExitCode !== null) return
       forcedExitCode = exitCode
-      sendToGroup(signal)
+      if (!signalGroup(signal)) {
+        finish(exitCode)
+        return
+      }
       startGracePeriod()
     }
 
@@ -140,7 +146,7 @@ export const runHeadlessMigration = ({
 
     child.once('close', (code, signal) => {
       if (forcedExitCode !== null) {
-        finish(forcedExitCode)
+        if (!signalGroup(0)) finish(forcedExitCode)
         return
       }
 
