@@ -9,7 +9,10 @@ import { getPayload } from 'payload'
 
 import { getCommentConfig } from '@/lib/comments/config'
 import { verifyFormToken } from '@/lib/comments/formToken'
-import { consumeCommentRateLimit } from '@/lib/comments/rateLimit'
+import {
+  consumeCommentRateLimit,
+  consumeGlobalCommentAdmission,
+} from '@/lib/comments/rateLimit'
 import { scoreCommentSpam } from '@/lib/comments/spamScore'
 import { verifyTurnstile } from '@/lib/comments/verifyTurnstile'
 
@@ -106,6 +109,13 @@ export async function submitComment(
   const requestHeaders = await headers()
   const headerIP = requestHeaders.get('x-verified-client-ip')?.trim() ?? ''
   const rawClientIP = isValidClientIP(headerIP) ? headerIP : 'unknown'
+
+  // IP-independent guard: issue #13 showed the origin-port path can bypass IP-keyed admission.
+  const globalAdmission = consumeGlobalCommentAdmission(commentConfig.securitySecret)
+  if (!globalAdmission.allowed) {
+    return errorState(locale === 'en' ? 'Too many attempts. Try again in a few minutes.' : 'Zbyt wiele prób. Spróbuj ponownie za kilka minut.')
+  }
+
   const rateLimit = consumeCommentRateLimit(rawClientIP, commentConfig.securitySecret)
 
   if (!rateLimit.allowed) {
