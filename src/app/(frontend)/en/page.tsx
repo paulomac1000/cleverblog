@@ -9,6 +9,7 @@ import { listPublishedPosts } from '@/lib/content/posts'
 import { listCategories, listPopularTags } from '@/lib/content/taxonomy'
 import { homeUrl, localePath } from '@/i18n/urls'
 import { t, tf } from '@/i18n/messages'
+import { parsePageParam } from '@/lib/pagination'
 import { buildLocalizedMetadata, serverURL } from '@/lib/seo/metadata'
 import type { Locale } from '@/i18n/config'
 
@@ -26,13 +27,18 @@ type Props = {
 
 const locale: Locale = 'en'
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  searchParams,
+}: Props): Promise<Metadata> {
+  const { page: pageParam } = await searchParams
+  const page = parsePageParam(pageParam)
+
   return buildLocalizedMetadata({
     locale,
-    canonicalPath: homeUrl(locale),
+    canonicalPath: homeUrl(locale, page),
     title: 'CleverBlog',
     description: 'Practical engineering notes, verified on real systems.',
-    counterpartUrl: `${serverURL}${homeUrl('pl')}`,
+    counterpartUrl: `${serverURL}${homeUrl('pl', page)}`,
   })
 }
 
@@ -53,12 +59,7 @@ export default async function EnHomePage({ searchParams }: Props) {
     )
   }
 
-  const requestedPage = Array.isArray(pageParam)
-    ? pageParam[0]
-    : pageParam
-  const parsedPage = Number(requestedPage)
-  const page =
-    Number.isSafeInteger(parsedPage) && parsedPage >= 1 ? parsedPage : 1
+  const page = parsePageParam(pageParam)
   const initialQuery = Array.isArray(queryParam)
     ? queryParam[0] ?? ''
     : queryParam ?? ''
