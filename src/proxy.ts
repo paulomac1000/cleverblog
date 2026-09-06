@@ -1,33 +1,19 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { parsePreferredLocale } from '@/i18n/config'
+import {
+  type RedirectDocument,
+  type ResolvedRedirect,
+  resolveTarget,
+} from '@/lib/redirects/resolve-target'
 
 const CACHE_TTL_MS = 60_000
 const CACHE_MAX_ENTRIES = 500
 const LOOKUP_TIMEOUT_MS = 2_000
 
-type ResolvedRedirect = {
-  target: string
-  status: 301 | 302
-}
-
 type CacheEntry = {
   expiresAt: number
   redirect: ResolvedRedirect | null
-}
-
-type RedirectReference = {
-  relationTo?: unknown
-  value?: unknown
-}
-
-type RedirectDocument = {
-  from?: unknown
-  type?: unknown
-  to?: {
-    type?: unknown
-    reference?: RedirectReference | null
-  } | null
 }
 
 type RedirectResponse = {
@@ -50,48 +36,6 @@ const apiBaseForRequest = (request: NextRequest): URL => {
   }
 
   return new URL('/api/', origin)
-}
-
-const resolveTarget = (doc: RedirectDocument): ResolvedRedirect | null => {
-  if (doc.to?.type !== 'reference') return null
-
-  const reference = doc.to.reference
-  if (!reference) return null
-
-  const relationTo = reference.relationTo
-  if (
-    relationTo !== 'posts' &&
-    relationTo !== 'pages' &&
-    relationTo !== 'categories' &&
-    relationTo !== 'tags'
-  ) {
-    return null
-  }
-
-  if (
-    typeof reference.value !== 'object' ||
-    reference.value === null ||
-    !('slug' in reference.value)
-  ) {
-    return null
-  }
-
-  const slug = (reference.value as { slug?: unknown }).slug
-  if (typeof slug !== 'string' || !slug) return null
-
-  const status = doc.type === '302' ? 302 : doc.type === '301' ? 301 : null
-  if (status === null) return null
-
-  const target =
-    relationTo === 'posts'
-      ? `/articles/${slug}`
-      : relationTo === 'pages'
-        ? `/${slug}`
-        : relationTo === 'categories'
-          ? `/categories/${slug}`
-          : `/tags/${slug}`
-
-  return { target, status }
 }
 
 const cacheResult = (sourceURL: string, redirect: ResolvedRedirect | null): void => {
