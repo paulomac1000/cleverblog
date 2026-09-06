@@ -17,6 +17,11 @@ describe('homePagination (?page= search param coercion)', () => {
     ['2.5', 1],
     ['NaN', 1],
     ['999999999999999999999', 1],
+    ['02', 2],
+    [' 2 ', 2],
+    ['+2', 2],
+    ['2.0', 2],
+    ['2e0', 2],
     [['7', '8'], 7],
     [['abc'], 1],
   ] as Array<[string | string[] | undefined, number]>)(
