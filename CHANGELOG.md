@@ -5,7 +5,7 @@ Notable consumer- and operator-visible changes are recorded here. The release bo
 ## [0.3.7] - 2026-09-06
 
 ### Fixed
-- The global comment admission limit is now charged only after successful Turnstile verification, so junk requests can no longer exhaust the shared quota for legitimate visitors (hardening found in the pre-publication security review).
+- The global comment admission limit is now charged only after successful Turnstile verification, so junk requests can no longer exhaust the shared quota for legitimate visitors (hardening found in the pre-publication security review). The per-IP rate-limit store now degrades open under capacity pressure by evicting the oldest bucket instead of rejecting previously unseen clients.
 
 ## [0.3.6] - 2026-09-06
 
