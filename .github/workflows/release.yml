@@ -89,8 +89,9 @@ jobs:
       - name: Ensure media directory in build context
         run: mkdir -p media
 
+      # Publish to a public GHCR package linked to this public repository.
       - name: Build release image once
-        run: docker build -t "ghcr.io/${{ github.repository }}:${RELEASE_TAG}" -t "ghcr.io/${{ github.repository }}:sha-${{ github.sha }}" .
+        run: docker build -t "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}" -t "ghcr.io/paulomac1000/cleverblog-site:sha-${{ github.sha }}" .
 
       - name: Smoke exact image
         shell: bash
@@ -106,7 +107,7 @@ jobs:
             -e DATABASE_URL=postgres://cleverblog:cleverblog@127.0.0.1:5432/cleverblog \
             -e PAYLOAD_SECRET=smoke-only-secret-smoke-only-secret \
             -e NEXT_PUBLIC_SERVER_URL=http://localhost:3000 \
-            "ghcr.io/${{ github.repository }}:${RELEASE_TAG}"
+            "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}"
 
           cleanup() {
             docker rm -f smoke >/dev/null 2>&1 || true
@@ -134,9 +135,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          docker push "ghcr.io/${{ github.repository }}:${RELEASE_TAG}"
-          docker push "ghcr.io/${{ github.repository }}:sha-${{ github.sha }}"
+          docker push "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}"
+          docker push "ghcr.io/paulomac1000/cleverblog-site:sha-${{ github.sha }}"
 
-          IMAGE_DIGEST="$(docker inspect --format '{{index .RepoDigests 0}}' "ghcr.io/${{ github.repository }}:${RELEASE_TAG}")"
+          IMAGE_DIGEST="$(docker inspect --format '{{index .RepoDigests 0}}' "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}")"
           test -n "$IMAGE_DIGEST"
           echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> "$GITHUB_STEP_SUMMARY"
