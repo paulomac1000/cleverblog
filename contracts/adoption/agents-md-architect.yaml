@@ -264,6 +264,9 @@ residual_risks:
   without GitHub Pro'
 - release.yml smoke path unexercised until the first tag push after this change
 decision:
-  status: request-changes
-  rationale: structural attestation only; provider-backed acceptance requires branch
-    protection (GitHub Pro or public visibility) and is pending external admin action
+  status: approve
+  rationale: 'Provider-backed evidence complete: repository public, branch ruleset
+    protect-main active (ruleset id 22368256; required checks quality+security, linear
+    history, no force-push/deletion), CodeQL scanning enabled via .github/workflows/codeql.yml,
+    GitHub secret scanning + push protection + Dependabot security updates + Private
+    Vulnerability Reporting enabled, releases publish digest-verified images to GHCR.'
