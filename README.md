@@ -73,3 +73,9 @@ For MCP, use dedicated users with API keys and a restricted role; never reuse th
 - `CHANGELOG.md` is the canonical release record, and `package.json` owns the repository version.
 
 See [AGENTS.md](AGENTS.md) for agent workflow, invariants and canonical owners.
+
+## License & status
+
+This source is made public for transparency. Copyright (c) 2026 Pawel Maciejewski. All rights reserved.
+No license is granted for reuse; visible viewing and GitHub-mechanics forking only.
+For permissions, use the blog's [contact page](https://cleverblog.pl/kontakt).
