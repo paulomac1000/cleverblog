@@ -6,9 +6,7 @@ const adminOnly = allowRoles('admin')
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  auth: {
-    useAPIKey: true,
-  },
+  auth: { useAPIKey: true, cookies: { secure: process.env.NODE_ENV === 'production', sameSite: 'Lax' } },
   access: {
     admin: allowRoles('admin', 'editor'),
     create: adminOnly,
