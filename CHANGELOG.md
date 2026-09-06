@@ -4,6 +4,14 @@ Notable consumer- and operator-visible changes are recorded here. The release bo
 
 ## [Unreleased]
 
+## [0.3.9] - 2026-09-06
+
+### Security
+- Bumped the production nginx edge from 1.27 to 1.31.5 to include the fix for CVE-2026-42533.
+- Made Payload auth cookies explicitly Secure in production with SameSite=Lax.
+- Added security response headers: HSTS without preload, nosniff, SAMEORIGIN, and strict-origin-when-cross-origin referrer policy.
+- Added release workflow provenance guards: the release tag must be a real tag on an ancestor of main and match the `package.json` version.
+
 ## [0.3.8] - 2026-09-06
 
 ### Changed

@@ -38,7 +38,8 @@ services:
       start_period: 20s
 
   ingress:
-    image: nginx:1.27-alpine
+    # CVE-2026-42533 fixed in 1.31.3+; bumped per post-publication security review
+    image: nginx:1.31.5-alpine
     container_name: cleverblog-ingress
     restart: unless-stopped
     ports:
