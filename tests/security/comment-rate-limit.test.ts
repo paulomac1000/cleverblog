@@ -53,17 +53,24 @@ describe('comment rate limit', () => {
     expect(consumeCommentRateLimit('b', SECRET, now).allowed).toBe(true)
   })
 
-  it('does not evict a blocked live client when the bucket store saturates', () => {
-    const target = 'saturation-target'
+  it('evicts the oldest live bucket at saturation and still admits new clients', () => {
+    const blocked = 'saturation-target'
     for (let i = 0; i < 5; i += 1) {
-      consumeCommentRateLimit(target, SECRET, now)
+      consumeCommentRateLimit(blocked, SECRET, now)
     }
-    expect(consumeCommentRateLimit(target, SECRET, now).allowed).toBe(false)
+    expect(consumeCommentRateLimit(blocked, SECRET, now).allowed).toBe(false)
 
     for (let i = 0; i < 2_500; i += 1) {
       consumeCommentRateLimit(`rotating-${i}`, SECRET, now)
     }
 
-    expect(consumeCommentRateLimit(target, SECRET, now).allowed).toBe(false)
+    const newcomer = consumeCommentRateLimit('brand-new-client', SECRET, now)
+    expect(newcomer.allowed).toBe(true)
+
+    let admitted = 0
+    for (let i = 0; i < 100; i += 1) {
+      if (consumeCommentRateLimit(`post-saturation-${i}`, SECRET, now).allowed) admitted += 1
+    }
+    expect(admitted).toBe(100)
   })
 })

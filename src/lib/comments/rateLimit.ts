@@ -23,8 +23,8 @@ let globalAdmission: GlobalAdmissionBucket | null = null
 const hashClient = (client: string, secret: string): string =>
   createHmac('sha256', secret).update(`rate:${client}`).digest('base64url')
 
-const makeRoom = (now: number): number | null => {
-  if (buckets.size < MAX_BUCKETS) return null
+const makeRoom = (now: number): void => {
+  if (buckets.size < MAX_BUCKETS) return
 
   for (const [key, bucket] of buckets) {
     if (bucket.resetAt <= now) {
@@ -32,14 +32,12 @@ const makeRoom = (now: number): number | null => {
     }
   }
 
-  if (buckets.size < MAX_BUCKETS) return null
+  if (buckets.size < MAX_BUCKETS) return
 
-  let earliestResetAt = Number.POSITIVE_INFINITY
-  for (const bucket of buckets.values()) {
-    earliestResetAt = Math.min(earliestResetAt, bucket.resetAt)
+  const oldestKey = buckets.keys().next().value
+  if (oldestKey !== undefined) {
+    buckets.delete(oldestKey)
   }
-
-  return Math.max(1, Math.ceil((earliestResetAt - now) / 1_000))
 }
 
 export const consumeCommentRateLimit = (
@@ -51,11 +49,7 @@ export const consumeCommentRateLimit = (
   const current = buckets.get(key)
 
   if (!current || current.resetAt <= now) {
-    const retryAfterSeconds = makeRoom(now)
-    if (retryAfterSeconds !== null) {
-      return { allowed: false, retryAfterSeconds }
-    }
-
+    makeRoom(now)
     buckets.set(key, { count: 1, resetAt: now + WINDOW_MS })
     return { allowed: true, retryAfterSeconds: 0 }
   }
