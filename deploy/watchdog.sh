@@ -40,7 +40,7 @@ DRY_RUN="${DRY_RUN:-0}"
 umask 077
 mkdir -p "$STATE_DIR" "$LOG_DIR"
 
-log() { printf '%s %s\n' "$(date '+%Y-%m-%dT%H:%M:%S%z')" "$*" >> "$LOG_FILE"; }
+log() { rotate_log; printf '%s %s\n' "$(date '+%Y-%m-%dT%H:%M:%S%z')" "$*" >> "$LOG_FILE"; }
 
 rotate_log() {
   local size
@@ -87,6 +87,13 @@ if ! docker info >/dev/null 2>&1; then
   escalate "docker daemon unavailable"
   exit 1
 fi
+
+# ---- traccar: observe + escalate only, NEVER restart (every run) -----------
+tr_status=$(f_field "$TRACCAR" '{{.State.Status}}')
+if [ "$tr_status" != "running" ] && [ "$(cat "$LAST_TRACCAR_FILE" 2>/dev/null || echo running)" = "running" ]; then
+  escalate "traccar is not running (status=${tr_status:-missing}) — NOT auto-restarting (owner-critical, observe only)"
+fi
+echo "${tr_status:-unknown}" > "$LAST_TRACCAR_FILE"
 
 # ---- 1. external probe (two attempts) --------------------------------------
 if probe_external; then
