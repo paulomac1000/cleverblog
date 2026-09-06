@@ -110,12 +110,6 @@ export async function submitComment(
   const headerIP = requestHeaders.get('x-verified-client-ip')?.trim() ?? ''
   const rawClientIP = isValidClientIP(headerIP) ? headerIP : 'unknown'
 
-  // IP-independent guard: issue #13 showed the origin-port path can bypass IP-keyed admission.
-  const globalAdmission = consumeGlobalCommentAdmission(commentConfig.securitySecret)
-  if (!globalAdmission.allowed) {
-    return errorState(locale === 'en' ? 'Too many attempts. Try again in a few minutes.' : 'Zbyt wiele prób. Spróbuj ponownie za kilka minut.')
-  }
-
   const rateLimit = consumeCommentRateLimit(rawClientIP, commentConfig.securitySecret)
 
   if (!rateLimit.allowed) {
@@ -133,6 +127,15 @@ export async function submitComment(
 
   if (!turnstileValid) {
     return errorState(locale === 'en' ? 'Anti-spam verification failed. Please try again.' : 'Weryfikacja antyspamowa nie powiodła się. Spróbuj ponownie.')
+  }
+
+  // IP-independent guard must stay after successful Turnstile verification.
+  // Invalid Turnstile attempts must not consume the shared global quota: an
+  // unauthenticated flood of 10 junk requests could otherwise deny legitimate
+  // commenters (documented DoS in the PR #18 review).
+  const globalAdmission = consumeGlobalCommentAdmission(commentConfig.securitySecret)
+  if (!globalAdmission.allowed) {
+    return errorState(locale === 'en' ? 'Too many attempts. Try again in a few minutes.' : 'Zbyt wiele prób. Spróbuj ponownie za kilka minut.')
   }
 
   const payload = await getPayload({ config })

@@ -4,6 +4,9 @@ Notable consumer- and operator-visible changes are recorded here. The release bo
 
 ## [Unreleased]
 
+### Fixed
+- The global comment admission limit is now charged only after successful Turnstile verification, so junk requests can no longer exhaust the shared quota for legitimate visitors (hardening found in the pre-publication security review).
+
 ## [0.3.6] - 2026-09-06
 
 ### Fixed
