@@ -59,7 +59,7 @@ jobs:
             exit 1
           fi
 
-          TAG_SHA="$(git rev-parse -q --verify "refs/tags/${RELEASE_TAG}" 2>/dev/null || true)"
+          TAG_SHA="$(git rev-parse -q --verify "refs/tags/${RELEASE_TAG}^{commit}" 2>/dev/null || true)"
 
           if [[ "${{ github.event_name }}" == "push" ]]; then
             if [[ "$TAG_SHA" != "$GITHUB_SHA" ]]; then
