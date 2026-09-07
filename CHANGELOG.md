@@ -4,6 +4,11 @@ Notable consumer- and operator-visible changes are recorded here. The release bo
 
 ## [Unreleased]
 
+## [0.3.11] - 2026-09-07
+
+### Fixed
+- Legacy WordPress pagination URLs `/?paged=2` and `/?paged=3`, confirmed by the Google Search Console Coverage Drilldown export as duplicate pages without a user-declared canonical, now receive a permanent 301 to the same path without the unused `paged` parameter. Unrelated query parameters are preserved.
+
 ## [0.3.10] - 2026-09-07
 
 ### Security
