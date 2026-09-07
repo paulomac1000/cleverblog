@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { parsePreferredLocale } from '@/i18n/config'
+import { stripLegacyPagedParams } from '@/lib/redirects/legacy-params'
 import {
   type RedirectDocument,
   type ResolvedRedirect,
@@ -115,6 +116,18 @@ export default async function proxy(request: NextRequest) {
   // above; language detection must never intercept them.
   if (request.nextUrl.searchParams.has('p')) {
     return NextResponse.next()
+  }
+
+  // Legacy WordPress archive pagination (?paged=N) has no meaning in this
+  // app: such URLs rendered page 1 with a bare canonical and Google reported
+  // them as "Duplicate, user did not declare a canonical page". 301 to the
+  // same path without the parameter.
+  const legacyQuery = stripLegacyPagedParams(request.nextUrl.searchParams)
+  if (legacyQuery !== null) {
+    return NextResponse.redirect(
+      new URL(`${request.nextUrl.pathname}${legacyQuery}`, request.url),
+      301,
+    )
   }
 
   // Explicit English routes are never redirected anywhere.
