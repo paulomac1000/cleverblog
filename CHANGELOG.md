@@ -4,6 +4,24 @@ Notable consumer- and operator-visible changes are recorded here. The release bo
 
 ## [Unreleased]
 
+## [0.3.10] - 2026-09-07
+
+### Security
+- Redirect targets built from CMS slugs are now percent-encoded as a single
+  path segment. A page slug such as `//attacker.example` previously resolved
+  to a protocol-relative external redirect (CWE-601); path or query
+  delimiters in any collection slug could also rewrite the target.
+
+### Fixed
+- Paginated homepages (`/?page=N`, `/en?page=N`) now carry their own
+  self-referencing canonical and page-paired hreflang alternates. Previously
+  every paginated homepage emitted the bare homepage canonical while serving
+  different content, which Search Console reported as duplicate-canonical
+  exclusions.
+- CMS-managed redirects targeting categories now resolve to the real
+  `/category/<slug>` route. The resolver previously produced the nonexistent
+  plural `/categories/<slug>` path, so any category redirect ended in a 404.
+
 ## [0.3.9] - 2026-09-06
 
 ### Security

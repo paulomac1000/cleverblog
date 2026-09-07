@@ -16,7 +16,10 @@ export const localePath = (locale: Locale, path: string): string => {
   return `/en${normalised}`
 }
 
-export const homeUrl = (locale: Locale): string => localePath(locale, '/')
+export const homeUrl = (locale: Locale, page?: number): string => {
+  const base = localePath(locale, '/')
+  return appendPage(base, page)
+}
 
 export const articleUrl = (
   locale: Locale,
