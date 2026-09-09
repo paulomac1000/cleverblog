@@ -22,8 +22,12 @@ LOCK_FILE="$STATE_DIR/watchdog.lock"
 LAST_SITE_FILE="$STATE_DIR/last_site_status"
 LAST_TRACCAR_FILE="$STATE_DIR/last_traccar_status"
 HEARTBEAT_FILE="$STATE_DIR/last_heartbeat"
+INCIDENT_STARTED_FILE="$STATE_DIR/incident_started"
+LAST_ALERT_FILE="$STATE_DIR/last_alert"
 ACTIONS_LOG="$STATE_DIR/actions.log"          # lines: epoch container
 ALERT_CMD="$STATE_DIR/alert_cmd"              # optional, executable; secret lives ONLY on VPS
+
+source "$(dirname "$0")/watchdog-alert-policy.sh"
 
 SITE_URL="https://cleverblog.pl/api/access"
 APP="cleverblog"
@@ -36,6 +40,11 @@ GRACE_S=90                # startup grace before acting
 VERIFY_WAIT_S=90          # post-restart verification window
 LOG_MAX_BYTES=5242880     # 5 MiB, then keep last 200 lines
 DRY_RUN="${DRY_RUN:-0}"
+MIN_OUTAGE_S="${WATCHDOG_MIN_OUTAGE_S:-900}"
+ALERT_COOLDOWN_S="${WATCHDOG_ALERT_COOLDOWN_S:-3600}"
+
+case "$MIN_OUTAGE_S" in ''|*[!0-9]*) MIN_OUTAGE_S=900 ;; esac
+case "$ALERT_COOLDOWN_S" in ''|*[!0-9]*) ALERT_COOLDOWN_S=3600 ;; esac
 
 umask 077
 mkdir -p "$STATE_DIR" "$LOG_DIR"
@@ -51,13 +60,23 @@ rotate_log() {
   fi
 }
 
-alert() { # alert "message" — optional external hook, never blocks
+alert() {
+  local timestamp
+  timestamp=$(now)
+  if ! watchdog_should_alert "$timestamp" "$MIN_OUTAGE_S" "$ALERT_COOLDOWN_S" "$INCIDENT_STARTED_FILE" "$LAST_ALERT_FILE"; then
+    log "ALERT_SUPPRESSED outage-or-cooldown message=$*"
+    return 0
+  fi
   [ -x "$ALERT_CMD" ] && "$ALERT_CMD" "$*" >/dev/null 2>&1 || true
+  printf '%s\n' "$timestamp" > "$LAST_ALERT_FILE"
 }
 
 escalate() { log "ESCALATE: $*"; alert "cleverblog watchdog: $*"; }
 
 now() { date +%s; }
+
+begin_incident() { watchdog_incident_begin "$INCIDENT_STARTED_FILE" "$(now)"; }
+clear_incident() { watchdog_incident_clear "$INCIDENT_STARTED_FILE" "$LAST_ALERT_FILE"; }
 
 probe_external() { # 0 = site OK via CDN chain
   local nonce; nonce=$(date +%s)
@@ -84,6 +103,7 @@ flock -n 9 || exit 0
 
 # ---- docker availability ---------------------------------------------------
 if ! docker info >/dev/null 2>&1; then
+  begin_incident
   escalate "docker daemon unavailable"
   exit 1
 fi
@@ -91,6 +111,7 @@ fi
 # ---- traccar: observe + escalate only, NEVER restart (every run) -----------
 tr_status=$(f_field "$TRACCAR" '{{.State.Status}}')
 if [ "$tr_status" != "running" ] && [ "$(cat "$LAST_TRACCAR_FILE" 2>/dev/null || echo running)" = "running" ]; then
+  begin_incident
   escalate "traccar is not running (status=${tr_status:-missing}) — NOT auto-restarting (owner-critical, observe only)"
 fi
 echo "${tr_status:-unknown}" > "$LAST_TRACCAR_FILE"
@@ -101,6 +122,7 @@ if probe_external; then
     log "SITE_RECOVERED: external path healthy again"
   fi
   echo ok > "$LAST_SITE_FILE"
+  [ "$tr_status" = "running" ] && clear_incident
   # daily heartbeat
   today=$(date '+%Y-%m-%d')
   [ "$(cat "$HEARTBEAT_FILE" 2>/dev/null)" = "$today" ] || { log "HEARTBEAT ok"; echo "$today" > "$HEARTBEAT_FILE"; }
@@ -109,8 +131,10 @@ fi
 sleep 5
 if probe_external; then
   echo ok > "$LAST_SITE_FILE"
+  [ "$tr_status" = "running" ] && clear_incident
   exit 0
 fi
+begin_incident
 echo fail > "$LAST_SITE_FILE"
 
 # ---- 2. diagnostics (safe fields only — never full inspect, env has secrets)
@@ -128,6 +152,7 @@ log "SITE_FAIL status=app:$app_status health:$app_health oom:$app_oom restarts:$
 # ---- 3. traccar: observe + escalate only, NEVER restart ---------------------
 tr_status=$(f_field "$TRACCAR" '{{.State.Status}}')
 if [ "$tr_status" != "running" ] && [ "$(cat "$LAST_TRACCAR_FILE" 2>/dev/null || echo running)" = "running" ]; then
+  begin_incident
   escalate "traccar is not running (status=$tr_status) — NOT auto-restarting (owner-critical, observe only)"
 fi
 echo "${tr_status:-unknown}" > "$LAST_TRACCAR_FILE"
