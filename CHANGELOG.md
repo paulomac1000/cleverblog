@@ -4,6 +4,12 @@ Notable consumer- and operator-visible changes are recorded here. The release bo
 
 ## [Unreleased]
 
+## [0.3.12] - 2026-09-09
+
+### Fixed
+- Watchdog notifications now require a sustained 15-minute outage and are limited to one alert per hour during the same incident, with configurable `WATCHDOG_MIN_OUTAGE_S` and `WATCHDOG_ALERT_COOLDOWN_S` parameters.
+- Local and Docker-bridge health checks can exercise the real CleverBlog ingress listener on port `40177` without changing the Cytrus-provided `Host` header.
+
 ## [0.3.11] - 2026-09-07
 
 ### Fixed
