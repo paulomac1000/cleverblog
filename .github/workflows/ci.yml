@@ -67,7 +67,50 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
-          python3 -m pip install --quiet pyyaml==6.0.2
+          python3 -m pip install --quiet pyyaml==6.0.3
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import sys
+
+          sys.path.insert(0, ".ai-skills-authority/contracts")
+          from write_evidence_report import (
+              _canonical_command_digest,
+              _canonical_digest,
+              _junit_cases,
+          )
+
+          argv = [
+              "pnpm",
+              "test",
+              "--reporter=default",
+              "--reporter=junit",
+              "--outputFile.junit=evidence/junit.xml",
+          ]
+          working_directory = "."
+          result_path = "evidence/junit.xml"
+          cases = _junit_cases(__import__("pathlib").Path(result_path))
+          record = {
+              "format": "ai-skills-execution-record",
+              "execution_id": "quality",
+              "argv": argv,
+              "working_directory": working_directory,
+              "command_digest": _canonical_command_digest(argv, working_directory),
+              "exit_status": 0,
+              "validation_error": None,
+              "results": [
+                  {
+                      "path": result_path,
+                      "digest": _canonical_digest(__import__("pathlib").Path(result_path)),
+                      "test_cases": cases,
+                  }
+              ],
+          }
+          with open("evidence/execution-record.json", "w", encoding="utf-8") as sink:
+              json.dump(record, sink, ensure_ascii=False, sort_keys=True, indent=2)
+              sink.write("\n")
+          print("execution record cases:", len(cases))
+          PY
           python3 .ai-skills-authority/contracts/write_evidence_report.py \
             --repository "$GITHUB_REPOSITORY" \
             --source-head-sha "$SOURCE_HEAD_SHA" \
@@ -81,7 +124,7 @@ jobs:
             --dynamic-kind compatibility \
             --dynamic-subject "linux|x64|node|24.15.0|quality" \
             --dynamic-execution-id quality \
-            --execution-record evidence/junit.xml \
+            --execution-record evidence/execution-record.json \
             --output evidence/report.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
