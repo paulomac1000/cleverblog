@@ -1,5 +1,5 @@
 name: Release
-# ai-skills-policy-profile: trusted-ci
+# ai-skills-policy-profile: protected-release
 
 on:
   push:
@@ -14,19 +14,17 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  release:
+  validate:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
       contents: read
-      packages: write
     env:
       RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     services:
@@ -167,6 +165,55 @@ jobs:
           docker logs smoke || true
           echo 'Smoke test did not return HTTP 200 within 120 seconds' >&2
           exit 1
+
+      - name: Save tested release image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker image save \
+            "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}" \
+            -o tested-release-image.tar
+          docker image inspect \
+            "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}" \
+            --format '{{.Id}}' > tested-release-image.id
+
+      - name: Upload tested release image
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: tested-release-image
+          path: |
+            tested-release-image.tar
+            tested-release-image.id
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    needs: validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: protected-release
+    permissions:
+      contents: read
+      packages: write
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+
+    steps:
+      - name: Download tested release image
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: tested-release-image
+
+      - name: Verify tested release image
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected_id="$(cat tested-release-image.id)"
+          docker load --input tested-release-image.tar
+          actual_id="$(docker image inspect \
+            "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}" \
+            --format '{{.Id}}')"
+          test "$actual_id" = "$expected_id"
 
       - name: Publish immutable release image
         shell: bash
