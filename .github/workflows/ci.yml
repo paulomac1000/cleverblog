@@ -19,6 +19,9 @@ jobs:
   quality:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
     env:
       DATABASE_URL: postgres://cleverblog:cleverblog@127.0.0.1:5432/cleverblog
       PAYLOAD_SECRET: ci-only-secret-ci-only-secret-ci-only
@@ -41,6 +44,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.x
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.x
         with:
           version: 10.15.0
@@ -49,7 +53,42 @@ jobs:
           node-version: 24.15.0
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
-      - run: pnpm test
+      - run: pnpm test --reporter=default --reporter=junit --outputFile.junit=evidence/junit.xml
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.x
+        with:
+          repository: paulomac1000/ai-skills
+          ref: 435061ad67ee36d77e01a993bc4f9e4379a29666
+          path: .ai-skills-authority
+          persist-credentials: false
+      - name: Write canonical evidence report
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pyyaml==6.0.2
+          python3 .ai-skills-authority/contracts/write_evidence_report.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --source-head-sha "$SOURCE_HEAD_SHA" \
+            --tested-checkout-sha "$(git rev-parse HEAD)" \
+            --run-id "$GITHUB_RUN_ID" \
+            --workflow-path .github/workflows/ci.yml \
+            --workflow-name CI \
+            --event "$EVENT_NAME" \
+            --job-name quality \
+            --lane quality \
+            --dynamic-kind compatibility \
+            --dynamic-subject "linux|x64|node|24.15.0|quality" \
+            --dynamic-execution-id quality \
+            --execution-record evidence/junit.xml \
+            --output evidence/report.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: evidence-report-quality
+          path: evidence
+          if-no-files-found: error
+          retention-days: 90
       - run: pnpm payload migrate
       - run: pnpm generate:types
       - run: pnpm exec tsc --noEmit
