@@ -1,14 +1,14 @@
 schema_version: 1
 verification_mode: provider-backed
-assessment_id: cleverblog-agents-md-architect-5dbe01a0
-generated_at: '2026-09-12T16:35:00Z'
+assessment_id: cleverblog-agents-md-architect-3ea15492
+generated_at: '2026-09-12T17:25:00Z'
 prepared_by:
 - provider: github
   login: paulomac1000
   id: 9095484
 repository:
   name: paulomac1000/cleverblog
-  revision: 5dbe01a05d87e9600159281954727d363bc027cc
+  revision: 3ea1549228d0499c46dd9606bc4d26a3063ef825
   source_branch: chore/ai-skills-compliance-remediation
 skill:
   name: agents-md-architect
@@ -184,7 +184,7 @@ waivers:
   compensating_controls: *id001
   expires_at: '2027-03-12'
 artifact_verification:
-  exact_revision: 5dbe01a05d87e9600159281954727d363bc027cc
+  exact_revision: 3ea1549228d0499c46dd9606bc4d26a3063ef825
   artifacts:
   - kind: ai-skills-lock
     identity: ai-skills-lock-2.0.0
@@ -195,21 +195,21 @@ artifact_verification:
     evidence:
       provider: github-actions
       repository: paulomac1000/cleverblog
-      run_id: 34695722674
-      job_id: 103558747216
-      check_run_id: 103558747216
-      revision: 5dbe01a05d87e9600159281954727d363bc027cc
+      run_id: 34698375116
+      job_id: 103565678273
+      check_run_id: 103565678273
+      revision: 3ea1549228d0499c46dd9606bc4d26a3063ef825
       workflow_id: 344998182
       workflow_path: .github/workflows/ci.yml
       workflow_name: CI
       event: pull_request
       job_name: quality
       lane: quality
-      artifact_id: 10298018946
+      artifact_id: 10299104224
       artifact_name: evidence-report-quality
-      provider_digest: sha256:ad9f4adad7b95039d44543899bd1c09dc9fa6349344e7355d42c665b390cc3a2
+      provider_digest: sha256:5628394b8e87bc5addda7a4963c93738de8de954630f612c4c86400ffa446b4c
       report_path: report.json
-      report_digest: sha256:864c7eb8a9bf371761e3da0aa43ec45f759ed239e6ac310054a7cc2657f14c0d
+      report_digest: sha256:6c4ae8db30c3a78901514110b53547f120e6c65247e911b4c360d5e0a7795697
     result: passed
 compatibility_results:
 - operating_system: linux
@@ -221,21 +221,21 @@ compatibility_results:
   evidence:
     provider: github-actions
     repository: paulomac1000/cleverblog
-    run_id: 34695722674
-    job_id: 103558747216
-    check_run_id: 103558747216
-    revision: 5dbe01a05d87e9600159281954727d363bc027cc
+    run_id: 34698375116
+    job_id: 103565678273
+    check_run_id: 103565678273
+    revision: 3ea1549228d0499c46dd9606bc4d26a3063ef825
     workflow_id: 344998182
     workflow_path: .github/workflows/ci.yml
     workflow_name: CI
     event: pull_request
     job_name: quality
     lane: quality
-    artifact_id: 10298018946
+    artifact_id: 10299104224
     artifact_name: evidence-report-quality
-    provider_digest: sha256:ad9f4adad7b95039d44543899bd1c09dc9fa6349344e7355d42c665b390cc3a2
+    provider_digest: sha256:5628394b8e87bc5addda7a4963c93738de8de954630f612c4c86400ffa446b4c
     report_path: report.json
-    report_digest: sha256:864c7eb8a9bf371761e3da0aa43ec45f759ed239e6ac310054a7cc2657f14c0d
+    report_digest: sha256:6c4ae8db30c3a78901514110b53547f120e6c65247e911b4c360d5e0a7795697
   result: passed
 extensions: {}
 rollback:
