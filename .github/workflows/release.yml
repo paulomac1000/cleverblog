@@ -64,12 +64,6 @@ jobs:
               echo "Release tag $RELEASE_TAG does not resolve to triggering SHA $GITHUB_SHA" >&2
               exit 1
             fi
-
-            git fetch origin main --quiet
-            if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
-              echo "Release SHA $GITHUB_SHA is not an ancestor of origin/main" >&2
-              exit 1
-            fi
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             if [[ "$GITHUB_REF" != "refs/tags/$RELEASE_TAG" ]]; then
               echo "Manual releases must be dispatched against the exact release tag" >&2
@@ -85,6 +79,12 @@ jobs:
               echo "Release tag $RELEASE_TAG does not resolve to workflow SHA $GITHUB_SHA" >&2
               exit 1
             fi
+          fi
+
+          git fetch origin main --quiet
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "Release SHA $GITHUB_SHA is not an ancestor of origin/main" >&2
+            exit 1
           fi
 
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
@@ -122,10 +122,26 @@ jobs:
         run: mkdir -p media
 
       # Publish to a public GHCR package linked to this public repository.
-      - name: Build release image once
-        run: docker build -t "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}" -t "ghcr.io/paulomac1000/cleverblog-site:sha-${{ github.sha }}" .
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Smoke exact image
+      - name: Build release image once
+        run: docker build -t "ghcr.io/paulomac1000/cleverblog-site:quarantine-${{ github.sha }}" .
+
+      - name: Stage tested image in quarantine
+        run: docker push "ghcr.io/paulomac1000/cleverblog-site:quarantine-${{ github.sha }}"
+
+      - name: Resolve immutable quarantine digest
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIGEST="$(docker inspect \
+            --format '{{index .RepoDigests 0}}' \
+            "ghcr.io/paulomac1000/cleverblog-site:quarantine-${{ github.sha }}" | cut -d@ -f2)"
+          [[ "$DIGEST" == sha256:* ]] || { echo "Registry did not return a sha256 digest" >&2; exit 1; }
+          echo "IMAGE_DIGEST=$DIGEST" >> "$GITHUB_ENV"
+
+      - name: Smoke exact digest
         shell: bash
         run: |
           set -euo pipefail
@@ -135,11 +151,12 @@ jobs:
             exit 1
           fi
 
+          docker pull "ghcr.io/paulomac1000/cleverblog-site@${IMAGE_DIGEST}"
           docker run -d --name smoke --network host \
             -e DATABASE_URL=postgres://cleverblog:cleverblog@127.0.0.1:5432/cleverblog \
             -e PAYLOAD_SECRET=smoke-only-secret-smoke-only-secret \
             -e NEXT_PUBLIC_SERVER_URL=http://localhost:3000 \
-            "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}"
+            "ghcr.io/paulomac1000/cleverblog-site@${IMAGE_DIGEST}"
 
           cleanup() {
             docker rm -f smoke >/dev/null 2>&1 || true
@@ -163,24 +180,14 @@ jobs:
           echo 'Smoke test did not return HTTP 200 within 120 seconds' >&2
           exit 1
 
-      - name: Save tested release image
-        shell: bash
-        run: |
-          set -euo pipefail
-          docker image save \
-            "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}" \
-            -o tested-release-image.tar
-          docker image inspect \
-            "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}" \
-            --format '{{.Id}}' > tested-release-image.id
+      - name: Export tested image digest
+        run: printf '%s' "$IMAGE_DIGEST" > tested-image.digest
 
-      - name: Upload tested release image
+      - name: Upload tested image digest
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: tested-release-image
-          path: |
-            tested-release-image.tar
-            tested-release-image.id
+          path: tested-image.digest
           if-no-files-found: error
           retention-days: 1
 
@@ -196,35 +203,45 @@ jobs:
       RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
 
     steps:
-      - name: Download tested release image
+      - name: Download tested image digest
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: tested-release-image
 
-      - name: Verify tested release image
-        shell: bash
-        run: |
-          set -euo pipefail
-          expected_id="$(cat tested-release-image.id)"
-          docker load --input tested-release-image.tar
-          actual_id="$(docker image inspect \
-            "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}" \
-            --format '{{.Id}}')"
-          test "$actual_id" = "$expected_id"
-
       - name: Log in to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Publish immutable release image
+      - name: Promote exact tested digest
         shell: bash
         run: |
           set -euo pipefail
-          docker tag \
-            "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}" \
-            "ghcr.io/paulomac1000/cleverblog-site:sha-${{ github.sha }}"
-          docker push "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}"
-          docker push "ghcr.io/paulomac1000/cleverblog-site:sha-${{ github.sha }}"
+          IMAGE="ghcr.io/paulomac1000/cleverblog-site"
+          IMAGE_DIGEST="$(cat tested-image.digest)"
+          [[ "$IMAGE_DIGEST" == sha256:* ]] || { echo "Artifact did not contain a sha256 digest" >&2; exit 1; }
+          DIGEST_REF="${IMAGE}@${IMAGE_DIGEST}"
+          SHA_REF="${IMAGE}:sha-${{ github.sha }}"
+          RELEASE_REF="${IMAGE}:${RELEASE_TAG}"
 
-          IMAGE_DIGEST="$(docker inspect --format '{{index .RepoDigests 0}}' "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}")"
-          test -n "$IMAGE_DIGEST"
+          expected_digest() {
+            docker buildx imagetools inspect "$1" --format '{{.Manifest.Digest}}'
+          }
+
+          for ref in "$SHA_REF" "$RELEASE_REF"; do
+            if existing="$(expected_digest "$ref" 2>/dev/null)"; then
+              if [[ "$existing" != "$IMAGE_DIGEST" ]]; then
+                echo "Immutable tag $ref already exists with digest $existing, refusing to move it" >&2
+                exit 1
+              fi
+            fi
+          done
+
+          # Immutable identity first, human pointer last.
+          docker buildx imagetools create -t "$SHA_REF" "$DIGEST_REF"
+          docker buildx imagetools create -t "$RELEASE_REF" "$DIGEST_REF"
+
+          for ref in "$SHA_REF" "$RELEASE_REF"; do
+            resolved="$(expected_digest "$ref")"
+            test "$resolved" = "$IMAGE_DIGEST"
+          done
+
           echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> "$GITHUB_STEP_SUMMARY"
