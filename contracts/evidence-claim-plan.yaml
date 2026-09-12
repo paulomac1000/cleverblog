@@ -25,7 +25,7 @@ profiles:
   - kind: rule
     subject: cicd.release.identity
     selectors:
-    - '*promotes the exact tested digest without executing candidate code in publish*'
+    - '*smokes the exact build and quarantined digest, then promotes without candidate execution*'
     result_files:
     - junit.xml
     execution_id: quality
