@@ -15,7 +15,7 @@ const release = workflows['release.yml'] as unknown as {
   permissions: Record<string, string>
   jobs: Record<string, { needs?: string; permissions: Record<string, string>; environment?: string; steps: Array<Record<string, unknown>> }>
 }
-const events = (doc: Record<string, unknown>) => (doc['on'] ?? doc[true]) as unknown
+const triggerOf = (doc: Record<string, unknown>) => doc['on']
 
 const allUses: string[] = []
 for (const doc of Object.values(workflows)) {
@@ -118,8 +118,8 @@ describe('ai-skills lock', () => {
 
 describe('workflow event triggers', () => {
   it('keeps release and ci triggers bounded', () => {
-    expect(events(release as unknown as Record<string, unknown>)).toBeDefined()
+    expect(triggerOf(release as unknown as Record<string, unknown>)).toBeDefined()
     const ci = workflows['ci.yml'] as unknown as Record<string, unknown>
-    expect(events(ci)).toBeDefined()
+    expect(triggerOf(ci)).toBeDefined()
   })
 })
