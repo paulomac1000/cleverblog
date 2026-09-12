@@ -12,50 +12,53 @@ const workflowFiles = ['ci.yml', 'codeql.yml', 'release.yml']
 const workflows = Object.fromEntries(
   workflowFiles.map((name) => [name, parse(readFileSync(join(ROOT, '.github', 'workflows', name), 'utf8')) as Record<string, unknown>]),
 )
+type WorkflowJob = {
+  'timeout-minutes'?: number
+  needs?: string | string[]
+  permissions?: Record<string, string>
+  environment?: string
+  steps: Array<Record<string, unknown>>
+}
 const release = workflows['release.yml'] as unknown as {
   permissions: Record<string, string>
   concurrency: Record<string, unknown>
-  jobs: Record<
-    string,
-    {
-      'timeout-minutes'?: number
-      needs?: string
-      permissions?: Record<string, string>
-      environment?: string
-      steps: Array<Record<string, unknown>>
-    }
-  >
+  jobs: Record<string, WorkflowJob>
 }
 
 const jobEntries = (doc: Record<string, unknown>) =>
   Object.entries((doc['jobs'] ?? {}) as Record<string, Record<string, unknown>>)
 
-const stepScripts = (job: Record<string, unknown>) =>
-  ((job['steps'] ?? []) as Array<Record<string, unknown>>)
+const stepScripts = (job: WorkflowJob) =>
+  job.steps
     .map((step) => (typeof step['run'] === 'string' ? step['run'] : ''))
     .join('\n')
 
-const stepUses = (job: Record<string, unknown>) =>
-  ((job['steps'] ?? []) as Array<Record<string, unknown>>)
-    .map((step) => (typeof step['uses'] === 'string' ? step['uses'] : ''))
-    .filter(Boolean)
+const stepUses = (job: WorkflowJob) =>
+  job.steps.map((step) => (typeof step['uses'] === 'string' ? step['uses'] : '')).filter(Boolean)
+
+const stepNames = (job: WorkflowJob) =>
+  job.steps.map((step) => (typeof step.name === 'string' ? step.name : ''))
 
 describe('ai-skills release contract', () => {
   it('separates read-only validation from protected publication', () => {
-    const validate = release.jobs.validate
+    const build = release.jobs.build
+    const stage = release.jobs.stage
     const publish = release.jobs.publish
-    expect(validate).toBeDefined()
+    expect(build).toBeDefined()
+    expect(stage).toBeDefined()
     expect(publish).toBeDefined()
-    expect(publish.needs).toBe('validate')
+    expect(stage.needs).toBe('build')
+    expect(publish.needs).toBe('stage')
     expect(publish.environment).toBe('protected-release')
 
-    const validateScript = stepScripts(validate as unknown as Record<string, unknown>)
-    const validateStepNames = (validate.steps ?? []).map((step) =>
-      typeof step.name === 'string' ? step.name : '',
-    )
-    expect(validateScript).toContain('docker build')
-    expect(validateStepNames).toContain('Stage tested image in quarantine')
-    expect(validateScript).toContain('IMAGE_DIGEST')
+    const buildScript = stepScripts(build)
+    expect(buildScript).toContain('docker build')
+    expect(buildScript).not.toContain('docker push')
+
+    const stageUses = stepUses(stage)
+    expect(stageUses).not.toContain(expect.stringContaining('actions/checkout'))
+    const stageScript = stepScripts(stage)
+    expect(stageScript).toContain('docker push "ghcr.io/paulomac1000/cleverblog-site-quarantine:sha-')
 
     for (const step of publish.steps) {
       const uses = typeof step.uses === 'string' ? step.uses : ''
@@ -65,12 +68,18 @@ describe('ai-skills release contract', () => {
     }
   })
 
-  it('grants packages write only to the publish job and bounds every job', () => {
+  it('bounds every job and reserves production package writes for protected jobs', () => {
     expect(release.permissions).toEqual({ contents: 'read' })
-    expect(release.jobs.validate.permissions).toEqual({ contents: 'read' })
+    expect(release.jobs.build.permissions).toEqual({ contents: 'read' })
+    expect(release.jobs.stage.permissions).toEqual({ contents: 'read', packages: 'write' })
+    expect(release.jobs.stage.environment).toBe('protected-release')
     expect(release.jobs.publish.permissions).toEqual({ contents: 'read', packages: 'write' })
+    expect(release.jobs.publish.environment).toBe('protected-release')
     const ci = workflows['ci.yml'] as unknown as { permissions: Record<string, string> }
     expect(ci.permissions).toEqual({ contents: 'read' })
+
+    const buildScript = stepScripts(release.jobs.build)
+    expect(buildScript).not.toContain('ghcr.io')
 
     for (const doc of Object.values(workflows)) {
       expect(doc).toHaveProperty('concurrency')
@@ -110,30 +119,37 @@ describe('ai-skills release contract', () => {
     expect(existsSync(AUTHORITY)).toBe(true)
     const output = execFileSync(
       'python3',
-      [
-        join(AUTHORITY, 'skills', 'ci-cd-architect', 'tools', 'check_github_actions_policy.py'),
-        ROOT,
-      ],
+      [join(AUTHORITY, 'skills', 'ci-cd-architect', 'tools', 'check_github_actions_policy.py'), ROOT],
       { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
     )
     expect(output).toContain('PASS')
   })
 
-  it('promotes the exact tested digest without executing candidate code in publish', () => {
-    const validateScript = stepScripts(release.jobs.validate as unknown as Record<string, unknown>)
-    expect(validateScript).toContain('quarantine-')
-    expect(validateScript).toContain('docker pull "ghcr.io/paulomac1000/cleverblog-site@${IMAGE_DIGEST}"')
-    expect(validateScript).toMatch(/docker run[\s\S]*cleverblog-site@\$\{IMAGE_DIGEST\}/)
+  it('smokes the exact build and quarantined digest, then promotes without candidate execution', () => {
+    const build = release.jobs.build
+    expect(stepNames(build)).toContain('Smoke exact build')
+    const buildScript = stepScripts(build)
+    expect(buildScript).toContain('cleverblog-site:candidate-${{ github.sha }}"')
+    expect(buildScript).toMatch(/docker run[\s\S]*cleverblog-site:candidate-/)
+    expect(buildScript).toContain('docker save "cleverblog-site:candidate-${{ github.sha }}"')
+
+    const stage = release.jobs.stage
+    const stageScript = stepScripts(stage)
+    expect(stageScript).toContain('docker load --input candidate-image.tar')
+    expect(stageScript).toContain('docker push "ghcr.io/paulomac1000/cleverblog-site-quarantine:sha-${{ github.sha }}"')
+    expect(stageScript).toContain('docker pull "ghcr.io/paulomac1000/cleverblog-site-quarantine@${IMAGE_DIGEST}"')
+    expect(stepNames(stage)).toContain('Smoke exact quarantined digest')
 
     const publish = release.jobs.publish as unknown as Record<string, unknown>
-    const publishUses = stepUses(publish)
-    expect(publishUses).toEqual([
-      expect.stringContaining('actions/download-artifact@'),
-    ])
-    const script = stepScripts(publish)
-    expect(script).toContain('docker buildx imagetools create -t "$SHA_REF" "$DIGEST_REF"')
-    expect(script.indexOf('imagetools create -t "$SHA_REF"')).toBeLessThan(
-      script.indexOf('imagetools create -t "$RELEASE_REF"'),
+    const publishUses = stepUses(publish as WorkflowJob)
+    expect(publishUses).toEqual([expect.stringContaining('actions/download-artifact@')])
+    const script = stepScripts(publish as WorkflowJob)
+    expect(script).toContain('QUARANTINE="ghcr.io/paulomac1000/cleverblog-site-quarantine"')
+    expect(script).toContain('imagetools inspect "${QUARANTINE}@${IMAGE_DIGEST}"')
+    expect(script).toContain('docker buildx imagetools create --prefer-index=false -t "$SHA_REF" "$DIGEST_REF"')
+    expect(script).toContain('docker buildx imagetools create --prefer-index=false -t "$RELEASE_REF" "$DIGEST_REF"')
+    expect(script.indexOf('imagetools create --prefer-index=false -t "$SHA_REF"')).toBeLessThan(
+      script.indexOf('imagetools create --prefer-index=false -t "$RELEASE_REF"'),
     )
     expect(script).toMatch(/refusing to move it/)
     expect(script).toMatch(/test "\$resolved" = "\$IMAGE_DIGEST"/)
