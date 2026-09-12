@@ -20,7 +20,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  validate:
+  build:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
@@ -121,27 +121,10 @@ jobs:
       - name: Ensure media directory in build context
         run: mkdir -p media
 
-      # Publish to a public GHCR package linked to this public repository.
-      - name: Log in to GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
       - name: Build release image once
-        run: docker build -t "ghcr.io/paulomac1000/cleverblog-site:quarantine-${{ github.sha }}" .
+        run: docker build -t "cleverblog-site:candidate-${{ github.sha }}" .
 
-      - name: Stage tested image in quarantine
-        run: docker push "ghcr.io/paulomac1000/cleverblog-site:quarantine-${{ github.sha }}"
-
-      - name: Resolve immutable quarantine digest
-        shell: bash
-        run: |
-          set -euo pipefail
-          DIGEST="$(docker inspect \
-            --format '{{index .RepoDigests 0}}' \
-            "ghcr.io/paulomac1000/cleverblog-site:quarantine-${{ github.sha }}" | cut -d@ -f2)"
-          [[ "$DIGEST" == sha256:* ]] || { echo "Registry did not return a sha256 digest" >&2; exit 1; }
-          echo "IMAGE_DIGEST=$DIGEST" >> "$GITHUB_ENV"
-
-      - name: Smoke exact digest
+      - name: Smoke exact build
         shell: bash
         run: |
           set -euo pipefail
@@ -151,12 +134,11 @@ jobs:
             exit 1
           fi
 
-          docker pull "ghcr.io/paulomac1000/cleverblog-site@${IMAGE_DIGEST}"
           docker run -d --name smoke --network host \
             -e DATABASE_URL=postgres://cleverblog:cleverblog@127.0.0.1:5432/cleverblog \
             -e PAYLOAD_SECRET=smoke-only-secret-smoke-only-secret \
             -e NEXT_PUBLIC_SERVER_URL=http://localhost:3000 \
-            "ghcr.io/paulomac1000/cleverblog-site@${IMAGE_DIGEST}"
+            "cleverblog-site:candidate-${{ github.sha }}"
 
           cleanup() {
             docker rm -f smoke >/dev/null 2>&1 || true
@@ -167,6 +149,106 @@ jobs:
           while (( SECONDS < deadline )); do
             # /api/access is a real Payload REST endpoint that returns 200
             # regardless of database content; bare /api is 404 by design.
+            code="$(curl -fsS -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/api/access || true)"
+            if [[ "$code" == '200' ]]; then
+              cleanup
+              trap - EXIT
+              exit 0
+            fi
+            sleep 5
+          done
+
+          docker logs smoke || true
+          echo 'Smoke test did not return HTTP 200 within 120 seconds' >&2
+          exit 1
+
+      - name: Save candidate image
+        run: docker save "cleverblog-site:candidate-${{ github.sha }}" -o candidate-image.tar
+
+      - name: Upload candidate image
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: candidate-image
+          path: candidate-image.tar
+          if-no-files-found: error
+          retention-days: 1
+
+  stage:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: protected-release
+    permissions:
+      contents: read
+      packages: write
+    services:
+      postgres:
+        image: postgres:17-alpine@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
+        env:
+          POSTGRES_DB: cleverblog
+          POSTGRES_USER: cleverblog
+          POSTGRES_PASSWORD: cleverblog
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cleverblog -d cleverblog"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Download candidate image
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: candidate-image
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Stage candidate in quarantine
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker load --input candidate-image.tar
+          docker tag \
+            "cleverblog-site:candidate-${{ github.sha }}" \
+            "ghcr.io/paulomac1000/cleverblog-site-quarantine:sha-${{ github.sha }}"
+          docker push "ghcr.io/paulomac1000/cleverblog-site-quarantine:sha-${{ github.sha }}"
+
+      - name: Resolve immutable quarantine digest
+        shell: bash
+        run: |
+          set -euo pipefail
+          QUARANTINE="ghcr.io/paulomac1000/cleverblog-site-quarantine"
+          DIGEST="$(docker inspect \
+            --format '{{index .RepoDigests 0}}' \
+            "${QUARANTINE}:sha-${{ github.sha }}" | cut -d@ -f2)"
+          [[ "$DIGEST" == sha256:* ]] || { echo "Registry did not return a sha256 digest" >&2; exit 1; }
+          echo "IMAGE_DIGEST=$DIGEST" >> "$GITHUB_ENV"
+
+      - name: Smoke exact quarantined digest
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if ss -ltn '( sport = :3000 )' | grep -q LISTEN; then
+            echo 'Port 3000 is already in use' >&2
+            exit 1
+          fi
+
+          docker pull "ghcr.io/paulomac1000/cleverblog-site-quarantine@${IMAGE_DIGEST}"
+          docker run -d --name smoke --network host \
+            -e DATABASE_URL=postgres://cleverblog:cleverblog@127.0.0.1:5432/cleverblog \
+            -e PAYLOAD_SECRET=smoke-only-secret-smoke-only-secret \
+            -e NEXT_PUBLIC_SERVER_URL=http://localhost:3000 \
+            "ghcr.io/paulomac1000/cleverblog-site-quarantine@${IMAGE_DIGEST}"
+
+          cleanup() {
+            docker rm -f smoke >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
+          deadline=$((SECONDS + 120))
+          while (( SECONDS < deadline )); do
             code="$(curl -fsS -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/api/access || true)"
             if [[ "$code" == '200' ]]; then
               cleanup
@@ -192,7 +274,7 @@ jobs:
           retention-days: 1
 
   publish:
-    needs: validate
+    needs: stage
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment: protected-release
@@ -216,9 +298,14 @@ jobs:
         run: |
           set -euo pipefail
           IMAGE="ghcr.io/paulomac1000/cleverblog-site"
+          QUARANTINE="ghcr.io/paulomac1000/cleverblog-site-quarantine"
           IMAGE_DIGEST="$(cat tested-image.digest)"
           [[ "$IMAGE_DIGEST" == sha256:* ]] || { echo "Artifact did not contain a sha256 digest" >&2; exit 1; }
-          DIGEST_REF="${IMAGE}@${IMAGE_DIGEST}"
+
+          quarantined="$(docker buildx imagetools inspect "${QUARANTINE}@${IMAGE_DIGEST}" --format '{{.Manifest.Digest}}')"
+          test "$quarantined" = "$IMAGE_DIGEST"
+
+          DIGEST_REF="${QUARANTINE}@${IMAGE_DIGEST}"
           SHA_REF="${IMAGE}:sha-${{ github.sha }}"
           RELEASE_REF="${IMAGE}:${RELEASE_TAG}"
 
@@ -235,9 +322,10 @@ jobs:
             fi
           done
 
-          # Immutable identity first, human pointer last.
-          docker buildx imagetools create -t "$SHA_REF" "$DIGEST_REF"
-          docker buildx imagetools create -t "$RELEASE_REF" "$DIGEST_REF"
+          # Immutable identity first, human pointer last. --prefer-index=false
+          # keeps the single-platform manifest, so the digest survives promotion.
+          docker buildx imagetools create --prefer-index=false -t "$SHA_REF" "$DIGEST_REF"
+          docker buildx imagetools create --prefer-index=false -t "$RELEASE_REF" "$DIGEST_REF"
 
           for ref in "$SHA_REF" "$RELEASE_REF"; do
             resolved="$(expected_digest "$ref")"
