@@ -225,6 +225,14 @@ jobs:
           [[ "$DIGEST" == sha256:* ]] || { echo "Registry did not return a sha256 digest" >&2; exit 1; }
           echo "IMAGE_DIGEST=$DIGEST" >> "$GITHUB_ENV"
 
+      - name: Pull exact quarantined digest
+        run: docker pull "ghcr.io/paulomac1000/cleverblog-site-quarantine@${IMAGE_DIGEST}"
+
+      - name: Drop registry credentials before running the candidate
+        run: |
+          docker logout ghcr.io
+          rm -f ~/.docker/config.json
+
       - name: Smoke exact quarantined digest
         shell: bash
         run: |
@@ -235,7 +243,6 @@ jobs:
             exit 1
           fi
 
-          docker pull "ghcr.io/paulomac1000/cleverblog-site-quarantine@${IMAGE_DIGEST}"
           docker run -d --name smoke --network host \
             -e DATABASE_URL=postgres://cleverblog:cleverblog@127.0.0.1:5432/cleverblog \
             -e PAYLOAD_SECRET=smoke-only-secret-smoke-only-secret \
