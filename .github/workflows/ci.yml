@@ -52,14 +52,14 @@ jobs:
         with:
           node-version: 24.15.0
       - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm test --reporter=default --reporter=junit --outputFile.junit=evidence/junit.xml
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.x
         with:
           repository: paulomac1000/ai-skills
-          ref: 435061ad67ee36d77e01a993bc4f9e4379a29666
+          ref: 44d8d01e4c91da28251e819673b85295739b4513
           path: .ai-skills-authority
           persist-credentials: false
+      - run: pnpm lint
+      - run: pnpm test --reporter=default --reporter=junit --outputFile.junit=evidence/junit.xml
       - name: Write canonical evidence report
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -121,6 +121,8 @@ jobs:
             --event "$EVENT_NAME" \
             --job-name quality \
             --lane quality \
+            --claims-plan contracts/evidence-claim-plan.yaml \
+            --claims-profile repository-rules \
             --dynamic-kind compatibility \
             --dynamic-subject "linux|x64|node|24.15.0|quality" \
             --dynamic-execution-id quality \
