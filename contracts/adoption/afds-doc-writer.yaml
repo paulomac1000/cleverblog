@@ -1,202 +1,223 @@
 schema_version: 1
-verification_mode: structural-attestation
-assessment_id: cleverblog-afds-doc-writer-2851f7b7
-generated_at: '2026-09-05T21:30:00Z'
+verification_mode: provider-backed
+assessment_id: cleverblog-afds-doc-writer-5dbe01a0
+generated_at: '2026-09-12T16:35:00Z'
 prepared_by:
 - provider: github
   login: paulomac1000
   id: 9095484
 repository:
   name: paulomac1000/cleverblog
-  revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-  source_branch: main
+  revision: 5dbe01a05d87e9600159281954727d363bc027cc
+  source_branch: chore/ai-skills-compliance-remediation
 skill:
   name: afds-doc-writer
-  version: 1.4.0
+  version: 2.0.0
   maturity: stable
-  pinned_revision: 435061ad67ee36d77e01a993bc4f9e4379a29666
 scope:
   included:
-  - repository root documents and workflows
+  - repository governance documents, CI/CD workflows, and release contracts
   excluded: []
-  exclusion_rationale: {}
+  exclusion_rationale: []
+compatibility_claims:
+  combinations:
+  - operating_system: linux
+    architecture: x64
+    runtime: node
+    version: 24.15.0
+    lane: quality
 applicability:
 - rule_id: afds.metadata.required
-  status: applicable
-  rationale: metadata present in native form
-  implementation:
-  - path: documents carry H1 + contract paragraphs
-  verification:
-  - command: documents carry H1 + contract paragraphs
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-afds-doc-writer-afds-metadata-required
 - rule_id: afds.governance.profiled
-  status: applicable
-  rationale: standards declaration routes governance
-  implementation:
-  - path: AGENTS.md:3
-  verification:
-  - command: AGENTS.md:3
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-afds-doc-writer-afds-governance-profiled
 - rule_id: afds.structure.links
-  status: applicable
-  rationale: relative AGENTS.md link
-  implementation:
-  - path: README.md:80
-  verification:
-  - command: README.md:80
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-afds-doc-writer-afds-structure-links
 - rule_id: afds.evidence.uncertainty
-  status: applicable
-  rationale: unrecorded history disclosed
-  implementation:
-  - path: CHANGELOG.md:54-56
-  verification:
-  - command: CHANGELOG.md:54-56
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-afds-doc-writer-afds-evidence-uncertainty
 - rule_id: afds.ownership.lifecycle
-  status: applicable
-  rationale: every doc has a durable owner
-  implementation:
-  - path: AGENTS.md:24-34
-  verification:
-  - command: AGENTS.md:24-34
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-afds-doc-writer-afds-ownership-lifecycle
 - rule_id: afds.quality.executable
-  status: applicable
-  rationale: docs shipped with green gate
-  implementation:
-  - path: gate via CI run 33994571401
-  verification:
-  - command: gate via CI run 33994571401
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-afds-doc-writer-afds-quality-executable
 - rule_id: afds.verification.recorded
-  status: applicable
-  rationale: bound to 2851f7b7c6dd776b55520a988639c04f4ac89db4
-  implementation:
-  - path: this assessment
-  verification:
-  - command: this assessment
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-afds-doc-writer-afds-verification-recorded
 behavior:
   preserved:
-  - all existing invariants and gates
+  - existing CI quality gate and CodeQL scanning
+  - tag/digest release contract with operator-authorized deployment
+  - public provenance, publication gate, and moderation invariants
   intentionally_changed:
-  - release contract now tag+digest based
-  - version mirror synced to 0.3.4
-  removed_legacy:
-  - hostname/topology inventory in AGENTS.md policy text
-waivers: []
+  - release workflow split into read-only validation and protected publication
+  - publication transferred to the protected-release environment
+  - ai-skills adoption upgraded from 1.4.0 to 2.0.0 lock state
+  removed_legacy: []
+waivers:
+- waiver_id: wv-afds-doc-writer-afds-metadata-required
+  rule_id: afds.metadata.required
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: &id001
+  - Hosted CI quality gate (lint, vitest, payload migrate, generate:types, tsc, build) runs on every pull
+    request
+  - CodeQL javascript-typescript analysis on pull requests and weekly schedule
+  - GitHub Actions policy audit (ai-skills check_github_actions_policy.py) passes on the tree
+  - Release publication gated behind the protected-release environment with exact-image verification
+  expires_at: '2027-03-12'
+- waiver_id: wv-afds-doc-writer-afds-governance-profiled
+  rule_id: afds.governance.profiled
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
+- waiver_id: wv-afds-doc-writer-afds-structure-links
+  rule_id: afds.structure.links
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
+- waiver_id: wv-afds-doc-writer-afds-evidence-uncertainty
+  rule_id: afds.evidence.uncertainty
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
+- waiver_id: wv-afds-doc-writer-afds-ownership-lifecycle
+  rule_id: afds.ownership.lifecycle
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
+- waiver_id: wv-afds-doc-writer-afds-quality-executable
+  rule_id: afds.quality.executable
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
+- waiver_id: wv-afds-doc-writer-afds-verification-recorded
+  rule_id: afds.verification.recorded
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
 artifact_verification:
-  exact_revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-  artifacts: []
-compatibility_results: []
+  exact_revision: 5dbe01a05d87e9600159281954727d363bc027cc
+  artifacts:
+  - kind: ai-skills-lock
+    identity: ai-skills-lock-2.0.0
+    path: ai-skills.lock.yaml
+    digest: sha256:e810ccf746f069dca5cbf430aa74e6166dab38b0d69a911d58da1542a88e52b0
+    commands:
+    - pnpm test --reporter=default --reporter=junit --outputFile.junit=evidence/junit.xml
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 34695722674
+      job_id: 103558747216
+      check_run_id: 103558747216
+      revision: 5dbe01a05d87e9600159281954727d363bc027cc
+      workflow_id: 344998182
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: pull_request
+      job_name: quality
+      lane: quality
+      artifact_id: 10298018946
+      artifact_name: evidence-report-quality
+      provider_digest: sha256:ad9f4adad7b95039d44543899bd1c09dc9fa6349344e7355d42c665b390cc3a2
+      report_path: report.json
+      report_digest: sha256:864c7eb8a9bf371761e3da0aa43ec45f759ed239e6ac310054a7cc2657f14c0d
+    result: passed
+compatibility_results:
+- operating_system: linux
+  architecture: x64
+  runtime: node
+  version: 24.15.0
+  lane: quality
+  command: '{"argv":["pnpm","test","--reporter=default","--reporter=junit","--outputFile.junit=evidence/junit.xml"],"working_directory":"."}'
+  evidence:
+    provider: github-actions
+    repository: paulomac1000/cleverblog
+    run_id: 34695722674
+    job_id: 103558747216
+    check_run_id: 103558747216
+    revision: 5dbe01a05d87e9600159281954727d363bc027cc
+    workflow_id: 344998182
+    workflow_path: .github/workflows/ci.yml
+    workflow_name: CI
+    event: pull_request
+    job_name: quality
+    lane: quality
+    artifact_id: 10298018946
+    artifact_name: evidence-report-quality
+    provider_digest: sha256:ad9f4adad7b95039d44543899bd1c09dc9fa6349344e7355d42c665b390cc3a2
+    report_path: report.json
+    report_digest: sha256:864c7eb8a9bf371761e3da0aa43ec45f759ed239e6ac310054a7cc2657f14c0d
+  result: passed
 extensions: {}
 rollback:
   trigger_conditions:
-  - release.yml smoke failure on next tag
+  - release workflow fails on the next tag push
+  - provider evidence verification fails on a future assessment regeneration
   procedure:
-  - revert to prior GHCR digest on the VPS
+  - revert the release workflow to the last published digest state
+  - redeploy the previous GHCR image digest recorded by the release run
   data_recovery:
-  - pg_dump -Fc before migrations
+  - pg_dump -Fc backup before any schema migration
 residual_risks:
-- 'provider-backed acceptance pending: branch protection unavailable on private repo
-  without GitHub Pro'
-- release.yml smoke path unexercised until the first tag push after this change
+- risk: External provider-backed acceptance has not been dispatched yet; candidate-local verification
+    is diagnostic.
+  owner: paulomac1000
+  mitigation: Decision stays at request-changes until the authority-owned acceptance workflow runs on
+    this revision.
+  blocking: false
+- risk: The release publish path has not been exercised on a real tag since the validation/publication
+    split.
+  owner: paulomac1000
+  mitigation: Next release tag runs the new workflow; smoke and digest verification gate publication.
+  blocking: false
 decision:
-  status: approve
-  rationale: 'Provider-backed evidence complete: repository public, branch ruleset
-    protect-main active (ruleset id 22368256; required checks quality+security, linear
-    history, no force-push/deletion), CodeQL scanning enabled via .github/workflows/codeql.yml,
-    GitHub secret scanning + push protection + Dependabot security updates + Private
-    Vulnerability Reporting enabled, releases publish digest-verified images to GHCR.'
+  status: request-changes
+  rationale: Structural and provider-backed diagnostics pass on the exact revision, but independent review
+    and external authority acceptance are pending; the decision intentionally stops short of approve.
