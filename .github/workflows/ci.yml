@@ -68,6 +68,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m pip install --quiet pyyaml==6.0.3
+          cp evidence/junit.xml junit.xml
           python3 - <<'PY'
           import hashlib
           import json
@@ -88,7 +89,7 @@ jobs:
               "--outputFile.junit=evidence/junit.xml",
           ]
           working_directory = "."
-          result_path = "evidence/junit.xml"
+          result_path = "junit.xml"
           cases = _junit_cases(__import__("pathlib").Path(result_path))
           record = {
               "format": "ai-skills-execution-record",
