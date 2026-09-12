@@ -1,244 +1,319 @@
 schema_version: 1
-verification_mode: structural-attestation
-assessment_id: cleverblog-ci-cd-architect-2851f7b7
-generated_at: '2026-09-05T21:30:00Z'
+verification_mode: provider-backed
+assessment_id: cleverblog-ci-cd-architect-ca6da9d0
+generated_at: '2026-09-12T19:15:00Z'
 prepared_by:
 - provider: github
   login: paulomac1000
   id: 9095484
 repository:
   name: paulomac1000/cleverblog
-  revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-  source_branch: main
+  revision: ca6da9d0b25ae33ef3fe857c40744bd334e70a91
+  source_branch: chore/ai-skills-compliance-remediation
 skill:
   name: ci-cd-architect
-  version: 1.4.0
+  version: 2.0.0
   maturity: stable
-  pinned_revision: 435061ad67ee36d77e01a993bc4f9e4379a29666
 scope:
   included:
-  - repository root documents and workflows
+  - repository governance documents, CI/CD workflows, and release contracts
   excluded: []
-  exclusion_rationale: {}
+  exclusion_rationale: []
+compatibility_claims:
+  combinations:
+  - operating_system: linux
+    architecture: x64
+    runtime: node
+    version: 24.15.0
+    lane: quality
 applicability:
 - rule_id: cicd.layers.separated
   status: applicable
-  rationale: validation separated from publication
+  rationale: Enforced by the quarantine-digest release promotion workflow and bound to the provider-verified
+    contract test.
   implementation:
-  - path: release.yml vs ci.yml
+  - path: .github/workflows/release.yml
+    symbol: 'needs: stage'
   verification:
-  - command: release.yml vs ci.yml
+  - command: '{"argv":["pnpm","test","--reporter=default","--reporter=junit","--outputFile.junit=evidence/junit.xml"],"working_directory":"."}'
+    test_case: tests/ai-skills-contract.test.ts::ai-skills release contract > separates read-only validation
+      from protected publication
     evidence:
       provider: github-actions
       repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
+      run_id: 34701124419
+      job_id: 103572958025
+      check_run_id: 103572958025
+      revision: ca6da9d0b25ae33ef3fe857c40744bd334e70a91
+      workflow_id: 344998182
       workflow_path: .github/workflows/ci.yml
       workflow_name: CI
-      event: push
+      event: pull_request
       job_name: quality
-      lane: default
+      lane: quality
+      artifact_id: 10300128268
+      artifact_name: evidence-report-quality
+      provider_digest: sha256:d4df462736e2c9f5f8293d19227b98dd8710238ab1c6e5462e41f6d81365a836
+      report_path: report.json
+      report_digest: sha256:d677d6fca613a5901db3a6b429dd0b08b73d34b33d756e55c425264f987ce506
     result: passed
+  waiver_id: null
 - rule_id: cicd.workflow.least-privilege
   status: applicable
-  rationale: permissions, timeout, concurrency, SHA pins, digest-pinned service
+  rationale: Enforced by the quarantine-digest release promotion workflow and bound to the provider-verified
+    contract test.
   implementation:
-  - path: ci.yml:11-21
+  - path: .github/workflows/release.yml
+    symbol: 'packages: write'
   verification:
-  - command: ci.yml:11-21
+  - command: '{"argv":["pnpm","test","--reporter=default","--reporter=junit","--outputFile.junit=evidence/junit.xml"],"working_directory":"."}'
+    test_case: tests/ai-skills-contract.test.ts::ai-skills release contract > bounds every job and reserves
+      production package writes for protected jobs
     evidence:
       provider: github-actions
       repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
+      run_id: 34701124419
+      job_id: 103572958025
+      check_run_id: 103572958025
+      revision: ca6da9d0b25ae33ef3fe857c40744bd334e70a91
+      workflow_id: 344998182
       workflow_path: .github/workflows/ci.yml
       workflow_name: CI
-      event: push
+      event: pull_request
       job_name: quality
-      lane: default
+      lane: quality
+      artifact_id: 10300128268
+      artifact_name: evidence-report-quality
+      provider_digest: sha256:d4df462736e2c9f5f8293d19227b98dd8710238ab1c6e5462e41f6d81365a836
+      report_path: report.json
+      report_digest: sha256:d677d6fca613a5901db3a6b429dd0b08b73d34b33d756e55c425264f987ce506
     result: passed
+  waiver_id: null
 - rule_id: cicd.workflow.profiled
   status: applicable
-  rationale: 'ai-skills-policy-profile: trusted-ci markers'
+  rationale: Enforced by the quarantine-digest release promotion workflow and bound to the provider-verified
+    contract test.
   implementation:
-  - path: ci.yml:2 + release.yml:2
+  - path: .github/workflows/release.yml
+    symbol: 'ai-skills-policy-profile: protected-release'
   verification:
-  - command: ci.yml:2 + release.yml:2
+  - command: '{"argv":["pnpm","test","--reporter=default","--reporter=junit","--outputFile.junit=evidence/junit.xml"],"working_directory":"."}'
+    test_case: tests/ai-skills-contract.test.ts::ai-skills release contract > audits workflows with the
+      pinned policy tool
     evidence:
       provider: github-actions
       repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
+      run_id: 34701124419
+      job_id: 103572958025
+      check_run_id: 103572958025
+      revision: ca6da9d0b25ae33ef3fe857c40744bd334e70a91
+      workflow_id: 344998182
       workflow_path: .github/workflows/ci.yml
       workflow_name: CI
-      event: push
+      event: pull_request
       job_name: quality
-      lane: default
+      lane: quality
+      artifact_id: 10300128268
+      artifact_name: evidence-report-quality
+      provider_digest: sha256:d4df462736e2c9f5f8293d19227b98dd8710238ab1c6e5462e41f6d81365a836
+      report_path: report.json
+      report_digest: sha256:d677d6fca613a5901db3a6b429dd0b08b73d34b33d756e55c425264f987ce506
     result: passed
+  waiver_id: null
 - rule_id: cicd.execution.on-demand
-  status: applicable
-  rationale: workflow_dispatch; push only main; PRs cover branches
-  implementation:
-  - path: ci.yml:4-9
-  verification:
-  - command: ci.yml:4-9
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-ci-cd-architect-cicd-execution-on-demand
 - rule_id: cicd.quality.language
-  status: applicable
-  rationale: lint, test, migrate, types, tsc, build
-  implementation:
-  - path: ci.yml:50-56
-  verification:
-  - command: ci.yml:50-56
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-ci-cd-architect-cicd-quality-language
 - rule_id: cicd.security.documentation
-  status: applicable
-  rationale: 'contents: read least privilege'
-  implementation:
-  - path: ci.yml:11-12
-  verification:
-  - command: ci.yml:11-12
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-ci-cd-architect-cicd-security-documentation
 - rule_id: cicd.release.identity
   status: applicable
-  rationale: single build, smoke, digest to step summary
+  rationale: Enforced by the quarantine-digest release promotion workflow and bound to the provider-verified
+    contract test.
   implementation:
-  - path: release.yml:103-112
+  - path: .github/workflows/release.yml
+    symbol: docker buildx imagetools create
   verification:
-  - command: release.yml:103-112
+  - command: '{"argv":["pnpm","test","--reporter=default","--reporter=junit","--outputFile.junit=evidence/junit.xml"],"working_directory":"."}'
+    test_case: tests/ai-skills-contract.test.ts::ai-skills release contract > smokes the exact build and
+      quarantined digest, then promotes without candidate execution
     evidence:
       provider: github-actions
       repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
+      run_id: 34701124419
+      job_id: 103572958025
+      check_run_id: 103572958025
+      revision: ca6da9d0b25ae33ef3fe857c40744bd334e70a91
+      workflow_id: 344998182
       workflow_path: .github/workflows/ci.yml
       workflow_name: CI
-      event: push
+      event: pull_request
       job_name: quality
-      lane: default
+      lane: quality
+      artifact_id: 10300128268
+      artifact_name: evidence-report-quality
+      provider_digest: sha256:d4df462736e2c9f5f8293d19227b98dd8710238ab1c6e5462e41f6d81365a836
+      report_path: report.json
+      report_digest: sha256:d677d6fca613a5901db3a6b429dd0b08b73d34b33d756e55c425264f987ce506
     result: passed
+  waiver_id: null
 - rule_id: cicd.local.bounded
-  status: applicable
-  rationale: local gate mirrors CI
-  implementation:
-  - path: AGENTS.md:36-38
-  verification:
-  - command: AGENTS.md:36-38
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-ci-cd-architect-cicd-local-bounded
 - rule_id: cicd.verification.recorded
-  status: applicable
-  rationale: green on exact final SHA
-  implementation:
-  - path: run 33994571401
-  verification:
-  - command: run 33994571401
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-ci-cd-architect-cicd-verification-recorded
 behavior:
   preserved:
-  - all existing invariants and gates
+  - existing CI quality gate and CodeQL scanning
+  - tag/digest release contract with operator-authorized deployment
+  - public provenance, publication gate, and moderation invariants
   intentionally_changed:
-  - release contract now tag+digest based
-  - version mirror synced to 0.3.4
-  removed_legacy:
-  - hostname/topology inventory in AGENTS.md policy text
-waivers: []
+  - release workflow split into read-only validation and protected publication
+  - publication transferred to the protected-release environment
+  - ai-skills adoption upgraded from 1.4.0 to 2.0.0 lock state
+  removed_legacy: []
+waivers:
+- waiver_id: wv-ci-cd-architect-cicd-execution-on-demand
+  rule_id: cicd.execution.on-demand
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: &id001
+  - Hosted CI quality gate (lint, vitest, payload migrate, generate:types, tsc, build) runs on every pull
+    request
+  - CodeQL javascript-typescript analysis on pull requests and weekly schedule
+  - GitHub Actions policy audit (ai-skills check_github_actions_policy.py) passes on the tree
+  - Release publication gated behind the protected-release environment with exact-image verification
+  expires_at: '2027-03-12'
+- waiver_id: wv-ci-cd-architect-cicd-quality-language
+  rule_id: cicd.quality.language
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
+- waiver_id: wv-ci-cd-architect-cicd-security-documentation
+  rule_id: cicd.security.documentation
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
+- waiver_id: wv-ci-cd-architect-cicd-local-bounded
+  rule_id: cicd.local.bounded
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
+- waiver_id: wv-ci-cd-architect-cicd-verification-recorded
+  rule_id: cicd.verification.recorded
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
 artifact_verification:
-  exact_revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-  artifacts: []
-compatibility_results: []
+  exact_revision: ca6da9d0b25ae33ef3fe857c40744bd334e70a91
+  artifacts:
+  - kind: ai-skills-lock
+    identity: ai-skills-lock-2.0.0
+    path: ai-skills.lock.yaml
+    digest: sha256:e810ccf746f069dca5cbf430aa74e6166dab38b0d69a911d58da1542a88e52b0
+    commands:
+    - pnpm test --reporter=default --reporter=junit --outputFile.junit=evidence/junit.xml
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 34701124419
+      job_id: 103572958025
+      check_run_id: 103572958025
+      revision: ca6da9d0b25ae33ef3fe857c40744bd334e70a91
+      workflow_id: 344998182
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: pull_request
+      job_name: quality
+      lane: quality
+      artifact_id: 10300128268
+      artifact_name: evidence-report-quality
+      provider_digest: sha256:d4df462736e2c9f5f8293d19227b98dd8710238ab1c6e5462e41f6d81365a836
+      report_path: report.json
+      report_digest: sha256:d677d6fca613a5901db3a6b429dd0b08b73d34b33d756e55c425264f987ce506
+    result: passed
+compatibility_results:
+- operating_system: linux
+  architecture: x64
+  runtime: node
+  version: 24.15.0
+  lane: quality
+  command: '{"argv":["pnpm","test","--reporter=default","--reporter=junit","--outputFile.junit=evidence/junit.xml"],"working_directory":"."}'
+  evidence:
+    provider: github-actions
+    repository: paulomac1000/cleverblog
+    run_id: 34701124419
+    job_id: 103572958025
+    check_run_id: 103572958025
+    revision: ca6da9d0b25ae33ef3fe857c40744bd334e70a91
+    workflow_id: 344998182
+    workflow_path: .github/workflows/ci.yml
+    workflow_name: CI
+    event: pull_request
+    job_name: quality
+    lane: quality
+    artifact_id: 10300128268
+    artifact_name: evidence-report-quality
+    provider_digest: sha256:d4df462736e2c9f5f8293d19227b98dd8710238ab1c6e5462e41f6d81365a836
+    report_path: report.json
+    report_digest: sha256:d677d6fca613a5901db3a6b429dd0b08b73d34b33d756e55c425264f987ce506
+  result: passed
 extensions: {}
 rollback:
   trigger_conditions:
-  - release.yml smoke failure on next tag
+  - release workflow fails on the next tag push
+  - provider evidence verification fails on a future assessment regeneration
   procedure:
-  - revert to prior GHCR digest on the VPS
+  - revert the release workflow to the last published digest state
+  - redeploy the previous GHCR image digest recorded by the release run
   data_recovery:
-  - pg_dump -Fc before migrations
+  - pg_dump -Fc backup before any schema migration
 residual_risks:
-- 'provider-backed acceptance pending: branch protection unavailable on private repo
-  without GitHub Pro'
-- release.yml smoke path unexercised until the first tag push after this change
+- risk: External provider-backed acceptance has not been dispatched yet; candidate-local verification
+    is diagnostic.
+  owner: paulomac1000
+  mitigation: Decision stays at request-changes until the authority-owned acceptance workflow runs on
+    this revision.
+  blocking: false
+- risk: The release publish path has not been exercised on a real tag since the validation/publication
+    split.
+  owner: paulomac1000
+  mitigation: Next release tag runs the new workflow; smoke and digest verification gate publication.
+  blocking: false
 decision:
-  status: approve
-  rationale: 'Provider-backed evidence complete: repository public, branch ruleset
-    protect-main active (ruleset id 22368256; required checks quality+security, linear
-    history, no force-push/deletion), CodeQL scanning enabled via .github/workflows/codeql.yml,
-    GitHub secret scanning + push protection + Dependabot security updates + Private
-    Vulnerability Reporting enabled, releases publish digest-verified images to GHCR.'
+  status: request-changes
+  rationale: Structural and provider-backed diagnostics pass on the exact revision, but independent review
+    and external authority acceptance are pending; the decision intentionally stops short of approve.

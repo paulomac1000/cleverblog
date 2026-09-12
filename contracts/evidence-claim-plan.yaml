@@ -1,0 +1,41 @@
+format: ai-skills-claim-plan
+profiles:
+  repository-rules:
+  - kind: rule
+    subject: cicd.layers.separated
+    selectors:
+    - '*separates read-only validation from protected publication*'
+    result_files:
+    - junit.xml
+    execution_id: quality
+  - kind: rule
+    subject: cicd.workflow.least-privilege
+    selectors:
+    - '*bounds every job and reserves production package writes for protected jobs*'
+    result_files:
+    - junit.xml
+    execution_id: quality
+  - kind: rule
+    subject: cicd.workflow.profiled
+    selectors:
+    - '*audits workflows with the pinned policy tool*'
+    result_files:
+    - junit.xml
+    execution_id: quality
+  - kind: rule
+    subject: cicd.release.identity
+    selectors:
+    - '*smokes the exact build and quarantined digest, then promotes without candidate execution*'
+    result_files:
+    - junit.xml
+    execution_id: quality
+  - kind: artifact
+    subject: ai-skills-lock-2.0.0
+    selectors:
+    - '*declares adopted skills with immutable revisions and matching standard digests*'
+    result_files:
+    - junit.xml
+    execution_id: quality
+    content_path: ai-skills.lock.yaml
+    commands:
+    - pnpm test --reporter=default --reporter=junit --outputFile.junit=evidence/junit.xml

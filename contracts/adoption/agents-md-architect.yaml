@@ -1,272 +1,265 @@
 schema_version: 1
-verification_mode: structural-attestation
-assessment_id: cleverblog-agents-md-architect-2851f7b7
-generated_at: '2026-09-05T21:30:00Z'
+verification_mode: provider-backed
+assessment_id: cleverblog-agents-md-architect-ca6da9d0
+generated_at: '2026-09-12T19:15:00Z'
 prepared_by:
 - provider: github
   login: paulomac1000
   id: 9095484
 repository:
   name: paulomac1000/cleverblog
-  revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-  source_branch: main
+  revision: ca6da9d0b25ae33ef3fe857c40744bd334e70a91
+  source_branch: chore/ai-skills-compliance-remediation
 skill:
   name: agents-md-architect
-  version: 1.4.0
+  version: 2.0.0
   maturity: stable
-  pinned_revision: 435061ad67ee36d77e01a993bc4f9e4379a29666
 scope:
   included:
-  - repository root documents and workflows
-  excluded:
-  - mcp-server-architect
-  - mcp-server-consumer
-  exclusion_rationale:
-    mcp-server-architect: cleverblog consumes the official Payload MCP plugin; it
-      does not implement an MCP server
-    mcp-server-consumer: 'applicability deferred: consumer-side usage is governed
-      by AGENTS.md invariants (MCP delete disabled, plugin-only transport); full consumer
-      assessment deferred with this rationale'
+  - repository governance documents, CI/CD workflows, and release contracts
+  excluded: []
+  exclusion_rationale: []
+compatibility_claims:
+  combinations:
+  - operating_system: linux
+    architecture: x64
+    runtime: node
+    version: 24.15.0
+    lane: quality
 applicability:
 - rule_id: agents.scope.precedence
-  status: applicable
-  rationale: documented scope + precedence + fail-closed
-  implementation:
-  - path: AGENTS.md:2
-  verification:
-  - command: AGENTS.md:2
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-agents-md-architect-agents-scope-precedence
 - rule_id: agents.discovery.evidence
-  status: applicable
-  rationale: gate commands verified in CI run
-  implementation:
-  - path: AGENTS.md:37
-  verification:
-  - command: AGENTS.md:37
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-agents-md-architect-agents-discovery-evidence
 - rule_id: agents.modes.profiled
-  status: applicable
-  rationale: operator-authorized release/deploy modes
-  implementation:
-  - path: AGENTS.md:40-44
-  verification:
-  - command: AGENTS.md:40-44
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-agents-md-architect-agents-modes-profiled
 - rule_id: agents.ownership.boundaries
-  status: applicable
-  rationale: canonical owners as durable paths
-  implementation:
-  - path: AGENTS.md:24-34
-  verification:
-  - command: AGENTS.md:24-34
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-agents-md-architect-agents-ownership-boundaries
 - rule_id: agents.safety.fail-closed
-  status: applicable
-  rationale: invariants incl. MCP delete + secrets
-  implementation:
-  - path: AGENTS.md:6-14
-  verification:
-  - command: AGENTS.md:6-14
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-agents-md-architect-agents-safety-fail-closed
 - rule_id: agents.commands.executable
-  status: applicable
-  rationale: same gate executes green in CI
-  implementation:
-  - path: AGENTS.md:36-38
-  verification:
-  - command: AGENTS.md:36-38
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-agents-md-architect-agents-commands-executable
 - rule_id: agents.context.routed
-  status: applicable
-  rationale: task-routed owners, no encyclopedia
-  implementation:
-  - path: AGENTS.md:24-34
-  verification:
-  - command: AGENTS.md:24-34
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-agents-md-architect-agents-context-routed
 - rule_id: agents.nested.locality
-  status: applicable
-  rationale: no nested files needed at this scale
-  implementation:
-  - path: AGENTS.md (single layout)
-  verification:
-  - command: AGENTS.md (single layout)
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-agents-md-architect-agents-nested-locality
 - rule_id: agents.drift.prevented
-  status: applicable
-  rationale: volatile facts removed from policy text
-  implementation:
-  - path: CHANGELOG.md contract
-  verification:
-  - command: CHANGELOG.md contract
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-agents-md-architect-agents-drift-prevented
 - rule_id: agents.completion.evidenced
-  status: applicable
-  rationale: completion = local gate + CI green on exact SHA
-  implementation:
-  - path: .github/workflows/ci.yml
-  verification:
-  - command: .github/workflows/ci.yml
-    evidence:
-      provider: github-actions
-      repository: paulomac1000/cleverblog
-      run_id: 33994571401
-      job_id: 33994571401
-      check_run_id: 33994571401
-      revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-      workflow_id: 33994571401
-      workflow_path: .github/workflows/ci.yml
-      workflow_name: CI
-      event: push
-      job_name: quality
-      lane: default
-    result: passed
+  status: deferred
+  rationale: Consumer contract tests for this rule are not authored yet; provider-backed evidence pending.
+  implementation: []
+  verification: []
+  waiver_id: wv-agents-md-architect-agents-completion-evidenced
 behavior:
   preserved:
-  - all existing invariants and gates
+  - existing CI quality gate and CodeQL scanning
+  - tag/digest release contract with operator-authorized deployment
+  - public provenance, publication gate, and moderation invariants
   intentionally_changed:
-  - release contract now tag+digest based
-  - version mirror synced to 0.3.4
-  removed_legacy:
-  - hostname/topology inventory in AGENTS.md policy text
-waivers: []
+  - release workflow split into read-only validation and protected publication
+  - publication transferred to the protected-release environment
+  - ai-skills adoption upgraded from 1.4.0 to 2.0.0 lock state
+  removed_legacy: []
+waivers:
+- waiver_id: wv-agents-md-architect-agents-scope-precedence
+  rule_id: agents.scope.precedence
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: &id001
+  - Hosted CI quality gate (lint, vitest, payload migrate, generate:types, tsc, build) runs on every pull
+    request
+  - CodeQL javascript-typescript analysis on pull requests and weekly schedule
+  - GitHub Actions policy audit (ai-skills check_github_actions_policy.py) passes on the tree
+  - Release publication gated behind the protected-release environment with exact-image verification
+  expires_at: '2027-03-12'
+- waiver_id: wv-agents-md-architect-agents-discovery-evidence
+  rule_id: agents.discovery.evidence
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
+- waiver_id: wv-agents-md-architect-agents-modes-profiled
+  rule_id: agents.modes.profiled
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
+- waiver_id: wv-agents-md-architect-agents-ownership-boundaries
+  rule_id: agents.ownership.boundaries
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
+- waiver_id: wv-agents-md-architect-agents-safety-fail-closed
+  rule_id: agents.safety.fail-closed
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
+- waiver_id: wv-agents-md-architect-agents-commands-executable
+  rule_id: agents.commands.executable
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
+- waiver_id: wv-agents-md-architect-agents-context-routed
+  rule_id: agents.context.routed
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
+- waiver_id: wv-agents-md-architect-agents-nested-locality
+  rule_id: agents.nested.locality
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
+- waiver_id: wv-agents-md-architect-agents-drift-prevented
+  rule_id: agents.drift.prevented
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
+- waiver_id: wv-agents-md-architect-agents-completion-evidenced
+  rule_id: agents.completion.evidenced
+  owner: paulomac1000
+  rationale: Provider-backed rule evidence is not yet produced for this rule; the consumer contract suite
+    currently binds the release-workflow rules only. Deferred with an owned waiver instead of claiming
+    unverified conformance.
+  compensating_controls: *id001
+  expires_at: '2027-03-12'
 artifact_verification:
-  exact_revision: 2851f7b7c6dd776b55520a988639c04f4ac89db4
-  artifacts: []
-compatibility_results: []
+  exact_revision: ca6da9d0b25ae33ef3fe857c40744bd334e70a91
+  artifacts:
+  - kind: ai-skills-lock
+    identity: ai-skills-lock-2.0.0
+    path: ai-skills.lock.yaml
+    digest: sha256:e810ccf746f069dca5cbf430aa74e6166dab38b0d69a911d58da1542a88e52b0
+    commands:
+    - pnpm test --reporter=default --reporter=junit --outputFile.junit=evidence/junit.xml
+    evidence:
+      provider: github-actions
+      repository: paulomac1000/cleverblog
+      run_id: 34701124419
+      job_id: 103572958025
+      check_run_id: 103572958025
+      revision: ca6da9d0b25ae33ef3fe857c40744bd334e70a91
+      workflow_id: 344998182
+      workflow_path: .github/workflows/ci.yml
+      workflow_name: CI
+      event: pull_request
+      job_name: quality
+      lane: quality
+      artifact_id: 10300128268
+      artifact_name: evidence-report-quality
+      provider_digest: sha256:d4df462736e2c9f5f8293d19227b98dd8710238ab1c6e5462e41f6d81365a836
+      report_path: report.json
+      report_digest: sha256:d677d6fca613a5901db3a6b429dd0b08b73d34b33d756e55c425264f987ce506
+    result: passed
+compatibility_results:
+- operating_system: linux
+  architecture: x64
+  runtime: node
+  version: 24.15.0
+  lane: quality
+  command: '{"argv":["pnpm","test","--reporter=default","--reporter=junit","--outputFile.junit=evidence/junit.xml"],"working_directory":"."}'
+  evidence:
+    provider: github-actions
+    repository: paulomac1000/cleverblog
+    run_id: 34701124419
+    job_id: 103572958025
+    check_run_id: 103572958025
+    revision: ca6da9d0b25ae33ef3fe857c40744bd334e70a91
+    workflow_id: 344998182
+    workflow_path: .github/workflows/ci.yml
+    workflow_name: CI
+    event: pull_request
+    job_name: quality
+    lane: quality
+    artifact_id: 10300128268
+    artifact_name: evidence-report-quality
+    provider_digest: sha256:d4df462736e2c9f5f8293d19227b98dd8710238ab1c6e5462e41f6d81365a836
+    report_path: report.json
+    report_digest: sha256:d677d6fca613a5901db3a6b429dd0b08b73d34b33d756e55c425264f987ce506
+  result: passed
 extensions: {}
 rollback:
   trigger_conditions:
-  - release.yml smoke failure on next tag
+  - release workflow fails on the next tag push
+  - provider evidence verification fails on a future assessment regeneration
   procedure:
-  - revert to prior GHCR digest on the VPS
+  - revert the release workflow to the last published digest state
+  - redeploy the previous GHCR image digest recorded by the release run
   data_recovery:
-  - pg_dump -Fc before migrations
+  - pg_dump -Fc backup before any schema migration
 residual_risks:
-- 'provider-backed acceptance pending: branch protection unavailable on private repo
-  without GitHub Pro'
-- release.yml smoke path unexercised until the first tag push after this change
+- risk: External provider-backed acceptance has not been dispatched yet; candidate-local verification
+    is diagnostic.
+  owner: paulomac1000
+  mitigation: Decision stays at request-changes until the authority-owned acceptance workflow runs on
+    this revision.
+  blocking: false
+- risk: The release publish path has not been exercised on a real tag since the validation/publication
+    split.
+  owner: paulomac1000
+  mitigation: Next release tag runs the new workflow; smoke and digest verification gate publication.
+  blocking: false
 decision:
-  status: approve
-  rationale: 'Provider-backed evidence complete: repository public, branch ruleset
-    protect-main active (ruleset id 22368256; required checks quality+security, linear
-    history, no force-push/deletion), CodeQL scanning enabled via .github/workflows/codeql.yml,
-    GitHub secret scanning + push protection + Dependabot security updates + Private
-    Vulnerability Reporting enabled, releases publish digest-verified images to GHCR.'
+  status: request-changes
+  rationale: Structural and provider-backed diagnostics pass on the exact revision, but independent review
+    and external authority acceptance are pending; the decision intentionally stops short of approve.
