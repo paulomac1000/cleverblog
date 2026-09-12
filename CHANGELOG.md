@@ -4,6 +4,23 @@ Notable consumer- and operator-visible changes are recorded here. The release bo
 
 ## [Unreleased]
 
+## [0.3.13] - 2026-09-12
+
+### Added
+- ai-skills 2.0.0 adoption: pinned standard lock, a contract test suite covering the workflow trust properties and standard digests, and a CI evidence pipeline that produces a canonical, provider-verifiable evidence report on every pull request.
+
+### Changed
+- The release pipeline is now three-stage: a read-only build that smoke-tests the candidate image, a staging step that pushes it to an isolated GHCR quarantine package and smoke-tests the exact immutable registry digest, and a protected publication job that promotes that tested digest registry-to-registry. Publication targets the `protected-release` environment, writes the `sha-<sha>` identity before the release tag, verifies both tags remotely, and refuses to move an existing immutable tag.
+- The production Node base image is pinned by digest.
+- CodeQL runs with bounded concurrency; the CI quality job holds only the token scopes it needs.
+
+### Security
+- Release publication requires the `protected-release` environment, and registry credentials are dropped before the candidate image is executed.
+- The release tag must resolve to the released revision and be reachable from `main` for both tag pushes and manual dispatch.
+
+### Fixed
+- Manual release dispatch no longer accepts a tag that does not resolve to the dispatched revision on `main`.
+
 ## [0.3.12] - 2026-09-09
 
 ### Fixed
