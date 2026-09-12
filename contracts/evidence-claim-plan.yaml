@@ -11,7 +11,7 @@ profiles:
   - kind: rule
     subject: cicd.workflow.least-privilege
     selectors:
-    - '*grants packages write only to the publish job*'
+    - '*bounds every job and reserves production package writes for protected jobs*'
     result_files:
     - junit.xml
     execution_id: quality
