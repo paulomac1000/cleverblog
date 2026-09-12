@@ -93,9 +93,6 @@ jobs:
             exit 1
           fi
 
-      - name: Log in to GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.x
         with:
           version: 10.15.0
@@ -215,10 +212,16 @@ jobs:
             --format '{{.Id}}')"
           test "$actual_id" = "$expected_id"
 
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
       - name: Publish immutable release image
         shell: bash
         run: |
           set -euo pipefail
+          docker tag \
+            "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}" \
+            "ghcr.io/paulomac1000/cleverblog-site:sha-${{ github.sha }}"
           docker push "ghcr.io/paulomac1000/cleverblog-site:${RELEASE_TAG}"
           docker push "ghcr.io/paulomac1000/cleverblog-site:sha-${{ github.sha }}"
 
