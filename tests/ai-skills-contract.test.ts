@@ -28,17 +28,17 @@ const release = workflows['release.yml'] as unknown as {
 }
 
 const jobEntries = (doc: Record<string, unknown>) =>
-  Object.entries(((doc['jobs'] ?? {}) as Record<string, Record<string, unknown>>) ?? {})
+  Object.entries((doc['jobs'] ?? {}) as Record<string, Record<string, unknown>>)
 
 const stepScripts = (job: Record<string, unknown>) =>
-  (((job['steps'] ?? []) as Array<Record<string, unknown>>).map((step) =>
-    typeof step['run'] === 'string' ? step['run'] : '',
-  ) as string[]).join('\n')
+  ((job['steps'] ?? []) as Array<Record<string, unknown>>)
+    .map((step) => (typeof step['run'] === 'string' ? step['run'] : ''))
+    .join('\n')
 
 const stepUses = (job: Record<string, unknown>) =>
-  (((job['steps'] ?? []) as Array<Record<string, unknown>>).map((step) =>
-    typeof step['uses'] === 'string' ? step['uses'] : '',
-  ) as string[]).filter(Boolean)
+  ((job['steps'] ?? []) as Array<Record<string, unknown>>)
+    .map((step) => (typeof step['uses'] === 'string' ? step['uses'] : ''))
+    .filter(Boolean)
 
 describe('ai-skills release contract', () => {
   it('separates read-only validation from protected publication', () => {
